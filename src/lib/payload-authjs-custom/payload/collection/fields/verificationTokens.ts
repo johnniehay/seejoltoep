@@ -1,0 +1,28 @@
+import type { Field } from "payload";
+
+/**
+ * Verification tokens field for a user
+ *
+ * @see https://authjs.dev/concepts/database-models
+ */
+export const verificationTokensField: Field = {
+  name: "verificationTokens",
+  type: "array",
+  fields: [
+    {
+      type: "row",
+      fields: [
+        { name: "token", type: "text", required: true, index: true },
+        { name: "expires", type: "date", required: true },
+        { name: "uses_remaining", type: "number",required: true,defaultValue:5}
+      ],
+    },
+  ],
+  admin: {
+    initCollapsed: true,
+  },
+  access: {
+    create: () => false,
+    update: () => false,
+  },
+};
