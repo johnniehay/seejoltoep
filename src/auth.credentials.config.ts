@@ -24,6 +24,7 @@ export const credentialsConfig: CredentialsConfig = {
           password: credentials.password,
         } as AuthOperationsFromCollectionSlug<"users">["login"],
       });
+      if (!user) throw Error(`User not found for ${credentials.email}`)
       payload.logger.warn(`succesful login of ${user.email} exp ${exp} token ${token}`)
       return user;
     } catch (e) {

@@ -12,6 +12,7 @@ export const mergeLede = authActionClient
   .schema(z.array(z.string()), {handleValidationErrorsShape: async (ve, utils) => flattenValidationErrors(ve).fieldErrors})
   .action(async ({ parsedInput: mergeledeids, ctx: { user, payload } }) => {
     console.log("merge",mergeledeids)
+    throw Error("merge not implemented")
     const hasRolePerm = hasPermissionReq("update:lede",user) && hasPermissionReq("remove:lede",user)
     const divisieleierdivisieids = await divisieleierdivisiesquery(user, payload) as string[]
     if (!hasRolePerm && divisieleierdivisieids.length === 0)
@@ -26,7 +27,7 @@ export const mergeLede = authActionClient
     console.log("Merging base",basep,"rem", remp)
     if (basep.user && remp.user && basep.user !== remp.user) return {error:"Two lede with linked users can't be merged"}
     const ifeqelsecomb = <A extends string|null|undefined>(a: A, b: A) => a === b ? a : (a && b) ? a + b : a ?? b;
-    const updata: Omit<typeof p1,"id"|"createdAt"|"updatedAt"> = {
+    const updata/*: Omit<typeof p1,"id"|"createdAt"|"updatedAt">*/ = {
       //TODO: fix merge lede
       // name: ifeqelsecomb(basep.name, remp.name),
       // divisie: basep.divisie ?? remp.divisie,

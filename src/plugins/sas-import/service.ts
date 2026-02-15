@@ -468,7 +468,7 @@ export class SasImportService {
     const transformedSasData = sasData.map((obj, index) => ({
       ...this.transformSasObject(obj),
       originalIndex: index,
-    }) as { originalIndex: number, [key: string]: any })
+    }) as { originalIndex: number, geboortedatum: any, [key: string]: any })
 
     // Filter out items that didn't map to a key field
     const validData = transformedSasData.filter(d => d[this.keyField])
