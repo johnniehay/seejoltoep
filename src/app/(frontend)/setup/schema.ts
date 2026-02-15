@@ -18,6 +18,17 @@ export const MemberSchema = z.object({
   status: z.string().optional()
 })
 
+export const SettingsSchema = z.object({
+  tipe: z.enum(["Verkenner", "Offisier", "Ouer"]),
+  hasYouth: z.boolean().optional(),
+  isSelfMember: z.boolean().optional(),
+})
+
+export const LidFormSchema = z.object({
+  lid_nommer: lidNommerSchema,
+  dob: dobSchema,
+})
+
 export const SetupSchema = z.discriminatedUnion("tipe", [
   z.object({
     tipe: z.literal("Verkenner"),

@@ -103,6 +103,7 @@ export const Users: CollectionConfig = {
       label: "Kandidaat Gekoppelde Lede",
       admin: { readOnly: true },
       fields: [
+        { name: "row_id", type: "text", admin: { readOnly: true } },
         { name: "lid_nommer", type: "text", label: "Lidnommer" },
         { name: "dob", type: "date", label: "Geboortedatum" },
         { name: "invalid_dob", type: "checkbox", label: "Ongeldige Geboortedatum" }

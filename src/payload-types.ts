@@ -498,6 +498,7 @@ export interface User {
   candidate_self_lid_invalid_dob?: boolean | null;
   candidate_gekoppelde_lede?:
     | {
+        row_id?: string | null;
         lid_nommer?: string | null;
         dob?: string | null;
         invalid_dob?: boolean | null;
@@ -1466,6 +1467,7 @@ export interface UsersSelect<T extends boolean = true> {
   candidate_gekoppelde_lede?:
     | T
     | {
+        row_id?: T;
         lid_nommer?: T;
         dob?: T;
         invalid_dob?: T;
