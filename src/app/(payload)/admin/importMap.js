@@ -35,7 +35,7 @@ import { RowLabel as RowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/
 import { Logo as Logo_a0bd5f2fa532ef2166f77171a2b9828a } from '@/components/Logo/Logo'
 import { SignInButtonWebauthn as SignInButtonWebauthn_39ad1cdbf6aa2f97589820b2ab72a1b1 } from 'payload-authjs/components/webauthn'
 import { SignInWithAuthjsButton as SignInWithAuthjsButton_2a8819aa618ba6a123fe37b734a8c5a1 } from '@/components/SignInWithAuthjsButton'
-import { default as default_067161cfe1ae3546c779166f159d05bf } from '@/providers/PuckProvider'
+import { default as default_116afe01689361f25bab019beee1ee0a } from '@/components/admin/PuckProvider'
 import { PuckEditorView as PuckEditorView_3b27b37268b8e78cccc06ea6de889aa6 } from '@delmaredigital/payload-puck/rsc'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -77,7 +77,7 @@ export const importMap = {
   "@/components/Logo/Logo#Logo": Logo_a0bd5f2fa532ef2166f77171a2b9828a,
   "payload-authjs/components/webauthn#SignInButtonWebauthn": SignInButtonWebauthn_39ad1cdbf6aa2f97589820b2ab72a1b1,
   "@/components/SignInWithAuthjsButton#SignInWithAuthjsButton": SignInWithAuthjsButton_2a8819aa618ba6a123fe37b734a8c5a1,
-  "@/providers/PuckProvider#default": default_067161cfe1ae3546c779166f159d05bf,
+  "@/components/admin/PuckProvider#default": default_116afe01689361f25bab019beee1ee0a,
   "@delmaredigital/payload-puck/rsc#PuckEditorView": PuckEditorView_3b27b37268b8e78cccc06ea6de889aa6,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

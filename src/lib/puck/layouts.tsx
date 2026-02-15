@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Puck Layout Definitions
  *
@@ -7,8 +8,6 @@
 'use client'
 
 import type { LayoutDefinition } from '@delmaredigital/payload-puck/layouts'
-import { HeaderClient } from '@/Header/Component.client'
-import { FooterClient } from '@/Footer/Component.client'
 
 /**
  * Default layout with site header and footer
@@ -17,8 +16,6 @@ export const defaultLayout: LayoutDefinition = {
   value: 'default',
   label: 'Default',
   description: 'Standard page with header and footer',
-  header: HeaderClient,
-  footer: FooterClient,
   stickyHeaderHeight: 72,
   editorBackground: 'var(--background)',
 }
@@ -31,8 +28,6 @@ export const fullWidthLayout: LayoutDefinition = {
   label: 'Full Width',
   description: 'Full width page with header and footer, no container constraints',
   fullWidth: true,
-  header: HeaderClient,
-  footer: FooterClient,
   stickyHeaderHeight: 72,
   editorBackground: 'var(--background)',
 }

@@ -49,7 +49,7 @@ export const plugins: Plugin[] = [
     collectionOverrides: {access:{readVersions: () =>true, read: () =>true}},
     layouts: puckLayoutOptions,
     editorStylesheet: 'src/app/(frontend)/globals.css',
-    editorStylesheetCompiled: '/puck-editor-styles.css', // Pre-compiled by withPuckCSS at build time
+    // editorStylesheetCompiled: '/puck-editor-styles.css', // Pre-compiled by withPuckCSS at build time
   }),
   redirectsPlugin({
     collections: ['pages', 'posts'],

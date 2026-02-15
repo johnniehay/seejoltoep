@@ -38,7 +38,7 @@ export default buildConfig({
             Logo: "@/components/Logo/Logo#Logo",
             Icon: "@/components/Logo/Logo#Logo",
           },
-          providers: ['@/providers/PuckProvider'],
+          providers: ['@/components/admin/PuckProvider'],
         },
         routes: {
           login: "/../signin",
