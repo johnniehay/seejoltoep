@@ -14,11 +14,11 @@ export default function ScanTestHome() {
     <QRTextbox/>
     <QRScanButton/>
     <div className="bg-white">
-    <QRCodeSVG width={undefined} height="82px" marginSize={4} value="https://dev.seejol.cids.org.za/lid/6964260a7265855279a099bf"/>
-    <QRCodeSVG width={undefined} height="102.5px" marginSize={4} value="https://dev.seejol.cids.org.za/test/inklok/696690c0a64344e0bacef518/scan"/>
-    <QRCodeSVG width={undefined} height="123px" marginSize={4} value="https://dev.seejol.cids.org.za/lid/6964260a7265855279a099bf"/>
-    <DownloadableQRCodeSVG width={undefined} height="143.5px" marginSize={4} value="https://dev.seejol.cids.org.za/lid/6964260a7265855279a099bf"/>
-    <QRCodeSVG width={undefined} height="164px" marginSize={4} value="https://dev.seejol.cids.org.za/lid/6964260a7265855279a099bf"/>
+    <QRCodeSVG width={undefined} height="82px" marginSize={4} value="https://dev.seejol.voortrekkers.co.za/lid/133889"/>
+    <QRCodeSVG width={undefined} height="102.5px" marginSize={4} value="https://dev.seejol.voortrekkers.co.za/lid/133889"/>
+    <QRCodeSVG width={undefined} height="123px" marginSize={4} value="https://dev.seejol.voortrekkers.co.za/lid/133889"/>
+    <DownloadableQRCodeSVG width={undefined} height="143.5px" className={"max-w-[150px]"} marginSize={4} value="https://dev.seejol.voortrekkers.co.za/lid/133889"/>
+    <QRCodeSVG width={undefined} height="164px" marginSize={4} value="https://dev.seejol.voortrekkers.co.za/lid/133889"/>
     </div>
   </QRScannerModalProvider>)
 }

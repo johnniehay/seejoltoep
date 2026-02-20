@@ -22,9 +22,9 @@ export default function DownloadableQRCodeSVG(props : ComponentProps<typeof QRCo
   },[qrref])
   // return (<a download="filename.svg" href={svgdataurl}><QRCodeSVG ref={qrref} {...props}/></a>)
   return (
-    <div>
+    <div className={props.className} style={props.style}>
       { svgdataurl.length > 0 ?
-        <img alt={typeof props.value === "string" ? props.value : props.value[0]} src={svgdataurl}/> :
-        <QRCodeSVG ref={qrref} width={props.width} {...props}/>}
+        <img className="w-full h-full" alt={typeof props.value === "string" ? props.value : props.value[0]} src={svgdataurl}/> :
+        <QRCodeSVG className="w-full h-full" width="100%" height="100%" ref={qrref} {...props}/>}
     </div>)
 }
