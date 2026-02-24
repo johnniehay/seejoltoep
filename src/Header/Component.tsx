@@ -14,10 +14,11 @@ export async function Header() {
   const user = session?.user
 
   const showSetup = (user && (!user.role || user.role.length === 0))
+  const userData = {name: user?.name, email: user?.email, image: user?.image}
 
   return (
     <>
-      <HeaderClient data={headerData} />
+      <HeaderClient data={headerData} userData={userData} setupSlot={<SetupPage />} />
       {showSetup && <SetupModal>
         <SetupPage />
       </SetupModal>

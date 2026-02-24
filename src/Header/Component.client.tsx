@@ -9,12 +9,20 @@ import type { Header } from '@/payload-types'
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
 import ServiceWorkerManager from "@/components/service-worker-manager";
+import { UserMenu } from "@/Header/UserMenu";
 
-interface HeaderClientProps {
+export interface HeaderClientProps {
   data: Header
+  userData: {
+    name: string | null | undefined,
+    email: string | null | undefined,
+    image: string | null | undefined
+  },
+  setupSlot?: React.ReactNode
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
+
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setupSlot }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
@@ -33,11 +41,14 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   return (
     <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
       <div className="py-8 flex justify-between">
-        <Link href="/">
-          <Logo loading="eager" priority="high" /*className="invert dark:invert-0"*/ />
-        </Link>
-        <Link href="/">Seejol App</Link>
         <HeaderNav data={data} />
+        <div className="flex items-center">
+          <Link href="/">
+            <Logo loading="eager" priority="high" /*className="invert dark:invert-0"*/ />
+          </Link>
+          <Link href="/">Seejol App</Link>
+        </div>
+        { userData.name && <UserMenu userData={userData} setupSlot={setupSlot} />}
       </div>
       <ServiceWorkerManager />
     </header>
