@@ -711,6 +711,7 @@ export interface Presensie {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  verwagte_lede?: (string | Lede)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1627,6 +1628,7 @@ export interface PresensieSelect<T extends boolean = true> {
   abbreviation?: T;
   presensie_tipe?: T;
   inklokke?: T;
+  verwagte_lede?: T;
   updatedAt?: T;
   createdAt?: T;
 }

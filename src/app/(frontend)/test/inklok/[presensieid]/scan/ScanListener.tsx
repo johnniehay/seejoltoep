@@ -1,20 +1,22 @@
 'use client'
 
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useState, useRef } from "react"
 import { QRmodalContext, QRScanButton } from "@/components/QRScanner"
 import { IconCheck, IconX } from "@tabler/icons-react"
 
 export default function ScanListener({ onScanAction }: { onScanAction: (lidid: string) => Promise<{success: boolean, msg: string}> }) {
   const { qrtext, setQrtext } = useContext(QRmodalContext)
   const [result, setResult] = useState<{success: boolean, msg: string} | null>(null)
+  const processingRef = useRef(false)
 
   useEffect(() => {
-    if (qrtext) {
+    if (qrtext && !processingRef.current) {
       const process = async () => {
+        processingRef.current = true
         // Extract ID: Expecting .../lid/<id>
-        const match = qrtext.match(/\/lid\/([a-f0-9]{24})/)
+        const match = qrtext.match(/\/lid\/([0-9]{6})/)
         const lidid = match ? match[1] : null
-
+        setQrtext("")
         if (lidid) {
             const res = await onScanAction(lidid)
             setResult(res)
@@ -25,6 +27,7 @@ export default function ScanListener({ onScanAction }: { onScanAction: (lidid: s
         // Rapid fire: Re-open scanner after 1.5s
         setTimeout(() => {
             setQrtext(null)
+            processingRef.current = false
         }, 1500)
       }
       process()

@@ -99,7 +99,7 @@ export function QRScannerModalProvider({ children, fps, startopened, ...qrprops 
   // const [qrSuccessCallback, setqrSuccessCallback] = useState<QrcodeSuccessCallback|null>(null)
   const [qrtext, setQrtext] = useState<string | null>(startopened ? null : "")
   const scannedSuccess: QrcodeSuccessCallback = (result) => {
-    setQrtext(result)
+    setQrtext((prev) => prev === null ? result : prev)
   }
 
   function modalOnClose() {
