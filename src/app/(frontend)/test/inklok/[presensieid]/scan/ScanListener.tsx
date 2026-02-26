@@ -2,12 +2,20 @@
 
 import { useContext, useEffect, useState, useRef } from "react"
 import { QRmodalContext, QRScanButton } from "@/components/QRScanner"
-import { IconCheck, IconX } from "@tabler/icons-react"
+import { IconCheck, IconX, IconCloudUpload } from "@tabler/icons-react"
+import type { useScanSync } from "@/hooks/useScanSync"
 
-export default function ScanListener({ onScanAction }: { onScanAction: (lidid: string) => Promise<{success: boolean, msg: string}> }) {
+export default function ScanListener({
+  ledeMap,
+  syncHook
+}: {
+  ledeMap: Record<string, string>,
+  syncHook: ReturnType<typeof useScanSync>
+}) {
   const { qrtext, setQrtext } = useContext(QRmodalContext)
   const [result, setResult] = useState<{success: boolean, msg: string} | null>(null)
   const processingRef = useRef(false)
+  const { addScan, pendingCount, isOnline } = syncHook
 
   useEffect(() => {
     if (qrtext && !processingRef.current) {
@@ -18,7 +26,8 @@ export default function ScanListener({ onScanAction }: { onScanAction: (lidid: s
         const lidid = match ? match[1] : null
         setQrtext("")
         if (lidid) {
-            const res = await onScanAction(lidid)
+            const lidName = ledeMap[lidid] || "Onbekende Lid";
+            const res = await addScan(lidid, lidName);
             setResult(res)
         } else {
             setResult({ success: false, msg: "Invalid QR Code Format" })
@@ -32,10 +41,22 @@ export default function ScanListener({ onScanAction }: { onScanAction: (lidid: s
       }
       process()
     }
-  }, [qrtext, onScanAction, setQrtext])
+  }, [qrtext, setQrtext, addScan, ledeMap])
 
   return (
     <div className="flex flex-col items-center gap-6 p-8 max-w-md mx-auto">
+        {/* Offline/Sync Status Indicator */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-orange-500'}`} />
+          <span>{isOnline ? "Aanlyn" : "Vanlyn"}</span>
+          {pendingCount > 0 && (
+            <span className="flex items-center gap-1 text-orange-600 ml-2">
+              <IconCloudUpload size={16} />
+              {pendingCount} hangend
+            </span>
+          )}
+        </div>
+
         {result ? (
             <div className={`flex flex-col items-center gap-2 p-6 rounded-xl text-white shadow-lg w-full transition-colors ${result.success ? 'bg-green-600' : 'bg-red-600'}`}>
                 {result.success ? <IconCheck size={64}/> : <IconX size={64}/>}

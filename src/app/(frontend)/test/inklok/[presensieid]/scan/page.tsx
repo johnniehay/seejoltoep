@@ -2,10 +2,9 @@ import { getPayload } from "payload";
 import { revalidatePath } from "next/cache";
 import configPromise from '@payload-config'
 import { getPayloadSession } from "payload-authjs";
-import { QRScannerModalProvider } from "@/components/QRScanner";
-import ScanListener from "./ScanListener";
 import { inklok } from "@/lib/inklok";
-import type { Inklokke, Lede } from "@/payload-types";
+import type { Lede, Inklokke } from "@/payload-types";
+import ScanContainer from "./ScanContainer";
 
 type Args = {
   params: Promise<{
@@ -46,9 +45,20 @@ export default async function ScanPage({ params: paramsPromise }: Args) {
   }, {} as Record<string, Lede>)
   const expectedLidnommers = Object.keys(expectedLedeByLidnommer)
 
-  const inklokke = presensie.inklokke?.docs ?? []
-  payload.logger.warn(`inklokke ${JSON.stringify(inklokke)}`)
-  const inklokkeByLidnommer = inklokke.reduce((acc, inklok) => {
+  // Create a simple map for the client to resolve names offline
+  const ledeMap = Object.values(expectedLedeByLidnommer).reduce((acc, lid) => {
+    acc[lid.id] = lid.naam || "Onbekend";
+    return acc;
+  }, {} as Record<string, string>);
+
+  const inputInklokke = presensie.inklokke?.docs ?? []
+
+  type foundInklokke = Omit<Inklokke, 'lid'> & {
+    lid: Pick<Lede, 'id' | 'naam'>
+  };
+  const initialInklokke = (presensie.inklokke?.docs as foundInklokke[])?.filter(i => typeof i.lid === 'object' && i.lid !== null) ?? [];
+  payload.logger.warn(`inklokke ${JSON.stringify(inputInklokke)}`)
+  const inklokkeByLidnommer = inputInklokke.reduce((acc, inklok) => {
     if (typeof inklok !== 'object') throw "Expected inklok to be object"
     if (!inklok.lid) throw "Expected inklok.lid to not be null|undefined"
     if (typeof inklok.lid !== 'object') throw "Expected inklok.lid to be object"
@@ -78,48 +88,13 @@ export default async function ScanPage({ params: paramsPromise }: Args) {
   }
 
   return (
-    <div className="min-h-screen bg-background py-6 px-4 flex flex-col items-center">
-      <h1 className="text-2xl font-bold text-center mb-2">Inklok Skandeerder</h1>
-      <h2 className="text-xl text-center text-muted-foreground mb-4">{presensie.naam}</h2>
-
-      <QRScannerModalProvider
-        fps={15}
-        startopened={true}
-        showTorchButtonIfSupported
-        showZoomSliderIfSupported
-        defaultZoomValueIfSupported={1}
-      >
-        <ScanListener onScanAction={scanAction} />
-      </QRScannerModalProvider>
-      <div className="w-full max-w-md p-4 bg-muted rounded-lg mb-8">
-        <h3 className="text-lg font-semibold mb-2">Uitstaande Lede</h3>
-        {missingExpected.length > 0 ? (
-          <ul className="list-disc list-inside">
-            {missingExpected.map(([lidnommer,lid]) => (
-              <li key={lid.id}>{lid.naam ?? lid.id}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">Geen verwagte lede.</p>
-        )}
-      </div>
-      <div className="w-full max-w-md p-4 bg-muted rounded-lg mb-8">
-        <h3 className="text-lg font-semibold mb-2">Inklokke</h3>
-        {Object.values(inklokkeByLidnommer).length > 0 ? (
-          <ul className="list-none space-y-2">
-            {Object.values(inklokkeByLidnommer).map((inklok) => (
-              <li key={(inklok.lid as Lede).id}>
-                <div className="border-2 border-green-600 rounded px-3 py-1 text-green-600">
-                   {(inklok.lid as Lede).id} – {(inklok.lid as Lede).naam ?? "Onbekende lid"}
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-muted-foreground">Geen inklokke geregistreer.</p>
-        )}
-      </div>
-    </div>
-
+    <ScanContainer
+      presensieId={presensieid}
+      presensieNaam={presensie.naam || ''}
+      initialInklokke={initialInklokke}
+      expectedLede={expectedLedeByLidnommer}
+      scanAction={scanAction}
+      ledeMap={ledeMap}
+    />
   )
 }

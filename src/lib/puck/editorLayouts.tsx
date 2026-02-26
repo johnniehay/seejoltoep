@@ -1,12 +1,10 @@
 import { defaultLayout, fullWidthLayout, landingLayout } from "@/lib/puck/layouts";
 import { LayoutDefinition } from "@delmaredigital/payload-puck/layouts";
-import { Header } from "@/Header/Component";
-import { Footer } from "@/Footer/Component";
 import { HeaderClient } from "@/Header/Component.client";
 import { partial } from "lodash";
 
 const headerFooter: Pick<LayoutDefinition, "header" | "footer"> = {
-  header: partial(HeaderClient,{data:{id:"header"}}),
+  header: partial(HeaderClient,{data:{id:"header"}, userData:{name:"Name of User", email:null, image:null}}),
   // footer: Footer,
 }
 
