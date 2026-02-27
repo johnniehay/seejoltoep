@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Lede } from '@/payload-types';
 import { QRScannerModalProvider } from '@/components/QRScanner';
 import ScanListener from './ScanListener';
@@ -13,7 +13,11 @@ interface ScanContainerProps {
   initialInklokke: { id: string; lid: { id: string; naam?: string | null } }[];
   expectedLede: Record<string, Lede>;
   scanAction: (lidid: string) => Promise<{ success: boolean; msg: string }>;
-  ledeMap: Record<string, string>;
+  fetchDataAction: (id: string) => Promise<{
+      presensieNaam: string | null | undefined;
+      expectedLede: Record<string, Lede>;
+      initialInklokke: { id: string; lid: { id: string; naam?: string | null } }[];
+  } | null>;
 }
 
 export default function ScanContainer({
@@ -22,13 +26,41 @@ export default function ScanContainer({
   initialInklokke,
   expectedLede,
   scanAction,
-  ledeMap,
+  fetchDataAction,
 }: ScanContainerProps) {
+  const [serverInklokke, setServerInklokke] = useState(initialInklokke);
+  const [expectedLedeState, setExpectedLedeState] = useState(expectedLede);
+
+  // Poll for updates every 5 seconds
+  useEffect(() => {
+    const timer = setInterval(async () => {
+      if (!navigator.onLine) return;
+      try {
+        const data = await fetchDataAction(presensieId);
+        if (data) {
+          setServerInklokke(data.initialInklokke);
+          setExpectedLedeState(data.expectedLede);
+        }
+      } catch (e) {
+        console.error("Polling failed", e);
+      }
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [presensieId, fetchDataAction]);
+
+  // Derive ledeMap from the current expectedLede state
+  const ledeMap = useMemo(() => {
+    return Object.values(expectedLedeState).reduce((acc, lid) => {
+      acc[lid.id] = lid.naam || "Onbekend";
+      return acc;
+    }, {} as Record<string, string>);
+  }, [expectedLedeState]);
+
   // Map initial server data for the hook
-  const initialHookData = useMemo(() => initialInklokke.map(inklok => ({
+  const initialHookData = useMemo(() => serverInklokke.map(inklok => ({
     lidId: inklok.lid.id,
     lidName: inklok.lid.naam || 'Onbekend',
-  })), [initialInklokke]);
+  })), [serverInklokke]);
 
   const syncHook = useScanSync(presensieId, scanAction, initialHookData);
   const { presensieScans } = syncHook;
@@ -44,8 +76,8 @@ export default function ScanContainer({
 
   // Calculate missing members based on the live data
   const missingExpected = useMemo(() => {
-    return Object.values(expectedLede).filter(lid => !inklokkeByLidId.has(lid.id));
-  }, [expectedLede, inklokkeByLidId]);
+    return Object.values(expectedLedeState).filter(lid => !inklokkeByLidId.has(lid.id));
+  }, [expectedLedeState, inklokkeByLidId]);
 
   return (
     <div className="min-h-screen bg-background py-6 px-4 flex flex-col items-center">
