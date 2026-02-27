@@ -4,7 +4,13 @@ import configPromise from '@payload-config'
 import { getPayloadSession } from "payload-authjs";
 import type { Inklokke, Lede } from "@/payload-types";
 
-export async function inklok({presensieid, divisieid, lidid} : {presensieid: string, divisieid?: string, lidid?: string} ) {
+export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time} : {
+  presensieid: string,
+  divisieid: string,
+  lidid: string,
+  tipe?: 'in' | 'uit',
+  scan_time: string
+}) {
   const payload = await getPayload({ config: configPromise })
   const session = await getPayloadSession()
   const userid = session?.user?.id
@@ -18,7 +24,8 @@ export async function inklok({presensieid, divisieid, lidid} : {presensieid: str
       and: [
         { presensie: { equals: presensieid } },
         { lid: { equals: lidid } },
-        { createdAt: { less_than: new Date(Date.now() - 30000).toISOString() } }
+        { tipe: { equals: tipe } },
+        { scan_time: { greater_than: new Date(Date.now() - 30000).toISOString() } }
       ]
     },
     limit: 1,
@@ -29,7 +36,18 @@ export async function inklok({presensieid, divisieid, lidid} : {presensieid: str
     return { inklok: existing.docs[0] }
   }
 
-  const inklokdata = await payload.create({collection:"inklokke", data:{presensie:presensieid,divisie:divisieid,lid:lidid, ingestuur_deur:userid}, depth:1})
+  const inklokdata = await payload.create({
+    collection:"inklokke",
+    data:{
+      presensie:presensieid,
+      divisie:divisieid,
+      lid:lidid,
+      ingestuur_deur:userid,
+      tipe,
+      scan_time: scan_time || new Date().toISOString()
+    },
+    depth:1
+  })
   return { inklok: inklokdata }
 }
 
@@ -43,7 +61,7 @@ export async function fetchPresensieData(presensieid: string) {
     id: presensieid,
     depth: 3,
     populate: {
-      lede:{naam:true,id:true},
+      lede:{naam:true, noemnaam:true, van: true,id:true},
       users:{email:true,name:true}
     },
     joins: {
@@ -55,25 +73,42 @@ export async function fetchPresensieData(presensieid: string) {
   })
 
   if (!presensie) return null
-
+  type LidNetNaam = Pick<Lede, 'id' | 'naam' | 'noemnaam' | 'van'>
   const expectedLedeByLidnommer = (presensie.verwagte_lede ?? []).reduce((acc, verwagte_lid) => {
     if (typeof verwagte_lid !== "object") throw "Expected verwagte_lid to be object"
-    acc[verwagte_lid.id] = verwagte_lid;
+    acc[verwagte_lid.id] = {id: verwagte_lid.id, naam: (verwagte_lid.noemnaam ?? verwagte_lid.naam) + " " + verwagte_lid.van};
     return acc;
-  }, {} as Record<string, Lede>)
+  }, {} as Record<string, {id: string, naam: string}>)
 
   type foundInklokke = Omit<Inklokke, 'lid'> & {
-    lid: Pick<Lede, 'id' | 'naam'>
+    lid: LidNetNaam
   };
-  
+
   const rawInklokke = (presensie.inklokke?.docs as foundInklokke[])?.filter(i => typeof i.lid === 'object' && i.lid !== null) ?? [];
-  
-  const initialInklokke = rawInklokke.map(i => ({
+
+  // Group by lid and find the latest scan for each
+  const latestInklokkeMap = new Map<string, foundInklokke>();
+
+  rawInklokke.forEach(inklok => {
+    const lidId = inklok.lid.id;
+    const currentLatest = latestInklokkeMap.get(lidId);
+
+    const inklokTime = new Date(inklok.scan_time || inklok.createdAt).getTime();
+    const currentLatestTime = currentLatest ? new Date(currentLatest.scan_time || currentLatest.createdAt).getTime() : 0;
+
+    if (!currentLatest || inklokTime > currentLatestTime) {
+      latestInklokkeMap.set(lidId, inklok);
+    }
+  });
+
+  const initialInklokke = Array.from(latestInklokkeMap.values()).map(i => ({
     id: i.id,
     lid: {
         id: i.lid.id,
-        naam: i.lid.naam
-    }
+        naam: (i.lid.noemnaam ?? i.lid.naam) + " " + i.lid.van
+    },
+    tipe: i.tipe as 'in' | 'uit',
+    scan_time: new Date(i.scan_time).getTime()
   }))
   return {
     presensieNaam: presensie.naam,

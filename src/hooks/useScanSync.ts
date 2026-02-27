@@ -5,12 +5,15 @@ import { db, OfflineScan } from '@/lib/dexiedb';
 type InitialInklok = {
   lidId: string;
   lidName: string;
+  tipe: 'in' | 'uit';
+  scan_time: number;
 };
 
 export function useScanSync(
   presensieId: string,
-  scanAction: (lidid: string) => Promise<{ success: boolean; msg: string }>,
-  initialInklokke: InitialInklok[]
+  scanAction: (lidid: string, tipe: 'in' | 'uit', time: number) => Promise<{ success: boolean; msg: string }>,
+  initialInklokke: InitialInklok[],
+  onSyncComplete?: () => Promise<void> | void
 ) {
   const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
@@ -32,6 +35,8 @@ export function useScanSync(
   // Update pending count helper
   const updatePendingCount = useCallback(async () => {
     const scans = await db.scans.where({ presensieId }).toArray();
+    // Sort by scan_time to ensure correct order of application
+    scans.sort((a, b) => a.scan_time - b.scan_time);
     setPresensieScans(scans);
     const count = scans.filter(s => s.synced === 0).length;
     setPendingCount(count);
@@ -51,8 +56,9 @@ export function useScanSync(
               presensieId,
               lidId: inklok.lidId,
               lidName: inklok.lidName,
-              timestamp: Date.now(),
+              scan_time: inklok.scan_time,
               synced: 1, // Mark as synced as it comes from the server
+              tipe: inklok.tipe
             });
           }
         }
@@ -65,32 +71,35 @@ export function useScanSync(
   const sync = useCallback(async () => {
     if (!navigator.onLine) return;
     const pending = await db.scans.where({ presensieId, synced: 0 }).toArray();
-    if (pending.length === 0) return;
 
-    for (const scan of pending) {
-      try {
-        const res = await scanAction(scan.lidId);
-        if (res.success) {
-             await db.scans.update(scan.id!, { synced: 1 });
+    if (pending.length > 0) {
+      for (const scan of pending) {
+        try {
+          const res = await scanAction(scan.lidId, scan.tipe, scan.scan_time);
+          if (res.success) {
+               await db.scans.update(scan.id!, { synced: 1 });
+          }
+        } catch (e) {
+          console.error("Sync failed for", scan.lidId, e);
         }
-      } catch (e) {
-        console.error("Sync failed for", scan.lidId, e);
       }
+      await updatePendingCount();
     }
-    await updatePendingCount();
-  }, [presensieId, scanAction, updatePendingCount]);
+    if (onSyncComplete) await onSyncComplete();
+  }, [presensieId, scanAction, updatePendingCount, onSyncComplete]);
 
   // Auto-sync when coming online
   useEffect(() => { if (isOnline) sync(); }, [isOnline, sync]);
 
-  const addScan = async (lidId: string, lidName: string): Promise<{ success: boolean, msg: string }> => {
+  const addScan = async (lidId: string, lidName: string, tipe: 'in' | 'uit'): Promise<{ success: boolean; msg: string }> => {
     // 1. Store Locally
     const newScanData: Omit<OfflineScan, 'id'> = {
       lidId,
       presensieId,
-      timestamp: Date.now(),
+      scan_time: Date.now(),
       synced: 0,
-      lidName
+      lidName,
+      tipe
     };
 
     const id = await db.scans.add(newScanData);
@@ -100,7 +109,7 @@ export function useScanSync(
     // 2. If online, try immediate execution to give real feedback
     if (navigator.onLine) {
       try {
-        const res = await scanAction(lidId);
+        const res = await scanAction(lidId, tipe, newScanData.scan_time);
         if (res.success) {
           await db.scans.update(id, { synced: 1 });
           setPresensieScans(prev => prev.map(s => s.id === id ? { ...s, synced: 1 } : s));

@@ -5,9 +5,10 @@ export interface OfflineScan {
   id?: number;
   lidId: string;
   presensieId: string;
-  timestamp: number;
+  scan_time: number;
   synced: number;
   lidName?: string;
+  tipe: 'in' | 'uit';
 }
 
 export class InklokDatabase extends Dexie {

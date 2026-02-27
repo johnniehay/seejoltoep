@@ -7,10 +7,12 @@ import type { useScanSync } from "@/hooks/useScanSync"
 
 export default function ScanListener({
   ledeMap,
-  syncHook
+  syncHook,
+  scanTipe
 }: {
   ledeMap: Record<string, string>,
-  syncHook: ReturnType<typeof useScanSync>
+  syncHook: ReturnType<typeof useScanSync>,
+  scanTipe: 'in' | 'uit'
 }) {
   const { qrtext, setQrtext } = useContext(QRmodalContext)
   const [result, setResult] = useState<{success: boolean, msg: string} | null>(null)
@@ -22,12 +24,12 @@ export default function ScanListener({
       const process = async () => {
         processingRef.current = true
         // Extract ID: Expecting .../lid/<id>
-        const match = qrtext.match(/\/lid\/([0-9]{6})/)
+        const match = qrtext.match(/\/lid\/([0-9]{5,6})/)
         const lidid = match ? match[1] : null
         setQrtext("")
         if (lidid) {
             const lidName = ledeMap[lidid] || "Onbekende Lid";
-            const res = await addScan(lidid, lidName);
+            const res = await addScan(lidid, lidName, scanTipe);
             setResult(res)
         } else {
             setResult({ success: false, msg: "Invalid QR Code Format" })
@@ -41,7 +43,7 @@ export default function ScanListener({
       }
       process()
     }
-  }, [qrtext, setQrtext, addScan, ledeMap])
+  }, [qrtext, setQrtext, addScan, ledeMap, scanTipe])
 
   return (
     <div className="flex flex-col items-center gap-6 p-8 max-w-md mx-auto">

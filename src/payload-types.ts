@@ -725,6 +725,8 @@ export interface Inklokke {
   divisie?: (string | null) | Divisie;
   lid?: (string | null) | Lede;
   ingestuur_deur: string | User;
+  tipe: 'in' | 'uit';
+  scan_time: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1641,6 +1643,8 @@ export interface InklokkeSelect<T extends boolean = true> {
   divisie?: T;
   lid?: T;
   ingestuur_deur?: T;
+  tipe?: T;
+  scan_time?: T;
   updatedAt?: T;
   createdAt?: T;
 }
