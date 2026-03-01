@@ -4,12 +4,13 @@ import configPromise from '@payload-config'
 import { getPayloadSession } from "payload-authjs";
 import type { Inklokke, Lede } from "@/payload-types";
 
-export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time} : {
+export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time, gps} : {
   presensieid: string,
-  divisieid: string,
+  divisieid?: string,
   lidid: string,
   tipe?: 'in' | 'uit',
-  scan_time: string
+  scan_time: string,
+  gps?: [number, number]
 }) {
   const payload = await getPayload({ config: configPromise })
   const session = await getPayloadSession()
@@ -44,7 +45,8 @@ export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_t
       lid:lidid,
       ingestuur_deur:userid,
       tipe,
-      scan_time: scan_time || new Date().toISOString()
+      scan_time: scan_time,
+      gps
     },
     depth:1
   })

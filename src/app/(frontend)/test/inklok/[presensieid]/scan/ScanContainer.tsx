@@ -14,11 +14,11 @@ interface ScanContainerProps {
   presensieId: string;
   presensieNaam: string;
   initialInklokke: { id: string; lid: { id: string; naam?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
-  expectedLede: Record<string, Lede>;
-  scanAction: (lidid: string, tipe: 'in' | 'uit', time: number) => Promise<{ success: boolean; msg: string }>;
+  expectedLede: Record<string, {id: string, naam: string}>;
+  scanAction: (lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number]) => Promise<{ success: boolean; msg: string }>;
   fetchDataAction: (id: string) => Promise<{
       presensieNaam: string | null | undefined;
-      expectedLede: Record<string, Lede>;
+      expectedLede: Record<string, {id: string, naam: string}>;
       initialInklokke: { id: string; lid: { id: string; naam?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
   } | null>;
 }
@@ -38,6 +38,10 @@ export default function ScanContainer({
   const [dontAskAgain, setDontAskAgain] = useState(false);
   const [pendingManualScan, setPendingManualScan] = useState<{lidId: string, naam: string, tipe: 'in' | 'uit'} | null>(null);
   const [tempDontAsk, setTempDontAsk] = useState(false);
+  const [permissionState, setPermissionState] = useState<'pending' | 'granted' | 'denied'>('pending');
+  const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<[number, number] | undefined>(undefined);
+
 
   const refreshData = useCallback(async () => {
     if (!navigator.onLine) return;
@@ -52,11 +56,49 @@ export default function ScanContainer({
     }
   }, [presensieId, fetchDataAction]);
 
-  // Poll for updates every 15 seconds
   useEffect(() => {
+    const checkAndRequestPermissions = async () => {
+      if (typeof navigator.permissions === 'undefined') {
+        setPermissionState('granted'); // Assume granted if API not supported
+        return;
+      }
+      try {
+        const cameraStatus = await navigator.permissions.query({ name: 'camera' as PermissionName });
+        const geoStatus = await navigator.permissions.query({ name: 'geolocation' as PermissionName });
+
+        if (cameraStatus.state === 'granted' && geoStatus.state === 'granted') {
+          setPermissionState('granted');
+        } else if (cameraStatus.state === 'denied' || geoStatus.state === 'denied') {
+          setPermissionState('denied');
+          setShowPermissionDialog(true);
+        } else {
+          setPermissionState('pending');
+          setShowPermissionDialog(true);
+        }
+      } catch (error) {
+        console.error("Permission query failed, falling back to prompt.", error);
+        setPermissionState('pending');
+        setShowPermissionDialog(true);
+      }
+    };
+    checkAndRequestPermissions();
+  }, []);
+
+  useEffect(() => {
+    // Poll for updates every 15 seconds
     const timer = setInterval(refreshData, 15000);
     return () => clearInterval(timer);
   }, [refreshData]);
+
+  useEffect(() => {
+    if (permissionState === 'granted') {
+      navigator.geolocation.getCurrentPosition(
+        (position) => setCurrentLocation([position.coords.longitude, position.coords.latitude]),
+        (err) => console.error("Could not get location", err),
+        { enableHighAccuracy: true }
+      );
+    }
+  }, [permissionState]);
 
   // Derive ledeMap from the current expectedLede state
   const ledeMap = useMemo(() => {
@@ -101,7 +143,7 @@ export default function ScanContainer({
 
   const handleManualClick = (lidId: string, naam: string, tipe: 'in' | 'uit') => {
     if (dontAskAgain) {
-      syncHook.addScan(lidId, naam, tipe);
+      syncHook.addScan(lidId, naam, tipe, currentLocation);
     } else {
       setPendingManualScan({ lidId, naam, tipe });
       setTempDontAsk(false);
@@ -111,10 +153,25 @@ export default function ScanContainer({
 
   const confirmManual = () => {
     if (pendingManualScan) {
-      syncHook.addScan(pendingManualScan.lidId, pendingManualScan.naam, pendingManualScan.tipe);
+      syncHook.addScan(pendingManualScan.lidId, pendingManualScan.naam, pendingManualScan.tipe, currentLocation);
       if (tempDontAsk) setDontAskAgain(true);
       setShowConfirmDialog(false);
       setPendingManualScan(null);
+    }
+  };
+
+  const handlePermissionRequest = () => {
+    setShowPermissionDialog(false);
+    if (permissionState === 'pending') {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setPermissionState('granted');
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setPermissionState('denied');
+        }
+      );
     }
   };
 
@@ -124,15 +181,15 @@ export default function ScanContainer({
       <h2 className="text-xl text-center text-muted-foreground mb-4">{presensieNaam}</h2>
 
       <div className="flex gap-4 mb-6">
-        <Button 
-          variant={scanTipe === 'in' ? 'default' : 'outline'} 
+        <Button
+          variant={scanTipe === 'in' ? 'default' : 'outline'}
           onClick={() => setScanTipe('in')}
           className="w-32 gap-2"
         >
           <IconLogin size={20} /> In
         </Button>
-        <Button 
-          variant={scanTipe === 'uit' ? 'destructive' : 'outline'} 
+        <Button
+          variant={scanTipe === 'uit' ? 'destructive' : 'outline'}
           onClick={() => setScanTipe('uit')}
           className="w-32 gap-2"
         >
@@ -147,7 +204,7 @@ export default function ScanContainer({
         showZoomSliderIfSupported
         defaultZoomValueIfSupported={1}
       >
-        <ScanListener ledeMap={ledeMap} syncHook={syncHook} scanTipe={scanTipe} />
+        <ScanListener ledeMap={ledeMap} syncHook={syncHook} scanTipe={scanTipe} currentLocation={currentLocation} />
       </QRScannerModalProvider>
 
       <div className="w-full max-w-md p-4 bg-muted rounded-lg mb-8">
@@ -164,9 +221,9 @@ export default function ScanContainer({
                       <span>{lid.id} – {lid.naam ?? lid.id}</span>
                       {scanData?.synced === 0 && <IconCloudUpload size={18} className="text-orange-500" title="Hangend" />}
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
                       onClick={() => handleManualClick(lid.id, lid.naam || 'Onbekend', 'in')}
                     >
@@ -185,9 +242,9 @@ export default function ScanContainer({
                     <span>{lidId} – {data.naam} (Uit)</span>
                     {data.synced === 0 && (<IconCloudUpload size={18} className="text-orange-500" title="Hangend" />)}
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
                     onClick={() => handleManualClick(lidId, data.naam, 'in')}
                   >
@@ -205,9 +262,9 @@ export default function ScanContainer({
                     <span>{lidId} – {data.naam}</span>
                     {data.synced === 0 && (<IconCloudUpload size={18} className="text-orange-500" title="Hangend" />)}
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     className="h-8 w-8 hover:bg-red-100 hover:text-red-700"
                     onClick={() => handleManualClick(lidId, data.naam, 'uit')}
                   >
@@ -231,10 +288,10 @@ export default function ScanContainer({
             </DialogDescription>
           </DialogHeader>
           <div className="flex items-center space-x-2 py-4">
-            <Checkbox 
-              id="dontAsk" 
-              checked={tempDontAsk} 
-              onCheckedChange={(c) => setTempDontAsk(c === true)} 
+            <Checkbox
+              id="dontAsk"
+              checked={tempDontAsk}
+              onCheckedChange={(c) => setTempDontAsk(c === true)}
             />
             <label
               htmlFor="dontAsk"
@@ -247,6 +304,23 @@ export default function ScanContainer({
             <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>Kanselleer</Button>
             <Button onClick={confirmManual}>Bevestig</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPermissionDialog && permissionState !== 'granted'} onOpenChange={setShowPermissionDialog}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Toestemming Benodig</DialogTitle>
+                <DialogDescription>
+                    {permissionState === 'denied'
+                        ? "Hierdie toepassing vereis kamera- en liggingtoestemming om te funksioneer. Aktiveer dit asseblief in u blaaierinstellings."
+                        : "Hierdie toepassing gebruik jou kamera om QR-kodes te skandeer en jou ligging om die skandering se posisie aan te teken. Jou data word veilig hanteer."
+                    }
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+                {permissionState !== 'denied' && <Button onClick={handlePermissionRequest}>Gaan voort</Button>}
+            </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

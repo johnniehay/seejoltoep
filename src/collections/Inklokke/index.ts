@@ -37,6 +37,11 @@ export const Inklokke: CollectionConfig<"inklokke"> = {
       type: "date",
       required: true,
       label: "Scan Tyd"
+    },
+    {
+      name: 'gps',
+      type: 'point',
+      label: 'GPS Location',
     }
   ],
 }

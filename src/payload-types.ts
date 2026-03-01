@@ -727,6 +727,11 @@ export interface Inklokke {
   ingestuur_deur: string | User;
   tipe: 'in' | 'uit';
   scan_time: string;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  gps?: [number, number] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1645,6 +1650,7 @@ export interface InklokkeSelect<T extends boolean = true> {
   ingestuur_deur?: T;
   tipe?: T;
   scan_time?: T;
+  gps?: T;
   updatedAt?: T;
   createdAt?: T;
 }

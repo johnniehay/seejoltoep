@@ -19,9 +19,9 @@ export default async function ScanPage({ params: paramsPromise }: Args) {
   if (!data) return <h1>Presensie not found or Unauthorized</h1>
   const { presensieNaam, expectedLede, initialInklokke } = data;
 
-  async function scanAction(lidid: string, tipe: 'in' | 'uit', time: number) {
+  async function scanAction(lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number]) {
     'use server'
-    const res = await inklok({ presensieid, lidid, tipe, scan_time: new Date(time).toISOString() })
+    const res = await inklok({ presensieid, lidid, tipe, scan_time: new Date(time).toISOString(), gps })
 
     if ('error' in res) {
       return { success: false, msg: res.error || "Unknown Error" }

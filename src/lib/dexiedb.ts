@@ -9,6 +9,7 @@ export interface OfflineScan {
   synced: number;
   lidName?: string;
   tipe: 'in' | 'uit';
+  gps?: [number, number];
 }
 
 export class InklokDatabase extends Dexie {
