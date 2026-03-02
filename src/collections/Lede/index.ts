@@ -1,8 +1,9 @@
-import { BasePayload, CollectionConfig, DefaultValue, FilterOptions, PayloadRequest, Where } from "payload";
+import { BasePayload, CollectionConfig, DefaultValue, Field, Tab, FilterOptions, PayloadRequest, Where } from "payload";
 import { checkConditionPermission, checkPermissionOrWhere } from "@/access/checkPermission";
 import { updateuser } from "@/collections/Lede/hooks/updateuser";
 import snakeCase from "lodash/snakeCase";
 import { getRoleFromUser, type UserWithIdRole } from "@/lib/get-role";
+import { Inskrywings } from "../Inskrywings";
 
 export const ledeRoleOptions =[
   {label:"Divisie Leier",value:"divisieleier"},
@@ -93,6 +94,42 @@ const defaultdivisie: DefaultValue =  async ({req: payloadreq, user}) => {
     return undefined
   }
 }
+
+const inheritFields = (fields: Field[]): Field[] => {
+  return fields.map((field) => {
+    if (field.type === 'row' || field.type === 'collapsible' || field.type === 'group') {
+      return { ...field, fields: inheritFields((field).fields) };
+    }
+    if (field.type === 'tabs') {
+      return {
+        ...field,
+        tabs: field.tabs.map((tab) => ({
+          ...tab,
+          fields: inheritFields(tab.fields),
+        })),
+      };
+    }
+    if (field.type === 'relationship' && field.relationTo === "lede") {
+      return null
+    }
+
+    return {
+      ...field,
+      virtual: `huidige_inskrywing.${field.name}`,
+    } ;
+  }).filter(field => field !== null)
+};
+
+
+const inskrywingsTabsField = Inskrywings.fields.find((f) => f.type === "tabs");
+const inskrywingsTabs = inskrywingsTabsField && inskrywingsTabsField.type === "tabs" ? inskrywingsTabsField.tabs : [];
+
+const tabsToInherit = inskrywingsTabs//inskrywingsTabs.filter((t) => ["Kamp & Logistiek", "Inskrywing Meta"].includes(t.label as string));
+
+const tabsFromInskrywings = tabsToInherit.map((tab) => ({
+  ...tab,
+  fields: inheritFields(tab.fields),
+}));
 
 export const Lede: CollectionConfig<"lede"> = {
   slug: "lede",
@@ -309,6 +346,7 @@ export const Lede: CollectionConfig<"lede"> = {
                 { name: "user", type: "relationship", relationTo: "users", required: false, admin: { condition: checkConditionPermission("view:lede") } },
                 { name: "divisie", type: "relationship", relationTo: "divisie", required: false, defaultValue: defaultdivisie, filterOptions: divisiewheredivisieleier },
                 { name: "rol", type: "select", options: ledeRoleOptions, interfaceName: "ledeRole" },
+                { name: "huidige_inskrywing", type: "relationship", relationTo: "inskrywings", label: "Huidige Inskrywing" },
               ]
             },
             {
@@ -441,142 +479,16 @@ export const Lede: CollectionConfig<"lede"> = {
             { name: "mediese_notas", type: "textarea", label: "Mediese Notas" },
           ]
         },
+        ...tabsFromInskrywings,
         {
-          label: "Kamp & Logistiek",
+          label: "Geskiedenis",
           fields: [
             {
-              type: "row",
-              fields: [
-                { name: "kamp", type: "text", label: "Kamp" },
-                { name: "kamp_kursus", type: "text", label: "Kamp Kursus" },
-                { name: "kamp_naam", type: "text", label: "Kamp Naam" },
-              ]
-            },
-            {
-              type: "row",
-              fields: [
-                { name: "kamp_begindatum", type: "date", label: "Kamp Begindatum" },
-                { name: "kamp_einddatum", type: "date", label: "Kamp Einddatum" },
-                { name: "kamp_ligging", type: "text", label: "Kamp Ligging" },
-              ]
-            },
-            {
-              type: "collapsible",
-              label: "Kursus Keuses",
-              fields: [
-                {
-                  type: "row",
-                  fields: [
-                    { name: "kurses_opsie_1", type: "text", label: "Kursus Opsie 1" },
-                    { name: "skakel_vir_kurses_opsie_1", type: "text", label: "Skakel Opsie 1" },
-                  ]
-                },
-                {
-                  type: "row",
-                  fields: [
-                    { name: "kurses_opsie_2", type: "text", label: "Kursus Opsie 2" },
-                    { name: "skakel_vir_kurses_opsie_2", type: "text", label: "Skakel Opsie 2" },
-                  ]
-                },
-                {
-                  type: "row",
-                  fields: [
-                    { name: "kurses_opsie_3", type: "text", label: "Kursus Opsie 3" },
-                    { name: "skakel_vir_kurses_opsie_3", type: "text", label: "Skakel Opsie 3" },
-                  ]
-                },
-                { name: "opsies", type: "textarea", label: "Opsies" },
-                {
-                  type: "row",
-                  fields: [
-                    { name: "opsie_1_waglys", type: "text", label: "Opsie 1 Waglys" },
-                    { name: "opsie_2_waglys", type: "text", label: "Opsie 2 Waglys" },
-                    { name: "opsie_3_waglys", type: "text", label: "Opsie 3 Waglys" },
-                  ]
-                }
-              ]
-            },
-            {
-              type: "collapsible",
-              label: "Logistiek & Produkte",
-              fields: [
-                { name: "products", type: "textarea", label: "Products" },
-                {
-                  type: "row",
-                  fields: [
-                    { name: "soft_shell_baadjies", type: "text", label: "Soft Shell Baadjies" },
-                    { name: "seejol_hemp_kort", type: "text", label: "Seejol Hemp (Kort)" },
-                  ]
-                },
-                { name: "verblyfreelings", type: "text", label: "Verblyfreëlings" },
-                {
-                  type: "row",
-                  fields: [
-                    { name: "vervoer_na_mosselbaai", type: "text", label: "Vervoer NA Mosselbaai" },
-                    { name: "vervoer_vanaf_mosselbaai", type: "text", label: "Vervoer VANAF Mosselbaai" },
-                  ]
-                }
-              ]
-            }
-          ]
-        },
-        {
-          label: "Inskrywing Meta",
-          fields: [
-            {
-              type: "row",
-              fields: [
-                { name: "import_id", type: "number", label: "Import ID" },
-                { name: "import_name", type: "text", label: "Import Name" },
-                { name: "lid_import_ref", type: "text", label: "Lid Import Ref" },
-              ]
-            },
-            {
-              type: "row",
-              fields: [
-                { name: "created_on_import", type: "date", label: "Created On (Import)" },
-                { name: "updated_on_import", type: "date", label: "Updated On (Import)" },
-                { name: "last_updated_on_import", type: "date", label: "Last Updated On (Import)" },
-              ]
-            },
-            {
-              type: "row",
-              fields: [
-                { name: "responsible_person", type: "number", label: "Responsible Person" },
-                { name: "contact_import", type: "number", label: "Contact (Import)" },
-                { name: "last_timeline_activity_by", type: "number", label: "Last Timeline Activity By" },
-              ]
-            },
-            {
-              type: "row",
-              fields: [
-                { name: "stage", type: "text", label: "Stage" },
-                { name: "previous_stage", type: "text", label: "Previous Stage" },
-              ]
-            },
-            {
-              type: "row",
-              fields: [
-                { name: "currency", type: "text", label: "Currency" },
-                { name: "amount", type: "number", label: "Amount" },
-                { name: "betaling_ontvang", type: "text", label: "Betaling Ontvang" },
-              ]
-            },
-            {
-              type: "row",
-              fields: [
-                { name: "inskrywer_se_epos", type: "email", label: "Inskrywer se Epos" },
-                { name: "bevestigingsepos_is_gestuur", type: "text", label: "Bevestigingsepos Gestuur" },
-                { name: "kontak_tipe", type: "select", label: "Kontak tipe", options: ["Volwassene", "Jeuglid"] },
-              ]
-            },
-            { name: "addisionele_notas", type: "textarea", label: "Addisionele Notas" },
-            {
-              type: "row",
-              fields: [
-                { name: "qr_skakel", type: "text", label: "QR Skakel" },
-                { name: "qr_prent", type: "text", label: "QR Prent" },
-              ]
+              name: "inskrywings_geskiedenis",
+              type: "join",
+              collection: "inskrywings",
+              on: "lid",
+              label: "Inskrywings Geskiedenis",
             }
           ]
         },

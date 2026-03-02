@@ -111,6 +111,7 @@ export interface Config {
     categories: Category;
     users: User;
     lede: Lede;
+    inskrywings: Inskrywing;
     divisie: Divisie;
     presensie: Presensie;
     inklokke: Inklokke;
@@ -128,6 +129,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    lede: {
+      inskrywings_geskiedenis: 'inskrywings';
+    };
     divisie: {
       lede: 'lede';
       aktiwiteite: 'aktiwiteit';
@@ -147,6 +151,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     lede: LedeSelect<false> | LedeSelect<true>;
+    inskrywings: InskrywingsSelect<false> | InskrywingsSelect<true>;
     divisie: DivisieSelect<false> | DivisieSelect<true>;
     presensie: PresensieSelect<false> | PresensieSelect<true>;
     inklokke: InklokkeSelect<false> | InklokkeSelect<true>;
@@ -560,6 +565,7 @@ export interface Lede {
   user?: (string | null) | User;
   divisie?: (string | null) | Divisie;
   rol?: LedeRole;
+  huidige_inskrywing?: (string | null) | Inskrywing;
   naam?: string | null;
   van?: string | null;
   noemnaam?: string | null;
@@ -635,6 +641,11 @@ export interface Lede {
   addisionele_notas?: string | null;
   qr_skakel?: string | null;
   qr_prent?: string | null;
+  inskrywings_geskiedenis?: {
+    docs?: (string | Inskrywing)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   syncedData?:
     | {
         [k: string]: unknown;
@@ -732,6 +743,58 @@ export interface Inklokke {
    * @maxItems 2
    */
   gps?: [number, number] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inskrywings".
+ */
+export interface Inskrywing {
+  id: string;
+  lid: string | Lede;
+  kamp?: string | null;
+  kamp_kursus?: string | null;
+  kamp_naam?: string | null;
+  kamp_begindatum?: string | null;
+  kamp_einddatum?: string | null;
+  kamp_ligging?: string | null;
+  kurses_opsie_1?: string | null;
+  skakel_vir_kurses_opsie_1?: string | null;
+  kurses_opsie_2?: string | null;
+  skakel_vir_kurses_opsie_2?: string | null;
+  kurses_opsie_3?: string | null;
+  skakel_vir_kurses_opsie_3?: string | null;
+  opsies?: string | null;
+  opsie_1_waglys?: string | null;
+  opsie_2_waglys?: string | null;
+  opsie_3_waglys?: string | null;
+  products?: string | null;
+  soft_shell_baadjies?: string | null;
+  seejol_hemp_kort?: string | null;
+  verblyfreelings?: string | null;
+  vervoer_na_mosselbaai?: string | null;
+  vervoer_vanaf_mosselbaai?: string | null;
+  import_id?: number | null;
+  import_name?: string | null;
+  lid_import_ref?: string | null;
+  created_on_import?: string | null;
+  updated_on_import?: string | null;
+  last_updated_on_import?: string | null;
+  responsible_person?: number | null;
+  contact_import?: number | null;
+  last_timeline_activity_by?: number | null;
+  stage?: string | null;
+  previous_stage?: string | null;
+  currency?: string | null;
+  amount?: number | null;
+  betaling_ontvang?: string | null;
+  inskrywer_se_epos?: string | null;
+  bevestigingsepos_is_gestuur?: string | null;
+  kontak_tipe?: ('Volwassene' | 'Jeuglid') | null;
+  addisionele_notas?: string | null;
+  qr_skakel?: string | null;
+  qr_prent?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1185,6 +1248,10 @@ export interface PayloadLockedDocument {
         value: string | Lede;
       } | null)
     | ({
+        relationTo: 'inskrywings';
+        value: string | Inskrywing;
+      } | null)
+    | ({
         relationTo: 'divisie';
         value: string | Divisie;
       } | null)
@@ -1534,6 +1601,7 @@ export interface LedeSelect<T extends boolean = true> {
   user?: T;
   divisie?: T;
   rol?: T;
+  huidige_inskrywing?: T;
   naam?: T;
   van?: T;
   noemnaam?: T;
@@ -1609,7 +1677,59 @@ export interface LedeSelect<T extends boolean = true> {
   addisionele_notas?: T;
   qr_skakel?: T;
   qr_prent?: T;
+  inskrywings_geskiedenis?: T;
   syncedData?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inskrywings_select".
+ */
+export interface InskrywingsSelect<T extends boolean = true> {
+  lid?: T;
+  kamp?: T;
+  kamp_kursus?: T;
+  kamp_naam?: T;
+  kamp_begindatum?: T;
+  kamp_einddatum?: T;
+  kamp_ligging?: T;
+  kurses_opsie_1?: T;
+  skakel_vir_kurses_opsie_1?: T;
+  kurses_opsie_2?: T;
+  skakel_vir_kurses_opsie_2?: T;
+  kurses_opsie_3?: T;
+  skakel_vir_kurses_opsie_3?: T;
+  opsies?: T;
+  opsie_1_waglys?: T;
+  opsie_2_waglys?: T;
+  opsie_3_waglys?: T;
+  products?: T;
+  soft_shell_baadjies?: T;
+  seejol_hemp_kort?: T;
+  verblyfreelings?: T;
+  vervoer_na_mosselbaai?: T;
+  vervoer_vanaf_mosselbaai?: T;
+  import_id?: T;
+  import_name?: T;
+  lid_import_ref?: T;
+  created_on_import?: T;
+  updated_on_import?: T;
+  last_updated_on_import?: T;
+  responsible_person?: T;
+  contact_import?: T;
+  last_timeline_activity_by?: T;
+  stage?: T;
+  previous_stage?: T;
+  currency?: T;
+  amount?: T;
+  betaling_ontvang?: T;
+  inskrywer_se_epos?: T;
+  bevestigingsepos_is_gestuur?: T;
+  kontak_tipe?: T;
+  addisionele_notas?: T;
+  qr_skakel?: T;
+  qr_prent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

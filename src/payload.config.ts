@@ -16,6 +16,7 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { Lede } from "@/collections/Lede";
+import { Inskrywings } from "@/collections/Inskrywings";
 import { Divisies } from "@/collections/Divisies";
 import { Presensie } from "@/collections/Presensie";
 import { Inklokke } from "@/collections/Inklokke";
@@ -79,7 +80,7 @@ export default buildConfig({
     db: mongooseAdapter({
         url: process.env.DATABASE_URL || '',
     }),
-    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Divisies, Presensie, Inklokke, Aktiwiteite],
+    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite],
     cors: [getServerSideURL()].filter(Boolean),
     globals: [Header, Footer],
     plugins,
