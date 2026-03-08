@@ -1,0 +1,42 @@
+services:
+  seejoltoets:
+    build: &build-seejoltoets
+      context: https://github.com/johnniehay/seejoltoep.git#seejoltoets
+#      context: git://localhost/
+#      context: ../../.
+      dockerfile: docker/vts/toets.seejol/Dockerfile
+#      dockerfile: /home/vts/docker/vts/toets.seejol/Dockerfile
+      additional_contexts:
+        local: .
+      secrets:
+        - env-app
+    env_file: &build-seejoltoets-env
+      - .env.seejoltoets
+    networks:
+      - vts_default
+#    ports:
+#      - 3000:3000
+    volumes:
+      - seejoltoetsmedia:/app/public/media
+
+  seejoltoets-builder:
+    build:
+      <<: *build-seejoltoets
+      target: builder
+    env_file: *build-seejoltoets-env
+    volumes:
+      - seejoltoetsmedia:/app/public/media
+#      - ./datascripts:/app/datascripts
+    profiles:
+     - builder
+
+networks:
+  vts_default:
+    external: true
+
+secrets:
+  env-app:
+    file: .env.seejoltoets
+
+volumes:
+  seejoltoetsmedia:

@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
+    "build-compile": "next build --experimental-build-mode compile && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/",
     "buildonly": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "buildserwist": "cross-env NODE_OPTIONS=--no-deprecation serwist build",
     "next": "cross-env NODE_OPTIONS=--no-deprecation next",

@@ -1,0 +1,42 @@
+services:
+  seejoltoep:
+    build: &build-prod
+      context: https://github.com/johnniehay/seejoltoep.git#seejoltoep
+#      context: ../../.
+      dockerfile: docker/vts/toep.seejol/Dockerfile
+#      dockerfile: /home/vts/toep.seejol/Dockerfile
+      additional_contexts:
+        local: .
+      secrets:
+        - env-app
+    env_file: &build-prod-env
+      - .env.production
+    restart: unless-stopped
+    networks:
+      - vts_default
+#    ports:
+#      - "3000:3000"
+    volumes:
+      - prodmedia:/app/public/media
+
+  toep-builder:
+    build:
+      <<: *build-prod
+      target: builder
+    env_file: *build-prod-env
+    volumes:
+      - seejoltoepmedia:/app/public/media
+#      - ./datascripts:/app/datascripts
+    profiles:
+     - builder
+
+networks:
+  vts_default:
+    external: true
+
+secrets:
+  env-app:
+    file: .env.production
+
+volumes:
+  seejoltoepmedia:

@@ -1,0 +1,16 @@
+https://toep.seejol.voortrekkers.co.za:443 {
+	reverse_proxy seejoltoep:3000
+	tls {
+		issuer acme {
+			disable_http_challenge
+		}
+	}
+}
+https://toets.seejol.voortrekkers.co.za:443 {
+	reverse_proxy seejoltoets:3000
+	tls {
+		issuer acme {
+			disable_http_challenge
+		}
+	}
+}

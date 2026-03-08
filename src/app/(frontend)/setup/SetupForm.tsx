@@ -261,7 +261,7 @@ export function SetupForm({ user, callbackUrl }: { user: ExtendedUser, callbackU
   const handleAddPasskey = async (e: React.MouseEvent) => {
     e.preventDefault()
     try {
-      await signIn('webauthn', { action: 'register', redirect: false })
+      await signIn('passkey', { action: 'register', redirect: false })
       alert('Sleutel suksesvol bygevoeg!')
     } catch (error) {
       console.error(error)
