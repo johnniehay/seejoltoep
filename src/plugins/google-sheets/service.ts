@@ -107,7 +107,7 @@ export class GoogleSheetsService {
     const fieldMap = new Map<string, Field>()
     const traverse = (fields: Field[]) => {
       fields.forEach(field => {
-        if ('name' in field && !('virtual' in field && field.virtual)) {
+        if ('name' in field && !('virtual' in field && field.virtual && 'readonly' in field && field.readonly)) {
           fieldMap.set(field.name, field)
         } else if ('fields' in field) {
           traverse(field.fields)
@@ -465,7 +465,7 @@ export class GoogleSheetsService {
             })
           }
           updateCount++
-        } else if (!dryRun && JSON.stringify(lastSynced) !== JSON.stringify(rowData)) {
+        } else if (!hasChanges && JSON.stringify(lastSynced) !== JSON.stringify(rowData)) {
           // Even if no visible fields changed (e.g. local matched upstream),
           // we must update syncedData if it's stale, so we don't re-evaluate this next time.
           await payload.update({

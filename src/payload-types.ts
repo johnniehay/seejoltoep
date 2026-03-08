@@ -599,47 +599,173 @@ export interface Lede {
   mediese_kondisies?: string | null;
   kroniese_medikasie?: string | null;
   mediese_notas?: string | null;
+  /**
+   * From Inskrywing
+   */
   kamp?: string | null;
+  /**
+   * From Inskrywing
+   */
   kamp_kursus?: string | null;
+  /**
+   * From Inskrywing
+   */
   kamp_naam?: string | null;
+  /**
+   * From Inskrywing
+   */
   kamp_begindatum?: string | null;
+  /**
+   * From Inskrywing
+   */
   kamp_einddatum?: string | null;
+  /**
+   * From Inskrywing
+   */
   kamp_ligging?: string | null;
+  /**
+   * From Inskrywing
+   */
   kurses_opsie_1?: string | null;
+  /**
+   * From Inskrywing
+   */
   skakel_vir_kurses_opsie_1?: string | null;
+  /**
+   * From Inskrywing
+   */
   kurses_opsie_2?: string | null;
+  /**
+   * From Inskrywing
+   */
   skakel_vir_kurses_opsie_2?: string | null;
+  /**
+   * From Inskrywing
+   */
   kurses_opsie_3?: string | null;
+  /**
+   * From Inskrywing
+   */
   skakel_vir_kurses_opsie_3?: string | null;
+  /**
+   * From Inskrywing
+   */
   opsies?: string | null;
+  /**
+   * From Inskrywing
+   */
   opsie_1_waglys?: string | null;
+  /**
+   * From Inskrywing
+   */
   opsie_2_waglys?: string | null;
+  /**
+   * From Inskrywing
+   */
   opsie_3_waglys?: string | null;
+  /**
+   * From Inskrywing
+   */
   products?: string | null;
+  /**
+   * From Inskrywing
+   */
   soft_shell_baadjies?: string | null;
+  /**
+   * From Inskrywing
+   */
   seejol_hemp_kort?: string | null;
+  /**
+   * From Inskrywing
+   */
   verblyfreelings?: string | null;
+  /**
+   * From Inskrywing
+   */
   vervoer_na_mosselbaai?: string | null;
+  /**
+   * From Inskrywing
+   */
   vervoer_vanaf_mosselbaai?: string | null;
+  /**
+   * From Inskrywing
+   */
   import_id?: number | null;
+  /**
+   * From Inskrywing
+   */
   import_name?: string | null;
+  /**
+   * From Inskrywing
+   */
   lid_import_ref?: string | null;
+  /**
+   * From Inskrywing
+   */
   created_on_import?: string | null;
+  /**
+   * From Inskrywing
+   */
   updated_on_import?: string | null;
+  /**
+   * From Inskrywing
+   */
   last_updated_on_import?: string | null;
+  /**
+   * From Inskrywing
+   */
   responsible_person?: number | null;
+  /**
+   * From Inskrywing
+   */
   contact_import?: number | null;
+  /**
+   * From Inskrywing
+   */
   last_timeline_activity_by?: number | null;
+  /**
+   * From Inskrywing
+   */
   stage?: string | null;
+  /**
+   * From Inskrywing
+   */
   previous_stage?: string | null;
+  /**
+   * From Inskrywing
+   */
   currency?: string | null;
+  /**
+   * From Inskrywing
+   */
   amount?: number | null;
+  /**
+   * From Inskrywing
+   */
   betaling_ontvang?: string | null;
+  /**
+   * From Inskrywing
+   */
   inskrywer_se_epos?: string | null;
+  /**
+   * From Inskrywing
+   */
   bevestigingsepos_is_gestuur?: string | null;
+  /**
+   * From Inskrywing
+   */
   kontak_tipe?: ('Volwassene' | 'Jeuglid') | null;
+  /**
+   * From Inskrywing
+   */
   addisionele_notas?: string | null;
+  /**
+   * From Inskrywing
+   */
   qr_skakel?: string | null;
+  /**
+   * From Inskrywing
+   */
   qr_prent?: string | null;
   inskrywings_geskiedenis?: {
     docs?: (string | Inskrywing)[];

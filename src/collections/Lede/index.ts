@@ -1,4 +1,4 @@
-import { BasePayload, CollectionConfig, DefaultValue, Field, Tab, FilterOptions, PayloadRequest, Where } from "payload";
+import { BasePayload, CollectionConfig, DefaultValue, Field, FilterOptions, PayloadRequest, Where } from "payload";
 import { checkConditionPermission, checkPermissionOrWhere } from "@/access/checkPermission";
 import { updateuser } from "@/collections/Lede/hooks/updateuser";
 import snakeCase from "lodash/snakeCase";
@@ -96,28 +96,53 @@ const defaultdivisie: DefaultValue =  async ({req: payloadreq, user}) => {
 }
 
 const inheritFields = (fields: Field[]): Field[] => {
-  return fields.map((field) => {
-    if (field.type === 'row' || field.type === 'collapsible' || field.type === 'group') {
-      return { ...field, fields: inheritFields((field).fields) };
-    }
-    if (field.type === 'tabs') {
+  return fields
+    .map((field): Field | null => {
+      if (field.type === 'row' || field.type === 'collapsible' || field.type === 'group' || field.type === 'array') {
+        return { ...field, fields: inheritFields(field.fields) };
+      }
+      if (field.type === 'tabs') {
+        return {
+          ...field,
+          tabs: field.tabs.map(tab => ({
+            ...tab,
+            fields: inheritFields(tab.fields),
+          })),
+        };
+      }
+      if ((field.type === 'relationship' && field.relationTo === 'lede') || field.type === 'blocks') {
+        return null;
+      }
+
       return {
         ...field,
-        tabs: field.tabs.map((tab) => ({
-          ...tab,
-          fields: inheritFields(tab.fields),
-        })),
-      };
-    }
-    if (field.type === 'relationship' && field.relationTo === "lede") {
-      return null
-    }
+        virtual: `huidige_inskrywing.${field.name}`,
+        admin: {
+          ...(field.admin || {}),
+          description: `${field.admin && "description" in field.admin ? `${field.admin.description} | ` : ''}From Inskrywing`,
+        },
+        hooks: {
+          beforeChange: [
+            async ({ value, siblingData, req, originalDoc }) => {
+              const inskrywingId = siblingData.huidige_inskrywing || originalDoc?.huidige_inskrywing;
 
-    return {
-      ...field,
-      virtual: `huidige_inskrywing.${field.name}`,
-    } ;
-  }).filter(field => field !== null)
+              if (inskrywingId && value !== undefined) {
+                try {
+                  const originalInskrywing = await req.payload.findByID({ collection: 'inskrywings', id: inskrywingId, depth: 0, req });
+                  if (originalInskrywing && originalInskrywing[field.name as keyof typeof originalInskrywing] !== value) {
+                    await req.payload.update({ collection: 'inskrywings', id: inskrywingId, data: { [field.name]: value }, req, overrideAccess: false });
+                  }
+                } catch (e: any) {
+                  req.payload.logger.error(`Error updating inskrywing from Lede virtual field ${field.name}: ${e.message}`);
+                }
+              }
+              return value;
+            },
+          ],
+        },
+      } as Field;
+    })
+    .filter((field): field is Field => field !== null);
 };
 
 
@@ -343,7 +368,7 @@ export const Lede: CollectionConfig<"lede"> = {
             {
               type: "row",
               fields: [
-                { name: "user", type: "relationship", relationTo: "users", required: false, admin: { condition: checkConditionPermission("view:lede") } },
+                { name: "user", type: "relationship", relationTo: "users", required: false, admin: { condition: checkConditionPermission("view:lede"),  } },
                 { name: "divisie", type: "relationship", relationTo: "divisie", required: false, defaultValue: defaultdivisie, filterOptions: divisiewheredivisieleier },
                 { name: "rol", type: "select", options: ledeRoleOptions, interfaceName: "ledeRole" },
                 { name: "huidige_inskrywing", type: "relationship", relationTo: "inskrywings", label: "Huidige Inskrywing" },
