@@ -4,6 +4,10 @@ import { updateuser } from "@/collections/Lede/hooks/updateuser";
 import snakeCase from "lodash/snakeCase";
 import { getRoleFromUser, type UserWithIdRole } from "@/lib/get-role";
 import { Inskrywings } from "../Inskrywings";
+import {
+  ledeAfterChangeGenerator,
+  updateHuidigeInskrywingFieldGenerator
+} from "@/collections/Lede/hooks/updateinskrywing";
 
 export const ledeRoleOptions =[
   {label:"Divisie Leier",value:"divisieleier"},
@@ -95,6 +99,10 @@ const defaultdivisie: DefaultValue =  async ({req: payloadreq, user}) => {
   }
 }
 
+
+
+const inheritedFieldNames: string[] = []
+
 const inheritFields = (fields: Field[]): Field[] => {
   return fields
     .map((field): Field | null => {
@@ -113,7 +121,7 @@ const inheritFields = (fields: Field[]): Field[] => {
       if ((field.type === 'relationship' && field.relationTo === 'lede') || field.type === 'blocks') {
         return null;
       }
-
+      inheritedFieldNames.push(field.name)
       return {
         ...field,
         virtual: `huidige_inskrywing.${field.name}`,
@@ -123,21 +131,7 @@ const inheritFields = (fields: Field[]): Field[] => {
         },
         hooks: {
           beforeChange: [
-            async ({ value, siblingData, req, originalDoc }) => {
-              const inskrywingId = siblingData.huidige_inskrywing || originalDoc?.huidige_inskrywing;
-
-              if (inskrywingId && value !== undefined) {
-                try {
-                  const originalInskrywing = await req.payload.findByID({ collection: 'inskrywings', id: inskrywingId, depth: 0, req });
-                  if (originalInskrywing && originalInskrywing[field.name as keyof typeof originalInskrywing] !== value) {
-                    await req.payload.update({ collection: 'inskrywings', id: inskrywingId, data: { [field.name]: value }, req, overrideAccess: false });
-                  }
-                } catch (e: any) {
-                  req.payload.logger.error(`Error updating inskrywing from Lede virtual field ${field.name}: ${e.message}`);
-                }
-              }
-              return value;
-            },
+            updateHuidigeInskrywingFieldGenerator(field)
           ],
         },
       } as Field;
@@ -528,6 +522,6 @@ export const Lede: CollectionConfig<"lede"> = {
     }
   ],
   hooks:{
-    afterChange: [updateuser]
+    afterChange: [updateuser,ledeAfterChangeGenerator(inheritedFieldNames)]
   }
 }
