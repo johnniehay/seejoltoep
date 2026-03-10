@@ -1,17 +1,25 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { auth } from "@/auth";
+import { hasPermission } from "@/lib/permissions";
 
 export default async function LidDetailPage({ params }: { params: Promise<{ lidid: string }> }) {
   const { lidid } = await params
   const payload = await getPayload({ config })
+  const user = (await auth())?.user
+  const perm = hasPermission("view:lede")
+  if (!user) return redirect('/signin')
+  if (!perm) return <h1>Toegang verbode</h1>
 
   let lid
   try {
     lid = await payload.findByID({
       collection: 'lede',
       id: lidid,
+      overrideAccess: false,
+      user: user,
     })
   } catch (error) {
     notFound()

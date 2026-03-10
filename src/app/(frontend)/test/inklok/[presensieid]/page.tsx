@@ -33,8 +33,8 @@ export default async function Inklok({ params: paramsPromise }: Args) {
   const lid = lede.length === 1 ? lede[0] : null
   const divisie = nullifID(lid?.divisie) ?? null
 
-  if (lede.length <= 1) {
-    const inklokres = await inklok({ presensieid: presensie.id, divisieid: divisie?.id, lidid: lid?.id })
+  if (lid) {
+    const inklokres = await inklok({ presensieid: presensie.id, divisieid: divisie?.id, lidid: lid?.id, scan_time: new Date().toISOString() })
     if ("error" in inklokres) return <h1>Inklok failed: {inklokres.error}</h1>
     redirect(`success/${inklokres.inklok.id}`)
   }

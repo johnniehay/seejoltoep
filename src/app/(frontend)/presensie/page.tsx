@@ -3,13 +3,23 @@ import config from '@payload-config'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { auth } from "@/auth";
+import { hasPermission } from "@/lib/permissions";
+import { redirect } from "next/navigation";
 
 export default async function PresensiePage() {
   const payload = await getPayload({ config })
+  const user = (await auth())?.user
+  if (!user) return redirect('/signin')
+  // const perm = hasPermission("view:")
+  // if (!perm) return <h1>Toegang verbode</h1>
+
   const presensies = await payload.find({
     collection: 'presensie',
     limit: 100,
     sort: 'naam',
+    overrideAccess: false,
+    user: user,
   })
 
   return (

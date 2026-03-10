@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import Link from 'next/link'
+import { auth } from "@/auth";
+import { hasPermission } from "@/lib/permissions";
+import { redirect } from "next/navigation";
 
 export default async function LidSoekPage({
   searchParams,
@@ -14,6 +17,10 @@ export default async function LidSoekPage({
   const { lidnommer } = await searchParams
   let lid = null
   let error = null
+  const user = (await auth())?.user
+  const perm = hasPermission("view:lede")
+  if (!user) return redirect('/signin')
+  if (!perm) return <h1>Toegang verbode</h1>
 
   if (lidnommer) {
     const payload = await getPayload({ config })
@@ -25,6 +32,8 @@ export default async function LidSoekPage({
             equals: lidnommer,
           },
         },
+        overrideAccess: false,
+        user: user,
         limit: 1,
       })
       if (result.docs.length > 0) {
