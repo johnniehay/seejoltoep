@@ -10,6 +10,7 @@ import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
 import ServiceWorkerManager from "@/components/service-worker-manager";
 import { UserMenu } from "@/Header/UserMenu";
+import { Button } from "@/components/ui/button";
 
 export interface HeaderClientProps {
   data: Header
@@ -49,6 +50,13 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setu
           <Link href="/">Seejol App</Link>
         </div>
         { userData.name && <UserMenu userData={userData} setupSlot={setupSlot} />}
+        { !userData.name && !userData.email &&
+          <Button asChild size="sm">
+            <Link href={`/signin`}>
+              Teken In
+            </Link>
+          </Button>
+        }
       </div>
       <ServiceWorkerManager />
     </header>

@@ -28,11 +28,11 @@ export function SetupModal({ children }: { children: React.ReactNode }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto w-full">
+      <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-xl">
         <DialogHeader style={VISUALLY_HIDDEN_STYLES}>
-          <DialogTitle>Setup Required</DialogTitle>
+          <DialogTitle>Profiel Opstelling</DialogTitle>
           <DialogDescription>
-            Please complete your account setup to continue.
+            Voltooi asseblief u inligting om toegang te verkry.
           </DialogDescription>
         </DialogHeader>
         {children}

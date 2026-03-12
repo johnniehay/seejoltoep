@@ -12,19 +12,23 @@
  */
 export type LedeRole =
   | (
+      | 'default'
+      | 'besoeker'
+      | 'ouer'
+      | 'kanidaat-jeuglid'
+      | 'kanidaat-offisier'
+      | 'pd'
+      | 'verkenner'
+      | 'wagstaan'
+      | 'offisier'
+      | 'divisieoffisier'
+      | 'kombuis'
+      | 'logistiek'
+      | 'noodoffisier'
       | 'divisieleier'
-      | 'mentor'
-      | 'divisie_member'
-      | 'supporter'
-      | 'translator'
-      | 'day_visitor'
-      | 'candidate-divisieleier'
-      | 'candidate-mentor'
-      | 'candidate-divisie_member'
-      | 'candidate-supporter'
-      | 'candidate-translator'
-      | 'candidate-day_visitor'
-      | 'affiliated'
+      | 'kampraad'
+      | 'kampleier'
+      | 'admin'
     )
   | null;
 /**
@@ -130,6 +134,7 @@ export interface Config {
   };
   collectionsJoins: {
     lede: {
+      user: 'users';
       inskrywings_geskiedenis: 'inskrywings';
     };
     divisie: {
@@ -494,7 +499,7 @@ export interface User {
   emailVerified?: string | null;
   name?: string | null;
   image?: string | null;
-  tipe?: ('Verkenner' | 'Offisier' | 'Ouer') | null;
+  tipe?: ('Jeuglid' | 'Offisier' | 'Ouer') | null;
   self_lid?: (string | null) | Lede;
   gekoppelde_lede?: (string | Lede)[] | null;
   role?: string | null;
@@ -562,7 +567,11 @@ export interface User {
  */
 export interface Lede {
   id: string;
-  user?: (string | null) | User;
+  user?: {
+    docs?: (string | User)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   divisie?: (string | null) | Divisie;
   rol?: LedeRole;
   huidige_inskrywing?: (string | null) | Inskrywing;

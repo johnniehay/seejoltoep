@@ -1,6 +1,7 @@
 import type { CollectionAfterChangeHook, Field, FieldHook } from "payload";
 import type { Inskrywing, Lede } from "@/payload-types";
-import { omit, pick } from "lodash";
+import pick  from "lodash/pick";
+import omit  from "lodash/omit";
 
 // const createInskrywingAndAddAsHuidige = async (req: PayloadRequest, lidid: string) => {
 //   const huidigeInskrywing = (await req.payload.findByID({collection:"lede",id:lidid,depth:1,req})).huidige_inskrywing

@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Save, Undo } from 'lucide-react'
+import { Save, Undo, HelpCircle } from 'lucide-react'
 import { updateSettings, updateSelfLid, upsertChild, removeChild } from './actions'
 import { SettingsSchema, LidFormSchema } from './schema'
 import { signIn } from 'next-auth/webauthn'
@@ -215,13 +215,14 @@ export function SetupForm({ user, callbackUrl }: { user: ExtendedUser, callbackU
   const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<SettingsFormData>({
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
-      tipe: (user.tipe as any) || 'Verkenner',
+      tipe: (user.tipe as any) || 'Jeuglid',
       hasYouth: (user.gekoppelde_lede?.length || user.candidate_gekoppelde_lede?.length || 0) > 0,
       isSelfMember: !!(user.candidate_self_lid_nommer || user.self_lid),
     }
   })
 
   const tipe = watch("tipe")
+  const isTipeLocked = !!user.tipe
   const hasYouth = watch("hasYouth")
   const isSelfMember = watch("isSelfMember")
 
@@ -255,7 +256,7 @@ export function SetupForm({ user, callbackUrl }: { user: ExtendedUser, callbackU
     return [...linked, ...candidates, ...unsaved]
   }, [user, newChildren])
 
-  const showSelfFields = tipe === 'Verkenner' || tipe === 'Offisier' || (tipe === 'Ouer' && isSelfMember)
+  const showSelfFields = tipe === 'Jeuglid' || tipe === 'Offisier' || (tipe === 'Ouer' && isSelfMember)
   const showChildrenFields = (tipe === 'Offisier' && hasYouth) || tipe === 'Ouer'
 
   const handleAddPasskey = async (e: React.MouseEvent) => {
@@ -334,13 +335,19 @@ export function SetupForm({ user, callbackUrl }: { user: ExtendedUser, callbackU
 
       <div className="space-y-6">
         {/* Gebruiker Tipe */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium">Gebruiker Tipe</label>
+        <div className="space-y-2" onClick={isTipeLocked ? () => alert('Kontak seejol@voortrekkers.co.za om jou profiel tipe te verander.') : undefined}>
+          <div className="flex items-center space-x-2">
+            <label className="block text-sm font-medium">Gebruiker Tipe</label>
+            {isTipeLocked && (
+              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
           <select
             {...register("tipe")}
-            className={inputClasses}
+            disabled={isTipeLocked}
+            className={`${inputClasses} ${isTipeLocked ? 'cursor-not-allowed' : ''}`}
           >
-            <option value="Verkenner">Verkenner</option>
+            <option value="Jeuglid">Jeuglid (Verkenner/PD)</option>
             <option value="Offisier">Offisier</option>
             <option value="Ouer">Ouer</option>
           </select>

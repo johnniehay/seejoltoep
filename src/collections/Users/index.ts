@@ -40,7 +40,11 @@ export const Users: CollectionConfig = {
       name: "tipe",
       type: "select",
       label: "Gebruiker Tipe",
-      options: ["Verkenner","Offisier","Ouer"],
+      options: [
+        { label: "Jeuglid (Verkenner/PD)", value: "Jeuglid" },
+        "Offisier",
+        "Ouer"
+      ],
       access: {
         create: () => false,
         read: checkFieldPermissionOrIf("view:users",({id,req:{user}}) => (user ? id === user.id : false )),
@@ -52,6 +56,7 @@ export const Users: CollectionConfig = {
       type: "relationship",
       label: "Self Lid",
       relationTo: "lede",
+      hasMany: false
     },
     {
       name: "gekoppelde_lede",

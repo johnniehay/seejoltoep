@@ -32,18 +32,20 @@ export const DivisieManagementPermissions = ["create:divisie", "update:divisie",
 // export const AllPermissions = [...VolunteerAdminPermissions, ...JudgeAdvisorPermissions, ...FieldManagerPermissions, ...DivisieAdminPermissions, ...AdminPermissions, ...AllDivisiePermissions, ...NonPublicPermissions] as const
 
 
-export const OffisierPermission = ["view:offisier"] as const
+export const AlgemeneOffisierPermission = ["view:offisier"] as const
 
-export const OuerPermissions = [] as const
-export const SpanOffisierPermissions = [] as const
-export const VerkennerPermissions = [] as const
-export const PdPermissions = [] as const
+export const OuerPermissions = [...NonPublicPermissions] as const
+export const VerkennerPermissions = [...NonPublicPermissions] as const
+export const PdPermissions = [...NonPublicPermissions] as const
+export const KanidaatJeuglidPermissions = [...NonPublicPermissions] as const
+export const KanidaatVolwassenePermissions = [...NonPublicPermissions] as const
 
-export const WagstaanPermissions = [...OffisierPermission] as const
-export const NoodOffisierPermissions = [...OffisierPermission] as const
-export const KombuisPermissions = [...OffisierPermission] as const
-export const LogistiekPermissions = [...OffisierPermission] as const
-export const DivisieOffisierPermissions = ["view:divisie:lede", "create:presensie", "update:presensie",...OffisierPermission] as const
+export const OffisierPermissions = [...AlgemeneOffisierPermission] as const
+export const WagstaanPermissions = [...AlgemeneOffisierPermission] as const
+export const NoodOffisierPermissions = [...AlgemeneOffisierPermission] as const
+export const KombuisPermissions = [...AlgemeneOffisierPermission] as const
+export const LogistiekPermissions = [...AlgemeneOffisierPermission] as const
+export const DivisieOffisierPermissions = ["view:divisie:lede", "create:presensie", "update:presensie",...AlgemeneOffisierPermission] as const
 export const DivisieLeierPermissions = ["view:divisie:users","view:divisie:lede","update:divisie:lede","remove:presensie", ...AktiwiteitManagementPermissions, ...PagesPermissions,...DivisieOffisierPermissions] as const
 export const KampRaadPermissions = ["view:users", "create:users", "update:users", "update:user:role", "remove:users", ...LedeManagementPermissions , ...DivisieLeierPermissions, ...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions] as const
 export const KampLeierPermissions = ["admin", ...DivisieManagementPermissions, ...KampRaadPermissions, ...DivisieLeierPermissions, ...LogistiekPermissions, ...KombuisPermissions, ...NoodOffisierPermissions] as const
@@ -53,23 +55,28 @@ export const AllPermissions = [...AdminPermissions, ...NonPublicPermissions] as 
 export type Permission = typeof AllPermissions[number]
 export type PermissionList = readonly Permission[]
 
-export const OffisiereRolLys = ["kampleier","kampraad","divisieleier","divisieoffisier", "logistiek", "kombuis","noodoffisier","wagstaan"] as const
+export const OffisiereRolLys = [ "wagstaan","offisier","divisieoffisier","kombuis","logistiek","noodoffisier","divisieleier","kampraad","kampleier"] as const
 export type OffisiereRol = typeof OffisiereRolLys[number]
 
 export const RoleList = [
   "default",// default empty role
-  "candidate",// default setup pending confirmation
+  // "candidate",// default setup pending confirmation
   "besoeker",
-  "ouer" ,"spanoffisier", "verkenner", "pd",
+  "ouer",
+  "kanidaat-jeuglid", "kanidaat-offisier",
+  "pd", "verkenner",
   ...OffisiereRolLys, "admin" ] as const
 // when changing the above also update roleToNotificationTopicsMap in components/push-notification-settings.tsx
 
 export type Role = typeof RoleList[number]
 export const rolePermissions: Record<Role, PermissionList> = {
   "ouer": OuerPermissions,
-  "spanoffisier": SpanOffisierPermissions,
-  "verkenner": VerkennerPermissions,
   "pd": PdPermissions,
+  "verkenner": VerkennerPermissions,
+
+  "kanidaat-jeuglid": KanidaatJeuglidPermissions,
+  "kanidaat-offisier": KanidaatVolwassenePermissions,
+  "offisier": OffisierPermissions,
 
   "wagstaan": WagstaanPermissions,
   "noodoffisier": NoodOffisierPermissions,
@@ -82,6 +89,5 @@ export const rolePermissions: Record<Role, PermissionList> = {
   "admin": AllPermissions,
 
   "besoeker": NonPublicPermissions,
-  "candidate": NonPublicPermissions,
   "default": NonPublicPermissions
 } as const

@@ -6,11 +6,16 @@ import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { SettingsSchema, LidFormSchema } from './schema'
+import { Lede } from '@/payload-types'
+import { ledeRoles } from '@/collections/Lede'
+import { Role } from '@/lib/roles'
+import { getUpdatedRole } from "@/collections/Lede/hooks/updateuser";
 
 type LedeLookupResult = {
   found: boolean
   id?: string
   name?: string
+  lid?: Lede
   reason?: 'not_found' | 'invalid_dob'
 }
 
@@ -38,7 +43,7 @@ async function findLede(payload: any, lidnommer: string, dob: string): Promise<L
 
   if (lidDate >= startOfDay && lidDate <= endOfDay) {
     const nameParts = [lid.noemnaam || lid.naam, lid.van].filter(Boolean)
-    return { found: true, id: lid.id, name: nameParts.join(' ') }
+    return { found: true, id: lid.id, name: nameParts.join(' '), lid: lid }
   }
 
   return { found: false, reason: 'invalid_dob' }
@@ -58,13 +63,35 @@ export async function updateSettings(data: z.infer<typeof SettingsSchema>) {
     return { success: false, message: 'Ongeldige data', errors: validation.error.flatten().fieldErrors }
   }
 
-  const updateData: any = {
-    tipe: data.tipe,
-    role: data.tipe?.toLowerCase(),
+  const { tipe, hasYouth, isSelfMember } = validation.data
+  const updateData: any = {}
+
+  // 'tipe' will be undefined if the field was disabled on the form
+  if (tipe && !user.tipe) {
+    updateData.tipe = tipe
+    if (!user.role) {
+      if (tipe === 'Jeuglid') {
+        updateData.role = 'kanidaat-jeuglid'
+      } else if (tipe === 'Offisier') {
+        updateData.role = 'kanidaat-offisier'
+      } else if (tipe === 'Ouer') {
+        updateData.role = 'ouer'
+      }
+    }
+  }
+  if (user.self_lid) {
+    if (typeof user.self_lid === "string") throw "updateSettings user.self_lid is string"
+    const userRoleUpdate = getUpdatedRole(user.self_lid, updateData.role)
+    payload.logger.warn(`userRoleUpdate: ${JSON.stringify(userRoleUpdate)}`)
+    if ("role" in userRoleUpdate) {
+      updateData.role = userRoleUpdate.role
+    }
   }
 
-  if (data.tipe === 'Offisier') updateData.hasYouth = data.hasYouth
-  if (data.tipe === 'Ouer') updateData.isSelfMember = data.isSelfMember
+  const currentTipe = user.tipe || tipe
+
+  if (currentTipe === 'Offisier') updateData.hasYouth = hasYouth
+  if (currentTipe === 'Ouer') updateData.isSelfMember = isSelfMember
 
   try {
     await payload.update({ collection: 'users', id: user.id, data: updateData })
@@ -86,12 +113,19 @@ export async function updateSelfLid(data: z.infer<typeof LidFormSchema>) {
   const lookup = await findLede(payload, data.lid_nommer, data.dob)
   const updateData: any = {}
 
-  if (lookup.found) {
+  if (lookup.found && lookup.lid) {
     updateData.self_lid = lookup.id
     if (lookup.name) updateData.name = lookup.name
     updateData.candidate_self_lid_nommer = null
     updateData.candidate_self_lid_dob = null
     updateData.candidate_self_lid_invalid_dob = null
+
+    // const userRoleUpdate = getUpdatedRole(lookup.lid, user.role)
+    // payload.logger.warn(`userRoleUpdate: ${JSON.stringify(userRoleUpdate)}`)
+    // if ("role" in userRoleUpdate) {
+    //   updateData.role = userRoleUpdate.role
+    // }
+
   } else {
     updateData.self_lid = null
     updateData.candidate_self_lid_nommer = data.lid_nommer
@@ -118,7 +152,7 @@ export async function upsertChild(data: z.infer<typeof LidFormSchema> & { row_id
 
   // Fetch fresh user data to get current arrays
   const currentUser = await payload.findByID({ collection: 'users', id: user.id, depth: 0 })
-  
+
   let gekoppelde = (currentUser.gekoppelde_lede as string[]) || []
   let candidates = (currentUser.candidate_gekoppelde_lede as any[]) || []
 
@@ -198,13 +232,13 @@ export async function upsertChild(data: z.infer<typeof LidFormSchema> & { row_id
   }
 
   try {
-    await payload.update({ 
-      collection: 'users', 
-      id: user.id, 
-      data: { 
+    await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: {
         gekoppelde_lede: gekoppelde,
         candidate_gekoppelde_lede: candidates
-      } 
+      }
     })
     revalidatePath('/setup')
     return { success: true, message: 'Lid gestoor' }
@@ -219,7 +253,7 @@ export async function removeChild(id: string, type: 'linked' | 'candidate') {
   if (!user) return { success: false, message: 'Nie gemagtig nie' }
 
   const currentUser = await payload.findByID({ collection: 'users', id: user.id, depth: 0 })
-  
+
   let gekoppelde = (currentUser.gekoppelde_lede as string[]) || []
   let candidates = (currentUser.candidate_gekoppelde_lede as any[]) || []
 
@@ -230,13 +264,13 @@ export async function removeChild(id: string, type: 'linked' | 'candidate') {
   }
 
   try {
-    await payload.update({ 
-      collection: 'users', 
-      id: user.id, 
-      data: { 
+    await payload.update({
+      collection: 'users',
+      id: user.id,
+      data: {
         gekoppelde_lede: gekoppelde,
         candidate_gekoppelde_lede: candidates
-      } 
+      }
     })
     revalidatePath('/setup')
     return { success: true, message: 'Lid verwyder' }

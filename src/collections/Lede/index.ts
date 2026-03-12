@@ -9,29 +9,27 @@ import {
   updateHuidigeInskrywingFieldGenerator
 } from "@/collections/Lede/hooks/updateinskrywing";
 
-export const ledeRoleOptions =[
-  {label:"Divisie Leier",value:"divisieleier"},
-  {label:"Mentor",value:"mentor"},
-  {label:"Divisie Member",value:"divisie_member"},
-  {label:"Supporter",value:"supporter"},
-  {label:"Translator",value:"translator"},
-  {label:"Day Visitor",value:"day_visitor"},
-  {label:"Candidate divisieleier",value:"candidate-divisieleier"},
-  {label:"Candidate Mentor",value:"candidate-mentor"},
-  {label:"Candidate Divisie Member",value:"candidate-divisie_member"},
-  {label:"Candidate Supporter",value:"candidate-supporter"},
-  {label:"Candidate Translator",value:"candidate-translator"},
-  {label:"Candidate Day Visitor",value:"candidate-day_visitor"},
-  {label:"Affiliated",value:"affiliated"},
+export const ledeRoleOptions = [
+  { label: "Default", value: "default" },
+  { label: "Besoeker", value: "besoeker" },
+  { label: "Ouer", value: "ouer" },
+  { label: "Kandidaat Jeuglid", value: "kanidaat-jeuglid" },
+  { label: "Kandidaat Offisier", value: "kanidaat-offisier" },
+  { label: "PD", value: "pd" },
+  { label: "Verkenner", value: "verkenner" },
+  { label: "Wagstaan", value: "wagstaan" },
+  { label: "Offisier", value: "offisier" },
+  { label: "Divisie Offisier", value: "divisieoffisier" },
+  { label: "Kombuis", value: "kombuis" },
+  { label: "Logistiek", value: "logistiek" },
+  { label: "Nood Offisier", value: "noodoffisier" },
+  { label: "Divisie Leier", value: "divisieleier" },
+  { label: "Kampraad", value: "kampraad" },
+  { label: "Kamp Leier", value: "kampleier" },
+  { label: "Admin", value: "admin" },
 ];
 
 export const ledeRoles = ledeRoleOptions.map((roleoption) => roleoption.value)
-
-const volunteerRolesLabels = ["Judge", "Referee", "Other Volunteer"]
-export const volunteerRoleOptions = volunteerRolesLabels.map(role => {return {label: role, value: snakeCase(role)}});
-export const volunteerRoles = volunteerRolesLabels.map(role => snakeCase(role));
-
-export const dietaryOptions = ["None","Halal","Kosher","Vegetarian","Vegan","Other"]
 
 export const divisieleierdivisiesquery = async (user: UserWithIdRole | null | undefined, payload: BasePayload)=> {
   if (getRoleFromUser(user) === "divisieleier") {
@@ -362,7 +360,7 @@ export const Lede: CollectionConfig<"lede"> = {
             {
               type: "row",
               fields: [
-                { name: "user", type: "relationship", relationTo: "users", required: false, admin: { condition: checkConditionPermission("view:lede"),  } },
+                { name: "user", type: "join", collection: "users", on:"self_lid", required: false, admin: { allowCreate: false, condition: checkConditionPermission("view:lede"),  } },
                 { name: "divisie", type: "relationship", relationTo: "divisie", required: false, defaultValue: defaultdivisie, filterOptions: divisiewheredivisieleier },
                 { name: "rol", type: "select", options: ledeRoleOptions, interfaceName: "ledeRole" },
                 { name: "huidige_inskrywing", type: "relationship", relationTo: "inskrywings", label: "Huidige Inskrywing" },
