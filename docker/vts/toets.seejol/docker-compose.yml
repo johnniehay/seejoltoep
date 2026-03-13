@@ -12,6 +12,9 @@ services:
         - env-app
     env_file: &build-seejoltoets-env
       - .env.seejoltoets
+    secrets:
+      - source: gac-app
+        target: /app/gac.json
     networks:
       - vts_default
 #    ports:
@@ -37,6 +40,8 @@ networks:
 secrets:
   env-app:
     file: .env.seejoltoets
+  gac-app:
+    file: gac.json
 
 volumes:
   seejoltoetsmedia:

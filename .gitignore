@@ -10,6 +10,7 @@ node_modules
 next-env.d.ts
 
 initdb.*.js
+gac.json
 
 # Payload default media upload directory
 public/media/
