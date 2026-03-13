@@ -1,6 +1,6 @@
 import { getPayload } from "payload";
 import configPromise from '@payload-config'
-import { getPayloadSession } from "payload-authjs";
+import { getPayloadSession } from "@/lib/payload-authjs-custom/exports/server";
 import { hasPermission } from "@/lib/permissions";
 import { inklok } from "@/lib/inklok";
 import { redirect } from "next/navigation";
@@ -17,7 +17,7 @@ function nullifID<T>(value: T|string): T|null {
 
 export default async function Inklok({ params: paramsPromise }: Args) {
   const { presensieid } = await paramsPromise
-  if (!presensieid || presensieid.length !== 24) return <h1>Invalid presensie</h1>
+  if (!presensieid) return <h1>Invalid presensie</h1>
 
   const session = await getPayloadSession()
   if (!session) return <h1>Unauthorized to check in when not signed in</h1>

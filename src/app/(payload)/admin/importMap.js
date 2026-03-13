@@ -24,9 +24,11 @@ import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@pa
 import { AccountRowLabel as AccountRowLabel_06d0cb594d8f6ba2ac35015f930c882e } from 'payload-authjs/components'
 import { AddAuthenticatorButton as AddAuthenticatorButton_39ad1cdbf6aa2f97589820b2ab72a1b1 } from 'payload-authjs/components/webauthn'
 import { LedeMergeButton as LedeMergeButton_16847b92690b64e7b0879687b2017f18 } from '@/collections/Lede/merge-button'
+import { AddToGroepButton as AddToGroepButton_dcec21b105f41a4fbff64ac3b2e71a74 } from '@/collections/Lede/add-to-groep-button'
 import { SyncButton as SyncButton_eea82e474bd97b0ca8fac825e5b60405 } from '@/plugins/google-sheets/components/SyncButton'
 import { LocalChangesButton as LocalChangesButton_075e5fe1e2acf2c7f8485337d4cbd152 } from '@/plugins/google-sheets/components/LocalChangesButton'
 import { ImportButton as ImportButton_381b37adae1de2ae982f108f6869eccd } from '@/plugins/sas-import/components/ImportButton'
+import { AddGroepLedeButton as AddGroepLedeButton_c50d10df6a6e21bcbf65a90572f38384 } from '@/collections/Presensie/add-groep-lede-button'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
@@ -66,9 +68,11 @@ export const importMap = {
   "payload-authjs/components#AccountRowLabel": AccountRowLabel_06d0cb594d8f6ba2ac35015f930c882e,
   "payload-authjs/components/webauthn#AddAuthenticatorButton": AddAuthenticatorButton_39ad1cdbf6aa2f97589820b2ab72a1b1,
   "@/collections/Lede/merge-button#LedeMergeButton": LedeMergeButton_16847b92690b64e7b0879687b2017f18,
+  "@/collections/Lede/add-to-groep-button#AddToGroepButton": AddToGroepButton_dcec21b105f41a4fbff64ac3b2e71a74,
   "@/plugins/google-sheets/components/SyncButton#SyncButton": SyncButton_eea82e474bd97b0ca8fac825e5b60405,
   "@/plugins/google-sheets/components/LocalChangesButton#LocalChangesButton": LocalChangesButton_075e5fe1e2acf2c7f8485337d4cbd152,
   "@/plugins/sas-import/components/ImportButton#ImportButton": ImportButton_381b37adae1de2ae982f108f6869eccd,
+  "@/collections/Presensie/add-groep-lede-button#AddGroepLedeButton": AddGroepLedeButton_c50d10df6a6e21bcbf65a90572f38384,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,

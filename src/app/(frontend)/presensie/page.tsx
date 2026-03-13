@@ -34,12 +34,12 @@ export default async function PresensiePage() {
             <CardContent className="flex flex-col gap-4">
               <p className="text-sm text-muted-foreground">Type: {presensie.presensie_tipe}</p>
               <Button asChild variant="outline" className="w-full">
-                <Link href={`/test/inklok/${presensie.id}/scan`}>
+                <Link href={`/inklok/${presensie.id}/scan`}>
                   Scan Page
                 </Link>
               </Button>
               <Button asChild className="w-full">
-                <Link href={`/test/inklok/${presensie.id}`}>
+                <Link href={`/inklok/${presensie.id}`}>
                   Self Inklok
                 </Link>
               </Button>

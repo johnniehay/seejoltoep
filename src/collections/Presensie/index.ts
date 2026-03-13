@@ -16,9 +16,18 @@ export const Presensie: CollectionConfig<"presensie"> = {
   },
   fields: [
     {name:"naam", type:"text", required:true, unique:true},
-    {name:"abbreviation", type:"text", required:true, unique:true},
-    {name:"presensie_tipe", type: "select",required:true,options:["robotgame","robotgame-queue","judging","judging-queue","cultural","general","pit","volunteer"]},
+    {name:"id", type:"text", required:true, unique:true},
+    {name:"presensie_tipe", type: "select",required:true,options:["bus","wagstaan","divisie"]},
     {name:"inklokke", type:"join", collection: "inklokke", on: "presensie",maxDepth: 2},
+    {
+      type: 'ui',
+      name: 'addGroepLede',
+      admin: {
+        components: {
+          Field: '@/collections/Presensie/add-groep-lede-button#AddGroepLedeButton',
+        },
+      },
+    },
     {name:"verwagte_lede", type:"relationship", relationTo:"lede", hasMany:true}
   ]
 }

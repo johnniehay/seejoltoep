@@ -120,6 +120,7 @@ export interface Config {
     presensie: Presensie;
     inklokke: Inklokke;
     aktiwiteit: Aktiwiteit;
+    groepe: Groepe;
     'puck-templates': PuckTemplate;
     redirects: Redirect;
     forms: Form;
@@ -144,6 +145,9 @@ export interface Config {
     presensie: {
       inklokke: 'inklokke';
     };
+    groepe: {
+      lede: 'lede';
+    };
     'payload-folders': {
       documentsAndFolders: 'payload-folders' | 'media';
     };
@@ -161,6 +165,7 @@ export interface Config {
     presensie: PresensieSelect<false> | PresensieSelect<true>;
     inklokke: InklokkeSelect<false> | InklokkeSelect<true>;
     aktiwiteit: AktiwiteitSelect<false> | AktiwiteitSelect<true>;
+    groepe: GroepeSelect<false> | GroepeSelect<true>;
     'puck-templates': PuckTemplatesSelect<false> | PuckTemplatesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -584,6 +589,8 @@ export interface Lede {
   posisie?: string | null;
   kommando?: string | null;
   hoeveelste_jaar_kamp_jy_op_seejol?: string | null;
+  groepe?: (string | Groepe)[] | null;
+  lid_inligting_sigbaar_vir_groepe?: (string | Groepe)[] | null;
   lid_eposadres?: string | null;
   lid_kontaknommer?: string | null;
   kontakpersoon_voor_kamp?: string | null;
@@ -840,18 +847,9 @@ export interface Aktiwiteit {
  * via the `definition` "presensie".
  */
 export interface Presensie {
-  id: string;
   naam: string;
-  abbreviation: string;
-  presensie_tipe:
-    | 'robotgame'
-    | 'robotgame-queue'
-    | 'judging'
-    | 'judging-queue'
-    | 'cultural'
-    | 'general'
-    | 'pit'
-    | 'volunteer';
+  id: string;
+  presensie_tipe: 'bus' | 'wagstaan' | 'divisie';
   inklokke?: {
     docs?: (string | Inklokke)[];
     hasNextPage?: boolean;
@@ -930,6 +928,23 @@ export interface Inskrywing {
   addisionele_notas?: string | null;
   qr_skakel?: string | null;
   qr_prent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "groepe".
+ */
+export interface Groepe {
+  id: string;
+  naam: string;
+  tipe?: ('vervoer' | 'divisie' | 'divisie_subgroep' | 'tent') | null;
+  subgroepe?: (string | Groepe)[] | null;
+  lede?: {
+    docs?: (string | Lede)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1403,6 +1418,10 @@ export interface PayloadLockedDocument {
         value: string | Aktiwiteit;
       } | null)
     | ({
+        relationTo: 'groepe';
+        value: string | Groepe;
+      } | null)
+    | ({
         relationTo: 'puck-templates';
         value: string | PuckTemplate;
       } | null)
@@ -1746,6 +1765,8 @@ export interface LedeSelect<T extends boolean = true> {
   posisie?: T;
   kommando?: T;
   hoeveelste_jaar_kamp_jy_op_seejol?: T;
+  groepe?: T;
+  lid_inligting_sigbaar_vir_groepe?: T;
   lid_eposadres?: T;
   lid_kontaknommer?: T;
   kontakpersoon_voor_kamp?: T;
@@ -1887,7 +1908,7 @@ export interface DivisieSelect<T extends boolean = true> {
  */
 export interface PresensieSelect<T extends boolean = true> {
   naam?: T;
-  abbreviation?: T;
+  id?: T;
   presensie_tipe?: T;
   inklokke?: T;
   verwagte_lede?: T;
@@ -1922,6 +1943,18 @@ export interface AktiwiteitSelect<T extends boolean = true> {
   presensie?: T;
   virAlle?: T;
   divisies?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "groepe_select".
+ */
+export interface GroepeSelect<T extends boolean = true> {
+  naam?: T;
+  tipe?: T;
+  subgroepe?: T;
+  lede?: T;
   updatedAt?: T;
   createdAt?: T;
 }

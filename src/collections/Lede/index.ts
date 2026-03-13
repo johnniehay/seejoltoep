@@ -346,7 +346,10 @@ export const Lede: CollectionConfig<"lede"> = {
     useAsTitle: "naam",
     defaultColumns: ["naam", "van", "id", "rol", "divisie"],
     components: {
-      beforeList: ['@/collections/Lede/merge-button#LedeMergeButton'],
+      beforeList: [
+        '@/collections/Lede/merge-button#LedeMergeButton',
+        '@/collections/Lede/add-to-groep-button#AddToGroepButton',
+      ],
     },
   },
   fields: [
@@ -390,6 +393,8 @@ export const Lede: CollectionConfig<"lede"> = {
               ]
             },
             { name: "hoeveelste_jaar_kamp_jy_op_seejol", type: "text", label: "Hoeveelste jaar kamp jy op Seejol?" },
+            { name: "groepe", type: "relationship", relationTo: "groepe", hasMany: true },
+            { name: "lid_inligting_sigbaar_vir_groepe", type: "relationship", relationTo: "groepe", hasMany: true },
           ]
         },
         {

@@ -11,11 +11,11 @@ type Args = {
 export default async function ScanPage({ params: paramsPromise }: Args) {
   const { presensieid } = await paramsPromise
 
-  if (!presensieid || presensieid.length !== 24) return <h1>Invalid presensie</h1>
+  if (!presensieid) return <h1>Invalid presensie</h1>
 
   // Initial fetch using the server action logic
   const data = await fetchPresensieData(presensieid);
-  
+
   if (!data) return <h1>Presensie not found or Unauthorized</h1>
   const { presensieNaam, expectedLede, initialInklokke } = data;
 

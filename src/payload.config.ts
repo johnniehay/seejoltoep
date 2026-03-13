@@ -21,6 +21,7 @@ import { Divisies } from "@/collections/Divisies";
 import { Presensie } from "@/collections/Presensie";
 import { Inklokke } from "@/collections/Inklokke";
 import { Aktiwiteite } from "@/collections/Aktiwiteite";
+import { Groepe } from "@/collections/Groepe";
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -80,7 +81,7 @@ export default buildConfig({
     db: mongooseAdapter({
         url: process.env.DATABASE_URL || '',
     }),
-    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite],
+    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite, Groepe],
     cors: [getServerSideURL()].filter(Boolean),
     globals: [Header, Footer],
     plugins,
