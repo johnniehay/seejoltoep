@@ -57,7 +57,7 @@ export function RegistrationForm({ className }: { className?: string }) {
         })
       }
     } else if (res.success) {
-      setMessage({ type: 'success', text: res.message || "Magic link sent!" })
+      setMessage({ type: 'success', text: res.message || "Inteken skakel gestuur!" })
     }
   }
 
@@ -77,7 +77,7 @@ export function RegistrationForm({ className }: { className?: string }) {
         })
       }
     } else if (res.success) {
-      setMessage({ type: 'success', text: res.message || "Account created!" })
+      setMessage({ type: 'success', text: res.message || "Profiel geskep!" })
       // Optional: Redirect to login or sign in automatically
       setTimeout(() => router.push('/api/auth/signin'), 2000)
     }
@@ -89,11 +89,11 @@ export function RegistrationForm({ className }: { className?: string }) {
     <div className={cn("grid gap-6", className)}>
       <Card>
         <CardHeader>
-          <CardTitle>{isPasswordMode ? "Create an account" : "Sign in / Register"}</CardTitle>
+          <CardTitle>{isPasswordMode ? "Skep 'n profiel" : "Teken In / Registreer"}</CardTitle>
           <CardDescription>
             {isPasswordMode
-              ? "Enter your details below to create your account"
-              : "Enter your email to receive a magic link"}
+              ? "Voer jou besonderhede hieronder in om jou profiel te skep"
+              : "Voer jou e-pos in om 'n inteken skakel te ontvang"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -108,7 +108,7 @@ export function RegistrationForm({ className }: { className?: string }) {
             <form onSubmit={magicLinkForm.handleSubmit(onMagicLinkSubmit)}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">E-pos</Label>
                   <Input
                     id="email"
                     placeholder="name@example.com"
@@ -125,7 +125,7 @@ export function RegistrationForm({ className }: { className?: string }) {
                 </div>
                 <Button disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Send Magic Link
+                  Stuur Inteken Skakel
                 </Button>
               </div>
             </form>
@@ -133,7 +133,7 @@ export function RegistrationForm({ className }: { className?: string }) {
             <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">E-pos</Label>
                   <Input
                     id="email"
                     type="email"
@@ -146,7 +146,7 @@ export function RegistrationForm({ className }: { className?: string }) {
                   )}
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Wagwoord</Label>
                   <Input
                     id="password"
                     type="password"
@@ -158,7 +158,7 @@ export function RegistrationForm({ className }: { className?: string }) {
                   )}
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword">Bevestig Wagwoord</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -185,7 +185,7 @@ export function RegistrationForm({ className }: { className?: string }) {
 
                 <Button disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Account
+                  Skep Profiel
                 </Button>
               </div>
             </form>
@@ -193,7 +193,7 @@ export function RegistrationForm({ className }: { className?: string }) {
 
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or continue with</span></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Of gaan voort met</span></div>
           </div>
 
           <Button variant="outline" type="button" disabled={isLoading} className="w-full">
@@ -207,7 +207,7 @@ export function RegistrationForm({ className }: { className?: string }) {
             setIsPasswordMode(!isPasswordMode)
             setMessage(null)
           }}>
-            {isPasswordMode ? "Back to Magic Link" : "Register with Password"}
+            {isPasswordMode ? "Terug na Inteken Skakel" : "Registreer met Wagwoord"}
           </Button>
         </CardFooter>
       </Card>

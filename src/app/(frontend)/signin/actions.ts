@@ -27,10 +27,10 @@ export async function signInWithMagicLink(data: z.infer<typeof magicLinkSignInSc
       redirect: false,
       redirectTo: callbackUrl,
     })
-    return { success: true, message: "Check your email for a sign-in link." }
+    return { success: true, message: "Kyk in jou e-pos vir 'n inteken skakel." }
   } catch (error) {
     console.error("Magic Link Error:", error)
-    return { error: "Failed to send magic link. Please try again." }
+    return { error: "Kon nie die inteken skakel stuur nie. Probeer asseblief weer." }
   }
 }
 
@@ -60,7 +60,7 @@ export async function signInWithPassword(data: z.infer<typeof passwordSignInSche
 
     const verifyJson = await verifyRes.json()
     if (!verifyJson.success) {
-      return { error: { turnstileToken: ["Security check failed. Please try again."] } }
+      return { error: { turnstileToken: ["Sekuriteitskontrole het misluk. Probeer asseblief weer."] } }
     }
   }
 
@@ -73,11 +73,11 @@ export async function signInWithPassword(data: z.infer<typeof passwordSignInSche
       redirectTo: callbackUrl,
     })
     console.log(`signinres ${JSON.stringify(signinres)}`)
-    return { success: true, message: `Signed in successfully.` }
+    return { success: true, message: `Suksesvol ingeteken.` }
   } catch (error) {
     if (error instanceof AuthError) {
       if (error.type === 'CredentialsSignin') {
-        return { error: "Invalid email or password." }
+        return { error: "Ongeldige e-pos of wagwoord." }
       }
     }
     throw error // Rethrow to allow redirect if successful (though redirect:false is used above) or other errors

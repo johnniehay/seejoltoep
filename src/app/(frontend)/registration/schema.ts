@@ -2,15 +2,15 @@ import { z } from 'zod'
 
 // Zod Schemas
 export const magicLinkSchema = z.object({
-  email: z.email("Please enter a valid email address"),
+  email: z.email("Voer asseblief 'n geldige e-posadres in"),
 })
 
 export const passwordRegistrationSchema = z.object({
-  email: z.email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-  turnstileToken: z.string().min(1, "Please complete the security check"),
+  email: z.email("Voer asseblief 'n geldige e-posadres in"),
+  password: z.string().min(8, "Wagwoord moet ten minste 8 karakters lank wees"),
+  confirmPassword: z.string().min(8, "Wagwoord moet ten minste 8 karakters lank wees"),
+  turnstileToken: z.string().min(1, "Voltooi asseblief die sekuriteitskontrole"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
+  message: "Wagwoorde stem nie ooreen nie",
   path: ["confirmPassword"],
 })

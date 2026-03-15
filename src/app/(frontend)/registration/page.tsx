@@ -2,8 +2,8 @@ import { Metadata } from "next"
 import { RegistrationForm } from "./registration-form"
 
 export const metadata: Metadata = {
-  title: "Authentication",
-  description: "Authentication forms built using the components.",
+  title: "Registrasie",
+  description: "Registreer deur 'n profiel te skep.",
 }
 
 export default function RegistrationPage() {
@@ -18,7 +18,7 @@ export default function RegistrationPage() {
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              &ldquo;Join our platform to access exclusive content and manage your profile with ease.&rdquo;
+              &ldquo;Sluit aan by ons platform vir toegang tot kamp inligting en funksies.&rdquo;
             </p>
           </blockquote>
         </div>

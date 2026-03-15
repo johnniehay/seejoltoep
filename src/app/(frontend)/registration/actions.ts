@@ -31,11 +31,11 @@ export async function sendMagicLink(data: z.infer<typeof magicLinkSchema>): Prom
       email: validated.data.email,
       redirect: false,
     })
-    return { success: true, message: "If an account exists, a magic link has been sent to your email." }
+    return { success: true, message: "'n Inteken skakel is na jou e-pos gestuur." }
   } catch (error) {
     console.error("Magic Link Error:", error)
     // Generic error to avoid leaking user existence if strict
-    return { error: "Failed to send magic link. Please try again." }
+    return { error: "Kon nie die inteken skakel stuur nie. Probeer asseblief weer." }
   }
 }
 
@@ -65,7 +65,7 @@ export async function registerWithPassword(data: z.infer<typeof passwordRegistra
 
     const verifyJson = await verifyRes.json()
     if (!verifyJson.success) {
-      return { error: { turnstileToken: ["Security check failed. Please try again."] } }
+      return { error: { turnstileToken: ["Sekuriteitskontrole het misluk. Probeer asseblief weer."] } }
     }
   } else {
     console.warn("TURNSTILE_SECRET_KEY not set, skipping verification.")
@@ -82,7 +82,7 @@ export async function registerWithPassword(data: z.infer<typeof passwordRegistra
     })
 
     if (existingUser.totalDocs > 0) {
-      return { error: { email: ["This email is already registered."] } }
+      return { error: { email: ["Hierdie e-pos is reeds geregistreer."] } }
     }
 
     await payload.create({
@@ -95,7 +95,7 @@ export async function registerWithPassword(data: z.infer<typeof passwordRegistra
 
     // 3. Attempt to sign in immediately (optional, but good UX)
     // We return success here and let the client handle the redirect or login flow
-    return { success: true, message: "Account created successfully. You can now sign in." }
+    return { success: true, message: "Profiel suksesvol geskep. Jy kan nou inteken." }
   } catch (error) {
     console.error("Registration Error:", error)
     return { error: "An unexpected error occurred during registration." }

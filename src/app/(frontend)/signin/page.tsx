@@ -9,8 +9,8 @@ import { pick } from "lodash";
 
 
 export const metadata: Metadata = {
-  title: "Sign In",
-  description: "Sign in to your account.",
+  title: "Teken In",
+  description: "Teken in op jou profiel.",
 }
 
 function objectKeys<T extends object>(obj: T): Array<keyof T> {
@@ -49,7 +49,7 @@ export default async function SigninPage(props: {
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              &ldquo;Welcome back! Sign in to access your dashboard and continue managing your profile.&rdquo;
+              &ldquo;Welkom terug! Teken in om toegang tot jou interaksiepaneel te kry en jou profiel te bestuur.&rdquo;
             </p>
           </blockquote>
         </div>
