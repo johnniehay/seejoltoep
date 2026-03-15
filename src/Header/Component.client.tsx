@@ -15,15 +15,17 @@ import { Button } from "@/components/ui/button";
 export interface HeaderClientProps {
   data: Header
   userData: {
+    id: string | null | undefined,
     name: string | null | undefined,
     email: string | null | undefined,
     image: string | null | undefined
   },
-  setupSlot?: React.ReactNode
+  setupSlot?: React.ReactNode,
+  serverMenuItems?: React.ReactNode
 }
 
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setupSlot }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setupSlot, serverMenuItems }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
@@ -49,8 +51,8 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setu
           </Link>
           <Link href="/">Seejol App</Link>
         </div>
-        { userData.name && <UserMenu userData={userData} setupSlot={setupSlot} />}
-        { !userData.name && !userData.email &&
+        { userData.id && <UserMenu userData={userData} setupSlot={setupSlot} serverMenuItems={serverMenuItems} />}
+        { !userData.id &&
           <Button asChild size="sm">
             <Link href={`/signin`}>
               Teken In

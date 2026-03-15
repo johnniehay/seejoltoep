@@ -6,15 +6,16 @@ import { User as UserIcon, LogOut, Settings } from 'lucide-react'
 import { SetupModal } from "@/components/SetupModal";
 
 export const UserMenu: React.FC<{ userData: {
+    id: string | null | undefined,
     name: string | null | undefined,
     email: string | null | undefined,
     image: string | null | undefined
-  }, setupSlot: React.ReactNode }> = ({ userData, setupSlot }) => {
+  }, setupSlot: React.ReactNode, serverMenuItems: React.ReactNode }> = ({ userData, setupSlot, serverMenuItems }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isSetupOpen, setIsSetupOpen] = useState(false)
   return (
   <div className="max-w-1/3 flex justify-end items-center gap-4">
-    {userData.name && (
+    {userData.id && (
       <>
         <div className="relative">
           <button
@@ -35,7 +36,7 @@ export const UserMenu: React.FC<{ userData: {
           {isUserMenuOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsUserMenuOpen(false)} />
-              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded shadow-lg py-1 z-50">
+              <div className="absolute right-0 mt-2 min-w-48 w-max bg-white dark:bg-black border border-gray-200 dark:border-gray-800 rounded shadow-lg py-1 z-50">
                 <div className="px-4 py-2 text-sm font-semibold border-b border-gray-100 dark:border-gray-800">
                   {userData.name}
                 </div>
@@ -49,6 +50,7 @@ export const UserMenu: React.FC<{ userData: {
                   <Settings className="w-4 h-4" />
                   Profiel Opstelling
                 </button>
+                {serverMenuItems}
                 <button
                   onClick={() => {
                     // signOutAction?.()

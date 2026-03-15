@@ -4,7 +4,7 @@ import { HeaderClient } from "@/Header/Component.client";
 import { partial } from "lodash";
 
 const headerFooter: Pick<LayoutDefinition, "header" | "footer"> = {
-  header: partial(HeaderClient,{data:{id:"header"}, userData:{name:"Name of User", email:null, image:null}}),
+  header: partial(HeaderClient,{data:{id:"header"}, userData:{id:"",name:"Name of User", email:null, image:null}}),
   // footer: Footer,
 }
 
