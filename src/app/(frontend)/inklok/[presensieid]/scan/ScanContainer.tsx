@@ -20,7 +20,7 @@ interface ScanContainerProps {
       presensieNaam: string | null | undefined;
       expectedLede: Record<string, {id: string, naam: string}>;
       initialInklokke: { id: string; lid: { id: string; naam?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
-  } | null>;
+  } | {error: string} | null>;
 }
 
 export default function ScanContainer({
@@ -47,6 +47,7 @@ export default function ScanContainer({
     if (!navigator.onLine) return;
     try {
       const data = await fetchDataAction(presensieId);
+      if (data && 'error' in data) throw Error(data.error)
       if (data) {
         setServerInklokke(data.initialInklokke);
         setExpectedLedeState(data.expectedLede);

@@ -17,6 +17,7 @@ export default async function ScanPage({ params: paramsPromise }: Args) {
   const data = await fetchPresensieData(presensieid);
 
   if (!data) return <h1>Presensie not found or Unauthorized</h1>
+  if ('error' in data) return <h1>{data.error}</h1>
   const { presensieNaam, expectedLede, initialInklokke } = data;
 
   async function scanAction(lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number]) {

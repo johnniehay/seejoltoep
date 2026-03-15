@@ -3,6 +3,7 @@ import { getPayload } from "payload";
 import configPromise from '@payload-config'
 import { getPayloadSession } from "payload-authjs";
 import type { Inklokke, Lede } from "@/payload-types";
+import { hasPermission } from "@/lib/permissions";
 
 export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time, gps} : {
   presensieid: string,
@@ -56,7 +57,8 @@ export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_t
 export async function fetchPresensieData(presensieid: string) {
   const payload = await getPayload({ config: configPromise })
   const session = await getPayloadSession()
-  if (!session) throw new Error("Unauthorized")
+  if (!session) return {error:"Nie ingelog"}
+  if (!await hasPermission("view:presensie")) return {error:"Toegang verbode"}
 
   const presensie = await payload.findByID({
     collection: "presensie",
