@@ -61,8 +61,8 @@ export function SigninForm({ className, providers, error, callbackUrl }: { class
   const credentialsProvider = providers.find(p => p.type === 'credentials')
   const emailProvider = providers.find(p => p.type === 'email')
   const webAuthnProvider = providers.find(p => p.type === 'webauthn')
-  const oauthProviders = providers.filter(p => p.type === 'oauth' || p.type === 'oidc')
-
+  const oauthProviders = providers.filter(p => p.type === 'oauth' || p.type === 'oidc').map(
+    (prov) => { return {...prov,style: {...prov.style,logo: `https://authjs.dev/img/providers/${prov.id}.svg`}}})
   // Determine initial mode: prefer password if available, otherwise magic link
   const [isPasswordMode, setIsPasswordMode] = React.useState(!emailProvider && !!credentialsProvider)
   const [isLoading, setIsLoading] = React.useState(false)
@@ -149,7 +149,7 @@ export function SigninForm({ className, providers, error, callbackUrl }: { class
 
   const emailInput = (
     <div className="grid gap-2">
-      <Label htmlFor="email">E-posadres</Label>
+      <Label htmlFor="email">E-pos</Label>
       <Input
         id="email"
         placeholder="name@example.com"
@@ -212,7 +212,7 @@ export function SigninForm({ className, providers, error, callbackUrl }: { class
 
               <div className="relative my-4">
                 <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Of gaan voort met</span></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Of teken in met</span></div>
               </div>
             </>
           )}
@@ -224,7 +224,7 @@ export function SigninForm({ className, providers, error, callbackUrl }: { class
                 {emailInput}
                 <Button disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Stuur Inteken Skakel
+                  Stuur Inteken Skakel E-pos
                 </Button>
               </div>
             </form>

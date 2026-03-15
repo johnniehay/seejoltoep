@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2, Mail } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,10 +20,11 @@ import {
   registerWithPassword
 } from './actions'
 import { magicLinkSchema, passwordRegistrationSchema } from "@/app/(frontend)/registration/schema";
+import { CommonProviderWithStyle } from '../signin/signin-form'
 
 // --- Main Form Component ---
 
-export function RegistrationForm({ className }: { className?: string }) {
+export function RegistrationForm({ className, providers = [] }: { className?: string, providers?: CommonProviderWithStyle[] }) {
   const [isPasswordMode, setIsPasswordMode] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [message, setMessage] = React.useState<{ type: 'success' | 'error', text: string } | null>(null)
@@ -85,6 +87,9 @@ export function RegistrationForm({ className }: { className?: string }) {
 
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'
 
+  const oauthProviders = providers.filter(p => p.type === 'oauth' || p.type === 'oidc').map(
+    (prov) => { return {...prov,style: {...prov.style,logo: `https://authjs.dev/img/providers/${prov.id}.svg`}}})
+
   return (
     <div className={cn("grid gap-6", className)}>
       <Card>
@@ -102,6 +107,23 @@ export function RegistrationForm({ className }: { className?: string }) {
               message.type === 'success' ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")}>
               {message.text}
             </div>
+          )}
+
+          {oauthProviders.length > 0 && (
+            <>
+              <div className="grid gap-2">
+                {oauthProviders.map((provider) => (
+                  <Button variant="outline" type="button" disabled={isLoading} className="w-full" onClick={() => signIn(provider.id, { redirectTo: '/' })} key={provider.id}>
+                    {provider.style?.logo && <img src={provider.style.logo} alt="" className="mr-2 h-4 w-4" loading="lazy" />}
+                    Teken in met {provider.name}
+                  </Button>
+                ))}
+              </div>
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Of skep 'n profiel deur</span></div>
+              </div>
+            </>
           )}
 
           {!isPasswordMode ? (
@@ -125,7 +147,7 @@ export function RegistrationForm({ className }: { className?: string }) {
                 </div>
                 <Button disabled={isLoading}>
                   {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Stuur Inteken Skakel
+                  Stuur Inteken Skakel E-pos
                 </Button>
               </div>
             </form>
@@ -191,16 +213,7 @@ export function RegistrationForm({ className }: { className?: string }) {
             </form>
           )}
 
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Of gaan voort met</span></div>
-          </div>
 
-          <Button variant="outline" type="button" disabled={isLoading} className="w-full">
-            {/* Placeholder Google Icon */}
-            <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
-            Google
-          </Button>
         </CardContent>
         <CardFooter>
           <Button variant="link" className="w-full" onClick={() => {
