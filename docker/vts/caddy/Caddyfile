@@ -14,3 +14,11 @@ https://toets.seejol.voortrekkers.co.za:443 {
 		}
 	}
 }
+https://rhuskeeti.seejol.voortrekkers.co.za:443 {
+	reverse_proxy rhuskeetitoep:3000
+	tls {
+		issuer acme {
+			disable_http_challenge
+		}
+	}
+}
