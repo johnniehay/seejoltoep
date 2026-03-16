@@ -15,6 +15,7 @@ services:
     secrets:
       - source: gac-app
         target: /app/gac.json
+    restart: unless-stopped
     networks:
       - vts_default
 #    ports:
