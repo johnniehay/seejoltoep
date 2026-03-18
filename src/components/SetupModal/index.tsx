@@ -25,7 +25,7 @@ const VISUALLY_HIDDEN_STYLES = Object.freeze({
 
 export function SetupModal({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(true)
-
+  //TODO: add close propagation to parent.
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="max-h-[90vh] overflow-y-auto w-full max-w-xl">

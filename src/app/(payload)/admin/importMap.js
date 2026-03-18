@@ -35,6 +35,7 @@ import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } f
 import { RowLabel as RowLabel_ec255a65fa6fa8d1faeb09cf35284224 } from '@/Header/RowLabel'
 import { RowLabel as RowLabel_1f6ff6ff633e3695d348f4f3c58f1466 } from '@/Footer/RowLabel'
 import { Logo as Logo_a0bd5f2fa532ef2166f77171a2b9828a } from '@/components/Logo/Logo'
+import { SignInButton as SignInButton_06d0cb594d8f6ba2ac35015f930c882e } from 'payload-authjs/components'
 import { SignInButtonWebauthn as SignInButtonWebauthn_39ad1cdbf6aa2f97589820b2ab72a1b1 } from 'payload-authjs/components/webauthn'
 import { SignInWithAuthjsButton as SignInWithAuthjsButton_2a8819aa618ba6a123fe37b734a8c5a1 } from '@/components/SignInWithAuthjsButton'
 import { default as default_116afe01689361f25bab019beee1ee0a } from '@/components/admin/PuckProvider'
@@ -79,6 +80,7 @@ export const importMap = {
   "@/Header/RowLabel#RowLabel": RowLabel_ec255a65fa6fa8d1faeb09cf35284224,
   "@/Footer/RowLabel#RowLabel": RowLabel_1f6ff6ff633e3695d348f4f3c58f1466,
   "@/components/Logo/Logo#Logo": Logo_a0bd5f2fa532ef2166f77171a2b9828a,
+  "payload-authjs/components#SignInButton": SignInButton_06d0cb594d8f6ba2ac35015f930c882e,
   "payload-authjs/components/webauthn#SignInButtonWebauthn": SignInButtonWebauthn_39ad1cdbf6aa2f97589820b2ab72a1b1,
   "@/components/SignInWithAuthjsButton#SignInWithAuthjsButton": SignInWithAuthjsButton_2a8819aa618ba6a123fe37b734a8c5a1,
   "@/components/admin/PuckProvider#default": default_116afe01689361f25bab019beee1ee0a,

@@ -32,22 +32,6 @@ export type LedeRole =
     )
   | null;
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "NotificationTopicsOptions".
- */
-export type NotificationTopicsOptions =
-  | (
-      | 'test'
-      | 'aktiwiteit-updates'
-      | 'aktiwiteit-broadcast'
-      | 'nood'
-      | 'nood:divisie'
-      | 'divisie'
-      | 'offisier'
-      | 'all'
-    )[]
-  | null;
-/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -964,7 +948,7 @@ export interface NotificationSubscription {
     auth: string;
     [k: string]: unknown;
   };
-  topics?: NotificationTopicsOptions;
+  topics?: string[] | null;
   user?: (string | null) | User;
   updatedAt: string;
   createdAt: string;

@@ -203,7 +203,7 @@ const ChildLidForm = React.forwardRef<LidFormHandle, {
 })
 ChildLidForm.displayName = "ChildLidForm"
 
-export function SetupForm({ user, callbackUrl }: { user: ExtendedUser, callbackUrl?: string }) {
+export function SetupForm({ user, callbackUrl, pushSettings }: { user: ExtendedUser, callbackUrl?: string, pushSettings?: React.ReactNode }) {
   const router = useRouter()
   const [serverError, setServerError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -424,13 +424,8 @@ export function SetupForm({ user, callbackUrl }: { user: ExtendedUser, callbackU
           </div>
         </div>
 
-        {/* Notification Placeholder */}
-        <div className="pt-4 border-t border-border opacity-50">
-          <h3 className="font-semibold mb-2">Kennisgewings</h3>
-          <div className="p-4 border rounded-md bg-muted/40 border-dashed border-border">
-            <p className="text-center text-muted-foreground italic">Instellings binnekort beskikbaar</p>
-          </div>
-        </div>
+        {/* Notification Settings */}
+        {pushSettings}
 
         {serverError && (
           <div className="p-3 rounded-md bg-destructive/15 text-destructive">

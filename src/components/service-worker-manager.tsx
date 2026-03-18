@@ -1,11 +1,12 @@
 'use client'
 
 import { useContext, useEffect, useState } from "react";
+import { subscribeContext } from "@/providers/NotificationSubscriptionProvider";
 // import { subscribeContext } from "@/components/client-shell";
 
 export default function ServiceWorkerManager() {
   const [, setIsSupported] = useState(false)
-  // const { setSubscription } = useContext(subscribeContext)
+  const { setSubscription } = useContext(subscribeContext)
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       setIsSupported(true)
@@ -20,7 +21,7 @@ export default function ServiceWorkerManager() {
       updateViaCache: 'none',
     })
     const sub = await registration.pushManager.getSubscription()
-    // setSubscription(sub)
+    setSubscription(sub)
   }
 
   return (<></>)
