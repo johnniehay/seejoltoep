@@ -13,13 +13,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 interface ScanContainerProps {
   presensieId: string;
   presensieNaam: string;
-  initialInklokke: { id: string; lid: { id: string; naam?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
-  expectedLede: Record<string, {id: string, naam: string}>;
+  initialInklokke: { id: string; lid: { id: string; naam?: string | null; van?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
+  expectedLede: Record<string, {id: string, naam: string; van: string}>;
   scanAction: (lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number]) => Promise<{ success: boolean; msg: string }>;
   fetchDataAction: (id: string) => Promise<{
       presensieNaam: string | null | undefined;
-      expectedLede: Record<string, {id: string, naam: string}>;
-      initialInklokke: { id: string; lid: { id: string; naam?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
+      expectedLede: Record<string, {id: string, naam: string; van: string}>;
+      initialInklokke: { id: string; lid: { id: string; naam?: string | null; van?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
   } | {error: string} | null>;
 }
 
@@ -134,13 +134,39 @@ export default function ScanContainer({
     return Object.values(expectedLedeState).filter(lid => !inklokkeByLidId.has(lid.id));
   }, [expectedLedeState, inklokkeByLidId]);
 
+  const sortedMissingExpected = useMemo(() => {
+    return missingExpected.sort((a, b) => (a.van || "").localeCompare(b.van || ""));
+  }, [missingExpected]);
+
+
   const uitScans = useMemo(() => {
     return Array.from(inklokkeByLidId.entries()).filter(([_, data]) => data.tipe === 'uit');
   }, [inklokkeByLidId]);
 
+  const sortedUitScans = useMemo(() => {
+    return uitScans.sort((a, b) => {
+        const lidA = expectedLedeState[a[0]];
+        const lidB = expectedLedeState[b[0]];
+        const vanA = lidA?.van || "";
+        const vanB = lidB?.van || "";
+        return vanA.localeCompare(vanB);
+    });
+  }, [uitScans, expectedLedeState]);
+
   const presentScans = useMemo(() => {
     return Array.from(inklokkeByLidId.entries()).filter(([_, data]) => data.tipe === 'in');
   }, [inklokkeByLidId]);
+
+  const sortedPresentScans = useMemo(() => {
+     return presentScans.sort((a, b) => {
+        const lidA = expectedLedeState[a[0]];
+        const lidB = expectedLedeState[b[0]];
+        const vanA = lidA?.van || "";
+        const vanB = lidB?.van || "";
+        return vanA.localeCompare(vanB);
+    });
+  }, [presentScans, expectedLedeState]);
+
 
   const handleManualClick = (lidId: string, naam: string, tipe: 'in' | 'uit') => {
     if (dontAskAgain) {
@@ -210,10 +236,10 @@ export default function ScanContainer({
 
       <div className="w-full max-w-md p-4 bg-muted rounded-lg mb-8">
         <h3 className="text-lg font-semibold mb-2">Lede Status</h3>
-        {(missingExpected.length > 0 || uitScans.length > 0 || presentScans.length > 0) ? (
+        {(sortedMissingExpected.length > 0 || sortedUitScans.length > 0 || sortedPresentScans.length > 0) ? (
           <ul className="list-none space-y-2">
             {/* Uitstaande Lede */}
-            {missingExpected.map(lid => {
+            {sortedMissingExpected.map(lid => {
               const scanData = inklokkeByLidId.get(lid.id);
               return (
                 <li key={lid.id}>
@@ -236,7 +262,7 @@ export default function ScanContainer({
             })}
 
             {/* Uitgeklok Lede */}
-            {uitScans.map(([lidId, data]) => (
+            {sortedUitScans.map(([lidId, data]) => (
               <li key={lidId}>
                 <div className="border-2 border-orange-500 text-orange-500 rounded px-3 py-1 flex items-center justify-between bg-background">
                   <div className="flex items-center gap-2">
@@ -256,7 +282,7 @@ export default function ScanContainer({
             ))}
 
             {/* Inklokke (Present) */}
-            {presentScans.map(([lidId, data]) => (
+            {sortedPresentScans.map(([lidId, data]) => (
               <li key={lidId}>
                 <div className="border-2 border-green-600 text-green-600 rounded px-3 py-1 flex items-center justify-between bg-background">
                   <div className="flex items-center gap-2">

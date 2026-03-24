@@ -80,9 +80,13 @@ export async function fetchPresensieData(presensieid: string) {
   type LidNetNaam = Pick<Lede, 'id' | 'naam' | 'noemnaam' | 'van'>
   const expectedLedeByLidnommer = (presensie.verwagte_lede ?? []).reduce((acc, verwagte_lid) => {
     if (typeof verwagte_lid !== "object") throw "Expected verwagte_lid to be object"
-    acc[verwagte_lid.id] = {id: verwagte_lid.id, naam: (verwagte_lid.noemnaam ?? verwagte_lid.naam) + " " + verwagte_lid.van};
+    acc[verwagte_lid.id] = {
+      id: verwagte_lid.id,
+      naam: (verwagte_lid.noemnaam ?? verwagte_lid.naam) + " " + verwagte_lid.van,
+      van: verwagte_lid.van ?? ""
+    };
     return acc;
-  }, {} as Record<string, {id: string, naam: string}>)
+  }, {} as Record<string, {id: string, naam: string, van: string}>)
 
   type foundInklokke = Omit<Inklokke, 'lid'> & {
     lid: LidNetNaam
@@ -109,7 +113,8 @@ export async function fetchPresensieData(presensieid: string) {
     id: i.id,
     lid: {
         id: i.lid.id,
-        naam: (i.lid.noemnaam ?? i.lid.naam) + " " + i.lid.van
+        naam: (i.lid.noemnaam ?? i.lid.naam) + " " + i.lid.van,
+        van: i.lid.van
     },
     tipe: i.tipe as 'in' | 'uit',
     scan_time: new Date(i.scan_time).getTime()
