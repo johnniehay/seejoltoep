@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-const lidnommerRegex = /^\d{6}$/
-const lidnommerError = "Lidnommer moet 'n 6-syfer nommer wees"
+const lidnommerRegex = /^\d{5,6}$/
+const lidnommerError = "Lidnommer moet 'n 5 of 6 syfer nommer wees"
 const dobError = "Geboortedatum word vereis"
 
 const lidNommerSchema = z.string(lidnommerError).regex(lidnommerRegex, lidnommerError);
