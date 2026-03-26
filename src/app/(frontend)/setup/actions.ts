@@ -37,8 +37,9 @@ async function findLede(payload: any, lidnommer: string, dob: string): Promise<L
 
   // 2. Check DOB
   const date = new Date(dob)
-  const startOfDay = new Date(date.setUTCHours(0, 0, 0, 0)).getTime()
-  const endOfDay = new Date(date.setUTCHours(23, 59, 59, 999)).getTime()
+  const dateE = new Date(dob)
+  const startOfDay = new Date(date.setUTCHours(-3, 0, 0, 0)).getTime()
+  const endOfDay = new Date(dateE.setUTCHours(23, 59, 59, 999)).getTime()
   const lidDate = new Date(lid.geboortedatum).getTime()
 
   if (lidDate >= startOfDay && lidDate <= endOfDay) {
