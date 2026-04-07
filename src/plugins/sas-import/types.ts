@@ -16,6 +16,7 @@ export interface SasImportCollectionConfig {
   enabled?: boolean
   keyField?: string
   mapping?: Record<string, string> // Payload Field Name -> SAS Field Key
+  displayColumns: string[]
 }
 
 export interface SyncChange {

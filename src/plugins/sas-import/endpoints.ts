@@ -39,7 +39,7 @@ export const getSyncEndpoint = (): Endpoint => ({
       const service = new SasImportService(settings.webhookUrl, settings, collectionConfig)
       const dryRun = mode === 'analyze'
 
-      const result = await service.importFromSas(req.payload, collectionSlug, dryRun, selection)
+      const result = await service.importFromSas(req, collectionSlug, dryRun, selection)
 
       if (forceRefreshAfter) {
         await invalidateSASCache()

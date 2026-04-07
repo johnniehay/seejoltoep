@@ -1,4 +1,4 @@
-import type { Field, Payload, CollectionConfig, CollectionSlug, DataFromCollectionSlug, Config } from 'payload'
+import type { Field, CollectionConfig, CollectionSlug, PayloadRequest } from 'payload'
 import type { SyncChange, SyncResult, SasImportCollectionConfig } from './types'
 import { unstable_cache } from "next/cache";
 
@@ -381,6 +381,7 @@ export class SasImportService {
   private fieldMap: Map<string, Field>
   private mapping: Record<string, string>
   private keyField: string
+  private displayColumns: string[]
 
   constructor(
     webhookUrl: string,
@@ -394,6 +395,7 @@ export class SasImportService {
     const customConfig = collectionConfig.custom?.sasImport as SasImportCollectionConfig | undefined
     this.mapping = customConfig?.mapping || {}
     this.keyField = (customConfig?.keyField || 'import_id')
+    this.displayColumns = customConfig?.displayColumns || collectionConfig?.admin?.defaultColumns || ['id']
   }
 
   private getFieldMap(fields: Field[]): Map<string, Field> {
@@ -451,11 +453,12 @@ export class SasImportService {
   }
 
   public async importFromSas(
-    payload: Payload,
+    req: PayloadRequest,
     collectionSlug: CollectionSlug,
     dryRun: boolean,
     selection: number[],
   ): Promise<SyncResult> {
+    const payload = req.payload
     const kampId = this.settings.kampId
     const kampNaam = this.settings.kampNaam
 
@@ -479,6 +482,7 @@ export class SasImportService {
       where: { [this.keyField]: { in: importIds } },
       limit: importIds.length || 1,
       depth: 0,
+      req,
       pagination: false,
     })
     console.log( `payloadDocs ${JSON.stringify(payloadDocs)}`)
@@ -530,7 +534,7 @@ export class SasImportService {
 
           if (!dryRun) {
             updateData.syncedData = { ...(existingDocData.syncedData || {}), sasImport: sasRecord }
-            await payload.update({ collection: collectionSlug, id: existingDoc.id, data: updateData })
+            await payload.update({ collection: collectionSlug, id: existingDoc.id, data: updateData, req })
           }
           updateCount++
         }
@@ -545,7 +549,7 @@ export class SasImportService {
 
         if (!dryRun) {
           const createData = { ...sasRecord, syncedData: { sasImport: sasRecord } }
-          await payload.create({ collection: collectionSlug, data: createData })
+          await payload.create({ collection: collectionSlug, data: createData, req })
         }
         createCount++
       }
@@ -557,7 +561,7 @@ export class SasImportService {
       success: true,
       changes: changesList,
       stats: { updated: updateCount, created: createCount, total: sasData.length },
-      defaultColumns: collectionConfig?.admin?.defaultColumns || ['id'],
+      defaultColumns: this.displayColumns,
     }
   }
 }

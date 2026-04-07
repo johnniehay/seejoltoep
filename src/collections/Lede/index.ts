@@ -256,6 +256,7 @@ export const Lede: CollectionConfig<"lede"> = {
     sasImport: {
       enabled: true,
       keyField: 'import_id',
+      displayColumns: ["naam", "noemnaam", "van", "id", "rol", "divisie"],
       mapping: {
         import_id: "ID",
         import_name: "Name",
