@@ -343,8 +343,8 @@ export const Lede: CollectionConfig<"lede"> = {
     update: checkPermissionOrWhere("update:lede",wheredivisieleier),
   },
   admin: {
-    useAsTitle: "naam",
-    defaultColumns: ["naam", "van", "id", "rol", "divisie"],
+    useAsTitle: "vertoonnaam",
+    defaultColumns: ["vertoonnaam", "van", "id", "rol", "divisie"],
     components: {
       beforeList: [
         '@/collections/Lede/merge-button#LedeMergeButton',
@@ -375,6 +375,7 @@ export const Lede: CollectionConfig<"lede"> = {
                 { name: "naam", type: "text", label: "Naam" },
                 { name: "van", type: "text", label: "Van" },
                 { name: "noemnaam", type: "text", label: "Noemnaam" },
+                { name: "vertoonnaam", type: "text", label: "Vertoon Naam", hooks: {afterRead: [({ siblingData, value }) => value ?? `${siblingData.noemnaam ?? siblingData.naam} ${siblingData.van}`]}}
               ]
             },
             {

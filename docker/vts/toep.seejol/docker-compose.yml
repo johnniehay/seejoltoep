@@ -1,6 +1,6 @@
 services:
   seejoltoep:
-    build: &build-prod
+    build: &build-seejoltoep
       context: https://github.com/johnniehay/seejoltoep.git#seejoltoep
 #      context: ../../.
       dockerfile: docker/vts/toep.seejol/Dockerfile
@@ -9,21 +9,24 @@ services:
         local: .
       secrets:
         - env-app
-    env_file: &build-prod-env
-      - .env.production
+    env_file: &build-seejoltoep-env
+      - .env.seejoltoep
+    secrets:
+      - source: gac-app
+        target: /app/gac.json
     restart: unless-stopped
     networks:
       - vts_default
 #    ports:
 #      - "3000:3000"
     volumes:
-      - prodmedia:/app/public/media
+      - seejoltoepmedia:/app/public/media
 
   toep-builder:
     build:
-      <<: *build-prod
+      <<: *build-seejoltoep
       target: builder
-    env_file: *build-prod-env
+    env_file: *build-seejoltoep-env
     volumes:
       - seejoltoepmedia:/app/public/media
 #      - ./datascripts:/app/datascripts
@@ -36,7 +39,9 @@ networks:
 
 secrets:
   env-app:
-    file: .env.production
+    file: .env.seejoltoep
+  gac-app:
+    file: gac.json
 
 volumes:
   seejoltoepmedia:

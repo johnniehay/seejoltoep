@@ -570,6 +570,7 @@ export interface Lede {
   naam?: string | null;
   van?: string | null;
   noemnaam?: string | null;
+  vertoonnaam?: string | null;
   geboortedatum: string;
   geslag?: string | null;
   skoolgraad?: string | null;
@@ -1746,6 +1747,7 @@ export interface LedeSelect<T extends boolean = true> {
   naam?: T;
   van?: T;
   noemnaam?: T;
+  vertoonnaam?: T;
   geboortedatum?: T;
   geslag?: T;
   skoolgraad?: T;
