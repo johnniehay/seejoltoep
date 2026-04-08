@@ -6,7 +6,7 @@ import { getRoleFromUser, type UserWithIdRole } from "@/lib/get-role";
 import { Inskrywings } from "../Inskrywings";
 import {
   ledeAfterChangeGenerator,
-  updateHuidigeInskrywingFieldGenerator
+  syncInskrywingHookGenerator
 } from "@/collections/Lede/hooks/updateinskrywing";
 
 export const ledeRoleOptions = [
@@ -126,11 +126,6 @@ const inheritFields = (fields: Field[]): Field[] => {
         admin: {
           ...(field.admin || {}),
           description: `${field.admin && "description" in field.admin ? `${field.admin.description} | ` : ''}From Inskrywing`,
-        },
-        hooks: {
-          beforeChange: [
-            updateHuidigeInskrywingFieldGenerator(field)
-          ],
         },
       } as Field;
     })
@@ -527,6 +522,7 @@ export const Lede: CollectionConfig<"lede"> = {
     }
   ],
   hooks:{
+    beforeChange: [syncInskrywingHookGenerator(inheritedFieldNames)],
     afterChange: [updateuser,ledeAfterChangeGenerator(inheritedFieldNames)]
   }
 }

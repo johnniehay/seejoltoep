@@ -11,18 +11,21 @@ const modalSlug = 'sas-import-modal'
 export const ImportButton: React.FC<{ collectionSlug: string }> = ({ collectionSlug }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [changes, setChanges] = useState<SyncChange[]>([])
+  const [ignoreLocalChanges, setIgnoreLocalChanges] = useState(false)
   const [columns, setColumns] = useState<string[]>([])
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
   const { openModal, closeModal } = useModal()
   const router = useRouter()
 
-  const analyzeImport = async () => {
+  const analyzeImport = async (forceOverride: boolean = false) => {
+    setIgnoreLocalChanges(forceOverride)
     setIsLoading(true)
     try {
       const req = await fetch(`/api/sas-import/sync/${collectionSlug}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'analyze' }),
+        // Use the parameter directly as state might not have updated yet
+        body: JSON.stringify({ mode: 'analyze', ignoreLocalChanges: forceOverride }),
       })
 
       const res = await req.json()
@@ -54,7 +57,12 @@ export const ImportButton: React.FC<{ collectionSlug: string }> = ({ collectionS
       const req = await fetch(`/api/sas-import/sync/${collectionSlug}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'execute', selection, forceRefreshAfter: true }),
+        body: JSON.stringify({
+          mode: 'execute',
+          selection,
+          forceRefreshAfter: true,
+          ignoreLocalChanges,
+        }),
       })
 
       const res = await req.json()
@@ -111,9 +119,30 @@ export const ImportButton: React.FC<{ collectionSlug: string }> = ({ collectionS
         marginBottom: '20px',
         display: 'flex',
         gap: '10px',
+        alignItems: 'center',
       }}
     >
-      <Button onClick={analyzeImport} disabled={isLoading}>
+      <Button
+        onClick={() => analyzeImport(false)}
+        disabled={isLoading}
+        // icon="chevron"
+        SubMenuPopupContent={ () =>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <Button
+              buttonStyle="none"
+              onClick={(e) => {
+                // Prevent event bubbling so we don't trigger the main button onClick
+                e.stopPropagation();
+                analyzeImport(true);
+              }}
+              // className="text-left px-2.5 py-1 whitespace-nowrap"
+              margin={false}
+            >
+              Import & override local changes
+            </Button>
+          </div>
+        }
+      >
         {isLoading ? 'Analyzing...' : 'Import from SAS'}
       </Button>
 

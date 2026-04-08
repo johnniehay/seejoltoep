@@ -12,7 +12,7 @@ export const getSyncEndpoint = (): Endpoint => ({
     }
 
     const { collectionSlug } = req.routeParams as { collectionSlug: CollectionSlug }
-    const { mode = 'analyze', selection, forceRefreshAfter } = await req.json?.()
+    const { mode = 'analyze', selection, forceRefreshAfter, ignoreLocalChanges } = await req.json?.()
 
     try {
       const collectionConfig = req.payload.config.collections.find(c => c.slug === collectionSlug)
@@ -39,7 +39,7 @@ export const getSyncEndpoint = (): Endpoint => ({
       const service = new SasImportService(settings.webhookUrl, settings, collectionConfig)
       const dryRun = mode === 'analyze'
 
-      const result = await service.importFromSas(req, collectionSlug, dryRun, selection)
+      const result = await service.importFromSas(req, collectionSlug, dryRun, selection, ignoreLocalChanges)
 
       if (forceRefreshAfter) {
         await invalidateSASCache()

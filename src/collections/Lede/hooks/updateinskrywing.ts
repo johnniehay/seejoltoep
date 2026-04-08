@@ -1,55 +1,51 @@
-import type { CollectionAfterChangeHook, Field, FieldHook } from "payload";
+import type { CollectionAfterChangeHook, CollectionBeforeChangeHook } from "payload";
 import type { Inskrywing, Lede } from "@/payload-types";
 import pick  from "lodash/pick";
-import omit  from "lodash/omit";
 
-// const createInskrywingAndAddAsHuidige = async (req: PayloadRequest, lidid: string) => {
-//   const huidigeInskrywing = (await req.payload.findByID({collection:"lede",id:lidid,depth:1,req})).huidige_inskrywing
-//   if (huidigeInskrywing) {
-//     const huidigeInskrywingId = typeof huidigeInskrywing === "object"? huidigeInskrywing.id : huidigeInskrywing
-//     req.payload.logger.warn(`createInskrywingAndAddAsHuidige called multiple times for lid ${lidid} returing existing ${huidigeInskrywingId}`);
-//     return huidigeInskrywingId
-//   }
-//   const inskrywing = await req.payload.create({collection:"inskrywings",data:{lid:lidid}})
-//   await req.payload.update({collection:"lede",id:lidid,data:{huidige_inskrywing:inskrywing.id}})
-//   return inskrywing.id
-// }
+/**
+ * Synchronizes changes from Lede fields to the linked Inskrywing document.
+ * Refactored to a collection hook to prevent race conditions when multiple fields update at once.
+ */
+export function syncInskrywingHookGenerator(inheritedFieldNames: string[]): CollectionBeforeChangeHook<Lede> {
+  return async ({ data, req, originalDoc, operation }) => {
+    // Only run on update. Creation is handled by ledeAfterChangeGenerator.
+    if (operation !== 'update' || !originalDoc) return data
 
-//TODO: optimize inskrywing update from Lede
-export function updateHuidigeInskrywingFieldGenerator(field: Field): FieldHook<Lede, any, Lede> {
-  return async ({ value, req, siblingData, originalDoc, operation }) => {
-    if (!("name" in field)) throw `Attempting to update unnamed field ${JSON.stringify(field)}`
-    // if (field.name in siblingData && value === siblingData[field.name as keyof typeof siblingData]) return value
-    if (originalDoc && field.name in originalDoc && value === originalDoc[field.name as keyof typeof originalDoc]) return value
+    const inskrywingOrId = data.huidige_inskrywing || originalDoc.huidige_inskrywing
+    const inskrywingId = inskrywingOrId && typeof inskrywingOrId === 'object' ? inskrywingOrId.id : inskrywingOrId
 
-    // const value = field.name in siblingData && siblingData[field.name as keyof typeof siblingData] || inputvalue
-    // if (previousDoc && field.name in previousDoc && value === previousDoc[field.name as keyof typeof previousDoc]) return value
-    // req.payload.logger.error(`updateInskr ${field.name} value:${value} siblingData:${JSON.stringify(siblingData)} operation:${JSON.stringify(operation)}`);
-    if (operation !== 'create' && operation !== 'update') return value;
-    const inskrywingOrId = siblingData?.huidige_inskrywing || originalDoc?.huidige_inskrywing //|| await createInskrywingAndAddAsHuidige(req, originalDoc!.id);
-    const inskrywingId = inskrywingOrId && typeof inskrywingOrId === "object" ? inskrywingOrId.id : inskrywingOrId
-    if (inskrywingId && value !== undefined) {
+    if (!inskrywingId) return data
+
+    const updateData: Record<string, any> = {}
+    let hasChanges = false
+
+    // Identify which inherited fields actually changed compared to the original document
+    inheritedFieldNames.forEach((fieldName) => {
+      if (
+        Object.prototype.hasOwnProperty.call(data, fieldName) &&
+        data[fieldName as keyof Lede] !== originalDoc[fieldName as keyof Lede]
+      ) {
+        updateData[fieldName] = data[fieldName as keyof Lede]
+        hasChanges = true
+      }
+    })
+
+    if (hasChanges) {
       try {
-        const originalInskrywing = await req.payload.findByID({
+        await req.payload.update({
           collection: 'inskrywings',
           id: inskrywingId,
-          depth: 0,
-          req
-        });
-        if (originalInskrywing && originalInskrywing[field.name as keyof typeof originalInskrywing] !== value) {
-          await req.payload.update({
-            collection: 'inskrywings',
-            id: inskrywingId,
-            data: { [field.name]: value },
-            req,
-            overrideAccess: false
-          });
-        }
+          data: updateData,
+          req,
+          // Propagate overrideAccess to ensure internal sync works even for non-privileged users/imports
+          overrideAccess: req.context?.internalSync as boolean|undefined ?? false,
+        })
       } catch (e: any) {
-        req.payload.logger.error(`Error updating inskrywing from Lede virtual field ${field.name}: ${e.message}`);
+        req.payload.logger.error(`Failed to sync bulk fields to Inskrywing ${inskrywingId}: ${e.message}`)
       }
     }
-    return value;
+
+    return data
   }
 }
 

@@ -457,6 +457,7 @@ export class SasImportService {
     collectionSlug: CollectionSlug,
     dryRun: boolean,
     selection: number[],
+    ignoreLocalChanges: boolean = false,
   ): Promise<SyncResult> {
     const payload = req.payload
     const kampId = this.settings.kampId
@@ -513,13 +514,14 @@ export class SasImportService {
           const oldVal = existingDocData[key]
           const oldSyncedVal = lastSynced[key]
 
-          // 3-way merge logic: Only update if SAS changed since last sync
-          if (JSON.stringify(newVal) !== JSON.stringify(oldSyncedVal)) {
-            if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-              changes[key] = { old: oldVal, new: newVal }
-              updateData[key] = newVal
-              hasChanges = true
-            }
+          // 3-way merge logic: Only update if SAS changed since last sync OR if forced via ignoreLocalChanges
+          const hasSasChanged = JSON.stringify(newVal) !== JSON.stringify(oldSyncedVal)
+          const isDifferentFromCurrent = JSON.stringify(newVal) !== JSON.stringify(oldVal)
+
+          if ((ignoreLocalChanges || hasSasChanged) && isDifferentFromCurrent) {
+            changes[key] = { old: oldVal, new: newVal }
+            updateData[key] = newVal
+            hasChanges = true
           }
         })
 
