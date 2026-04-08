@@ -427,6 +427,8 @@ export class SasImportService {
         const date = new Date(value)
         // Return null for invalid dates
         return !isNaN(date.getTime()) ? date.toISOString() : null
+      case 'email':
+        return typeof value === 'string'? value.trim() : null
       default:
         return value
     }
