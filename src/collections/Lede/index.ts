@@ -250,7 +250,7 @@ export const Lede: CollectionConfig<"lede"> = {
     },
     sasImport: {
       enabled: true,
-      keyField: 'import_id',
+      keyField: 'id',
       displayColumns: ["naam", "noemnaam", "van", "id", "rol", "divisie"],
       mapping: {
         import_id: "ID",
@@ -321,8 +321,8 @@ export const Lede: CollectionConfig<"lede"> = {
         opsie_3_waglys: "Opsie 3: Waglys",
         betaling_ontvang: "Betaling Ontvang",
         products: "Products",
-        soft_shell_baadjies: "Soft Shell baadjies",
-        seejol_hemp_kort: "Seejol Hemp (Kort)",
+        // soft_shell_baadjies: "Soft Shell baadjies",
+        // seejol_hemp_kort: "Seejol Hemp (Kort)",
         verblyfreelings: "Verblyfreëlings",
         vervoer_na_mosselbaai: "Vervoer NA Mosselbaai",
         vervoer_vanaf_mosselbaai: "Vervoer VANAF Mosselbaai",
