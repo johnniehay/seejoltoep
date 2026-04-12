@@ -36,8 +36,7 @@ export const plugins: Plugin[] = [
   }),
   googleSheetsPlugin({
     enabled: true,
-    sheetId: process.env.GOOGLE_SHEET_ID || '',
-    collections: {} as Record<string, string>, // Lede defined in Lede.custom.googleSheets
+    collections: ['lede', 'inskrywings', 'inklokke', 'presensie', 'aktiwiteit']
   }),
   sasImportPlugin({
     enabled: true,

@@ -47,7 +47,7 @@ export const AddToGroepButton: React.FC = () => {
   const groepOptions = groepe.map((t) => ({ label: t.naam, value: t.id }))
 
   return (
-    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '20px' }}>
+    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
       <Select
         options={groepOptions}
         value={groepOptions.find((t) => t.value === selectedGroep)}

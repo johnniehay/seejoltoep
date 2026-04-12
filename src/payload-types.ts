@@ -169,11 +169,13 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    google_sheets_settings: GoogleSheetsSetting;
     sas_import_settings: SasImportSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    google_sheets_settings: GoogleSheetsSettingsSelect<false> | GoogleSheetsSettingsSelect<true>;
     sas_import_settings: SasImportSettingsSelect<false> | SasImportSettingsSelect<true>;
   };
   locale: null;
@@ -2295,6 +2297,32 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "google_sheets_settings".
+ */
+export interface GoogleSheetsSetting {
+  id: string;
+  /**
+   * The Google Spreadsheet ID (found in the URL)
+   */
+  sheetId: string;
+  collections: {
+    slug: string;
+    targets: {
+      name: string;
+      tabName: string;
+      keyField: string;
+      mapping: {
+        [k: string]: string;
+      };
+      id?: string | null;
+    }[];
+    id?: string | null;
+  }[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "sas_import_settings".
  */
 export interface SasImportSetting {
@@ -2347,6 +2375,31 @@ export interface FooterSelect<T extends boolean = true> {
               reference?: T;
               url?: T;
               label?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "google_sheets_settings_select".
+ */
+export interface GoogleSheetsSettingsSelect<T extends boolean = true> {
+  sheetId?: T;
+  collections?:
+    | T
+    | {
+        slug?: T;
+        targets?:
+          | T
+          | {
+              name?: T;
+              tabName?: T;
+              keyField?: T;
+              mapping?: T;
+              id?: T;
             };
         id?: T;
       };

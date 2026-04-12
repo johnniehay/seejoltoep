@@ -1,6 +1,25 @@
-import type { CollectionSlug, Config, Plugin } from 'payload'
+import type { CollectionSlug, Config, Payload, Plugin } from 'payload'
 import { GoogleSheetsService } from './service'
-import type { GoogleSheetsPluginConfig, GoogleSheetsCollectionConfig } from './types'
+import type { GoogleSheetsPluginConfig, GoogleSheetsSettings } from './types'
+import { GoogleSheetsSettingsGlobal } from './settings'
+import { LEDE_INITIAL_CONFIG } from "./initial";
+
+const getSettings = async (payload: Payload): Promise<GoogleSheetsSettings> => {
+  const settings = (await payload.findGlobal({
+    slug: 'google_sheets_settings',
+  }))
+
+  if (!settings.sheetId) {
+    // Bootstrap with env and Lede config if empty
+    const defaultsettings: GoogleSheetsSettings = {
+      sheetId: process.env.GOOGLE_SHEET_ID || '',
+      collections: [LEDE_INITIAL_CONFIG],
+    }
+    return payload.updateGlobal({slug: 'google_sheets_settings', data: defaultsettings})
+  }
+
+  return settings
+}
 
 export const googleSheetsPlugin =
   (pluginConfig: GoogleSheetsPluginConfig): Plugin =>
@@ -9,14 +28,7 @@ export const googleSheetsPlugin =
 
       return {
         ...config,
-        admin: {
-          ...config.admin,
-          components: {
-            ...config.admin?.components,
-            // Register the component for use in collections
-            // Note: In a real package, this path needs to be resolvable
-          },
-        },
+        globals: [...(config.globals || []), GoogleSheetsSettingsGlobal],
         endpoints: [
           ...(config.endpoints || []),
           {
@@ -27,22 +39,12 @@ export const googleSheetsPlugin =
                 return Response.json({ error: 'Unauthorized' }, { status: 401 })
               }
               const { collectionSlug } = req.routeParams as { collectionSlug: CollectionSlug }
-              const collectionConfig = req.payload.config.collections.find(c => c.slug === collectionSlug)
-              const customConfig = collectionConfig?.custom?.googleSheets as GoogleSheetsCollectionConfig | undefined
+              const settings = await getSettings(req.payload)
+              const collectionSettings = settings.collections.find((c) => c.slug === collectionSlug)
 
-              if (!customConfig) return Response.json({ targets: [] })
+              if (!collectionSettings) return Response.json({ targets: [] })
 
-              const targets = customConfig.targets || []
-              
-              // Include default/legacy target if it exists
-              if (customConfig.tabName) {
-                targets.unshift({
-                  name: 'Default',
-                  tabName: customConfig.tabName,
-                  mapping: customConfig.mapping,
-                  keyField: customConfig.keyField
-                })
-              }
+              const targets = collectionSettings.targets
 
               return Response.json({ targets })
             }
@@ -56,15 +58,29 @@ export const googleSheetsPlugin =
               }
 
               const { collectionSlug } = req.routeParams as { collectionSlug: CollectionSlug }
-              
+
               try {
-                const service = new GoogleSheetsService(pluginConfig.sheetId)
-                const result = await service.analyzeLocalChanges(req.payload, collectionSlug)
+                const settings = await getSettings(req.payload)
+                const collectionSettings = settings.collections.find((c) => c.slug === collectionSlug)
+                const fieldsToCheck = new Set<string>()
+
+                collectionSettings?.targets.forEach((t) => {
+                  Object.keys(t.mapping).forEach((fieldName) => fieldsToCheck.add(fieldName))
+                })
+
+                if (fieldsToCheck.size === 0) return Response.json({ changes: [] })
+
+                const service = new GoogleSheetsService(settings.sheetId)
+                const result = await service.analyzeLocalChanges(
+                  req.payload,
+                  collectionSlug,
+                  Array.from(fieldsToCheck),
+                )
                 return Response.json(result)
               } catch (error: any) {
                 return Response.json({ error: error.message }, { status: 500 })
               }
-            }
+            },
           },
           {
             path: '/google-sheets/sync/:collectionSlug',
@@ -76,38 +92,32 @@ export const googleSheetsPlugin =
               }
 
               const { collectionSlug } = req.routeParams as { collectionSlug: CollectionSlug }
-              const { direction = 'export', mode = 'analyze', selection, target } = (await req.json?.().catch(() => ({})) || {}) as { 
-                direction: 'export' | 'import', 
-                mode: 'analyze' | 'execute',
-                selection?: string[] | number[],
-                target?: string // Name of the target to use
+              const {
+                direction = 'export',
+                mode = 'analyze',
+                selection,
+                target,
+              } = ((await req.json?.().catch(() => ({}))) || {}) as {
+                direction: 'export' | 'import'
+                mode: 'analyze' | 'execute'
+                selection?: string[] | number[]
+                target?: string
               }
 
-              const collectionConfig = req.payload.config.collections.find(c => c.slug === collectionSlug)
-              const customConfig = collectionConfig?.custom?.googleSheets as GoogleSheetsCollectionConfig | undefined
+              const settings = await getSettings(req.payload)
+              const collectionSettings = settings.collections.find((c) => c.slug === collectionSlug)
+              const selectedTarget = collectionSettings?.targets.find((t) => t.name === target)
 
-              let tabName = customConfig?.tabName || pluginConfig.collections?.[collectionSlug]
-              let mapping = customConfig?.mapping
-              let keyField = customConfig?.keyField || 'id'
-
-              if (target && customConfig?.targets) {
-                const selectedTarget = customConfig.targets.find(t => t.name === target)
-                if (selectedTarget) {
-                  tabName = selectedTarget.tabName
-                  mapping = selectedTarget.mapping
-                  keyField = selectedTarget.keyField || 'id'
-                }
+              if (!selectedTarget) {
+                return Response.json({ error: 'Sync target not found in settings' }, { status: 400 })
               }
 
-              if (!tabName) {
-                return Response.json({ error: 'Collection not configured for sync' }, { status: 400 })
-              }
+              const tabName = selectedTarget.tabName
+              const mapping = selectedTarget.mapping
+              const keyField = selectedTarget.keyField || 'id'
 
               try {
-                const service = new GoogleSheetsService(
-                  pluginConfig.sheetId
-                )
-
+                const service = new GoogleSheetsService(settings.sheetId)
                 let result
                 const dryRun = mode === 'analyze'
 
@@ -131,14 +141,9 @@ export const googleSheetsPlugin =
           },
         ],
         collections: (config.collections || []).map((collection) => {
-          const customConfig = collection.custom?.googleSheets as GoogleSheetsCollectionConfig | undefined
-          const enabled = customConfig?.enabled !== false && (
-            !!customConfig?.tabName ||
-            (!!customConfig?.targets && customConfig.targets.length > 0) ||
-            !!pluginConfig.collections?.[collection.slug as CollectionSlug]
-          )
+          const isConfigured = pluginConfig.collections.includes(collection.slug as CollectionSlug)
 
-          if (enabled) {
+          if (isConfigured) {
             return {
               ...collection,
               admin: {
@@ -150,13 +155,6 @@ export const googleSheetsPlugin =
                     {
                       path: '@/plugins/google-sheets/components/SyncButton',
                       exportName: 'SyncButton',
-                      serverProps: {
-                        collectionSlug: collection.slug,
-                      },
-                    },
-                    {
-                      path: '@/plugins/google-sheets/components/LocalChangesButton',
-                      exportName: 'LocalChangesButton',
                       serverProps: {
                         collectionSlug: collection.slug,
                       },

@@ -55,7 +55,7 @@ export const LocalChangesButton: React.FC<Props> = ({ collectionSlug }) => {
   }
 
   return (
-    <div style={{ marginBottom: '20px' }}>
+    <div>
       <Button
         onClick={handleCheck}
         disabled={isLoading}

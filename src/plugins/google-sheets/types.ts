@@ -7,6 +7,19 @@ export interface GoogleSheetsSyncTarget {
   keyField?: string
 }
 
+export interface GoogleSheetsSettings {
+  sheetId: string
+  collections: {
+    slug: string
+    targets: {
+      name: string
+      tabName: string
+      keyField: string
+      mapping: Record<string, string>
+    }[]
+  }[]
+}
+
 export interface GoogleSheetsCollectionConfig {
   enabled?: boolean
   tabName?: string
@@ -21,14 +34,10 @@ export interface GoogleSheetsPluginConfig {
    */
   enabled?: boolean
   /**
-   * The ID of the Google Sheet to sync with
-   */
-  sheetId: string
-  /**
    * Map Payload Collection Slugs to Google Sheet Tab Names
    * Example: { 'users': 'UsersTab', 'posts': 'Posts' }
    */
-  collections: Record<CollectionSlug, string>
+  collections: CollectionSlug[]
 }
 
 export interface SyncChange {

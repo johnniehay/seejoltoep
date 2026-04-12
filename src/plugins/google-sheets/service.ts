@@ -1,9 +1,7 @@
 import { GoogleAuth } from 'google-auth-library'
 import { google } from 'googleapis'
-import type { CollectionSlug, Payload, Field } from 'payload'
-import type { SyncChange, SyncResult, GoogleSheetsCollectionConfig } from './types'
-
-type SheetRow = Record<string, any>
+import type { CollectionSlug, Field, Payload } from 'payload'
+import type { SyncChange, SyncResult } from './types'
 
 export class GoogleSheetsService {
   private auth
@@ -480,8 +478,7 @@ export class GoogleSheetsService {
         // If keyField is custom, we create if keyVal is present (new unique record)
         if ((keyField === 'id' && !keyVal) || (keyField !== 'id' && keyVal)) {
           // Add syncedData to new record
-          const snapshot = { googleSheets: { ...rowData } }
-          rowData['syncedData'] = snapshot
+          rowData['syncedData'] = { googleSheets: { ...rowData } }
           changesList.push({ action: 'create', changes: { row: { old: null, new: rowData } }, row: i + 1, data: rowData })
           if (!dryRun) {
             await payload.create({
@@ -505,23 +502,10 @@ export class GoogleSheetsService {
   /**
    * Analyzes local changes (Difference between Current Payload Data and Last Synced Data)
    */
-  async analyzeLocalChanges(payload: Payload, collectionSlug: CollectionSlug): Promise<SyncResult> {
+  async analyzeLocalChanges(payload: Payload, collectionSlug: CollectionSlug, fieldsToCheck: string[]): Promise<SyncResult> {
     const collectionConfig = payload.config.collections.find(c => c.slug === collectionSlug)
-    const customConfig = collectionConfig?.custom?.googleSheets as GoogleSheetsCollectionConfig | undefined
 
-    // Gather all fields to check from all targets to ensure we catch any relevant change
-    const fieldsToCheck = new Set<string>()
-
-    const targets = customConfig?.targets || []
-    if (customConfig?.mapping) {
-       // Legacy/Default target
-       Object.keys(customConfig.mapping).forEach(k => fieldsToCheck.add(k))
-    }
-    targets.forEach(t => {
-       if (t.mapping) Object.keys(t.mapping).forEach(k => fieldsToCheck.add(k))
-    })
-
-    if (fieldsToCheck.size === 0) {
+    if (fieldsToCheck.length === 0) {
        return { success: true, changes: [], stats: { updated: 0, created: 0, total: 0 } }
     }
 

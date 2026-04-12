@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Button, toast, useModal, Modal, Select } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation'
 import type { SyncChange, GoogleSheetsSyncTarget } from '../types'
+import { LocalChangesButton } from "@/plugins/google-sheets/components/LocalChangesButton";
 
 interface Props {
   collectionSlug: string
@@ -139,17 +140,17 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
 
   const targetOptions = targets.map((t) => ({ label: t.name, value: t.name }))
 
-  return (
-    <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-      {targets.length > 1 && (
-        <div style={{ width: '200px' }}>
-          <Select
-            options={targetOptions}
-            value={targetOptions.find((t) => t.value === selectedTarget)}
-            onChange={(val) => setSelectedTarget((val as { value: string })?.value || '')}
-          />
-        </div>
-      )}
+  return (<>{targets.length > 1 && (
+    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+
+      <div style={{ width: '200px' }}>
+        <Select
+          options={targetOptions}
+          value={targetOptions.find((t) => t.value === selectedTarget)}
+          onChange={(val) => setSelectedTarget((val as { value: string })?.value || '')}
+        />
+      </div>
+
 
       <Button
         onClick={() => analyzeSync('export')}
@@ -165,6 +166,7 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
       >
         {isLoading ? 'Analyzing...' : 'Sync from Sheets'}
       </Button>
+      <LocalChangesButton collectionSlug={collectionSlug}/>
 
       <Modal slug={modalSlug} className="sync-modal">
         <div style={{
@@ -252,7 +254,8 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
           </div>
         </div>
       </Modal>
-    </div>
+    </div>)}
+    </>
   )
 }
 
