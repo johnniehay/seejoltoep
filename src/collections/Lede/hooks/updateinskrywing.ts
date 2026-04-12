@@ -7,9 +7,17 @@ import pick  from "lodash/pick";
  * Refactored to a collection hook to prevent race conditions when multiple fields update at once.
  */
 export function syncInskrywingHookGenerator(inheritedFieldNames: string[]): CollectionBeforeChangeHook<Lede> {
-  return async ({ data, req, originalDoc, operation }) => {
+  return async ({ data, req, originalDoc, operation, context }) => {
     // Only run on update. Creation is handled by ledeAfterChangeGenerator.
     if (operation !== 'update' || !originalDoc) return data
+
+    // If the import_id changes, we unlink the current registration.
+    // This will trigger ledeAfterChangeGenerator to create a new registration record.
+    if ('import_id' in data && data.import_id !== originalDoc.import_id) {
+      data.huidige_inskrywing = null
+      context.importIdChanged = true
+      return data // Exit early to prevent syncing to the soon-to-be-unlinked registration
+    }
 
     const inskrywingOrId = data.huidige_inskrywing || originalDoc.huidige_inskrywing
     const inskrywingId = inskrywingOrId && typeof inskrywingOrId === 'object' ? inskrywingOrId.id : inskrywingOrId
@@ -50,10 +58,12 @@ export function syncInskrywingHookGenerator(inheritedFieldNames: string[]): Coll
 }
 
 export function ledeAfterChangeGenerator(inheritedFieldNames: string[]): CollectionAfterChangeHook<Lede> {
-  return async ({req, data, doc, previousDoc, operation})=> {
+  return async ({req, data, doc, previousDoc, context})=> {
     // req.payload.logger.error(`ledeAfterChange operation:${JSON.stringify(operation)} data:${JSON.stringify(data)}`);
     // req.payload.logger.error(`ledeAfterChange operation:${JSON.stringify(operation)} doc:${JSON.stringify(doc)} `);
-    if (doc.huidige_inskrywing != previousDoc.huidige_inskrywing) {
+
+    // Prevent infinite loops unless we explicitly unlinked due to an import_id change.
+    if (doc.huidige_inskrywing != previousDoc.huidige_inskrywing && !context.importIdChanged) {
       // req.payload.logger.error(`ledeAfterChange huidige_inskrywing changed operation:${JSON.stringify(operation)} data:${data.huidige_inskrywing} doc:${doc.huidige_inskrywing} `);
       return doc
     }
