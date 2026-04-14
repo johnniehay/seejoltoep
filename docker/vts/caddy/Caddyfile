@@ -22,3 +22,11 @@ https://rhuskeeti.seejol.voortrekkers.co.za:443 {
 		}
 	}
 }
+https://winkel.seejol.voortrekkers.co.za:443 {
+	reverse_proxy winkelwordpress:80
+	tls {
+		issuer acme {
+			disable_http_challenge
+		}
+	}
+}
