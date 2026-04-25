@@ -13,6 +13,7 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { HybridPageRenderer, type HybridPageData } from '@delmaredigital/payload-puck/render'
 import { puckServerConfig } from '@/puck/config.server'
 import { puckRenderLayouts } from '@/lib/puck/render-layouts'
+import TempHome from "@/app/(frontend)/temphome/page";
 
 export default async function HomePage() {
   const { isEnabled: draft } = await draftMode()
@@ -21,7 +22,7 @@ export default async function HomePage() {
 
   // Fallback for new installations with no homepage
   if (!page) {
-    return <WelcomeFallback />
+    return <TempHome />
   }
 
   const url = '/'
@@ -48,37 +49,13 @@ export default async function HomePage() {
   )
 }
 
-function WelcomeFallback() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-      <div className="text-center max-w-md mx-auto px-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Welcome to DD Starter
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8">
-          Your Payload CMS site is ready. Create your first admin user and start building.
-        </p>
-        <Link
-          href="/admin"
-          className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-        >
-          Go to Admin Panel
-        </Link>
-        <p className="mt-6 text-sm text-gray-500 dark:text-gray-500">
-          Create a page and mark it as your homepage to replace this message.
-        </p>
-      </div>
-    </div>
-  )
-}
-
 export async function generateMetadata(): Promise<Metadata> {
   const page = await queryHomepage()
 
   if (!page) {
     return {
-      title: 'Welcome | DD Starter',
-      description: 'Get started with your new Payload CMS site',
+      title: 'Seejol Toep',
+      description: 'Die Toepassing vir Seejol Voortrekkerkamp',
     }
   }
 

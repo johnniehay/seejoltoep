@@ -20,7 +20,6 @@ import { cn } from '@/utilities/ui'
 
 import { signInWithMagicLink, signInWithPassword } from './actions'
 import { magicLinkSignInSchema, passwordSignInSchema } from './schema'
-import { CommonProviderOptions } from "next-auth/providers";
 import { AppProvider, OAuthProviderButtonStyles } from "@auth/core/providers";
 
 // Error map from builtin-signin.tsx
@@ -230,11 +229,16 @@ export function SigninForm({ className, providers, error, callbackUrl }: { class
             </form>
           )}
 
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Of</span></div>
+          </div>
+
           {/* WebAuthn / Passkey */}
           {webAuthnProvider && (
              <div className="mt-4">
                 {/* TODO: fix passkey callbackUrl not working */}
-                <Button variant="secondary" className="w-full" onClick={() => signInWebAuthn(webAuthnProvider.id, { redirectTo: callbackUrl ?? '/' })}>
+                <Button variant="outline" className="w-full" onClick={() => signInWebAuthn(webAuthnProvider.id, { redirectTo: callbackUrl ?? '/' })}>
                   Teken in met Wagwoordsleutel
                 </Button>
              </div>
@@ -252,7 +256,7 @@ export function SigninForm({ className, providers, error, callbackUrl }: { class
                   className="bg-background px-2 text-muted-foreground h-auto py-0.5 flex items-center gap-1"
                   onClick={toggleMode}
                 >
-                  {isPasswordMode ? "Gebruik Inteken Skakel" : "Teken in met Wagwoord"}
+                  {isPasswordMode ? "Gebruik Inteken Skakel" : "Of Teken in met Wagwoord"}
                   {isPasswordMode ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                 </Button>
               </div>

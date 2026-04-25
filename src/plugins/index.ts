@@ -20,7 +20,7 @@ import { googleSheetsPlugin } from './google-sheets'
 import { sasImportPlugin } from "@/plugins/sas-import";
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
+  return doc?.title ? `${doc.title} | Seejol Toep` : 'Seejol Toep'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
@@ -48,7 +48,7 @@ export const plugins: Plugin[] = [
     collectionOverrides: {access:{readVersions: () =>true, read: () =>true}},
     layouts: puckLayoutOptions,
     editorStylesheet: 'src/app/(frontend)/globals.css',
-    // editorStylesheetCompiled: '/puck-editor-styles.css', // Pre-compiled by withPuckCSS at build time
+    editorStylesheetCompiled: '/puck-editor-styles.css', // manually extracted from dev /api/puck/styles
   }),
   redirectsPlugin({
     collections: ['pages', 'posts'],

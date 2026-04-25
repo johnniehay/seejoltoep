@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { IconListCheck, IconSearch } from "@tabler/icons-react";
 import React from "react";
 import { auth } from "@/auth";
 
@@ -62,7 +59,7 @@ export default async function GekoppeldeLedeSummary() {
   return (<>
     {members.length > 0 && (
         <div className="w-full max-w-4xl mt-8">
-          <h2 className="text-2xl font-bold mb-4">Gekoppelde Lede</h2>
+          {/*<h2 className="text-2xl font-bold mb-4">Gekoppelde Lede</h2>*/}
           <div className="grid gap-4">
             {members.map((m, i) => (
               <div key={i} className={`p-4 rounded-lg border ${m.colorClass}`}>
