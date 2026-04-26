@@ -7,6 +7,7 @@ export interface Props {
   alt?: string
   className?: string
   fill?: boolean // for NextImage only
+  height?: number
   htmlElement?: ElementType | null
   pictureClassName?: string
   imgClassName?: string
@@ -19,4 +20,5 @@ export interface Props {
   size?: string // for NextImage only
   src?: StaticImageData // for static media
   videoClassName?: string
+  width?: number
 }

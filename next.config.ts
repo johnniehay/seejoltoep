@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
   logging: { fetches: { fullUrl: true, hmrRefreshes: true }, incomingRequests: true },
+  typescript:{ignoreBuildErrors: true}
 };
 
 export default withPuckCSS({

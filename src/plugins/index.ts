@@ -18,6 +18,15 @@ import { authjsPlugin } from "payload-authjs";
 import { authConfig } from "@/auth.config";
 import { googleSheetsPlugin } from './google-sheets'
 import { sasImportPlugin } from "@/plugins/sas-import";
+import { ecommercePlugin } from "@payloadcms/plugin-ecommerce";
+import { adminOnlyFieldAccess } from "@/access/ecommerce/adminOnlyFieldAccess";
+import { adminOrPublishedStatus } from "@/access/ecommerce/adminOrPublishedStatus";
+import { customerOnlyFieldAccess } from "@/access/ecommerce/customerOnlyFieldAccess";
+import { isAdmin } from "@/access/ecommerce/isAdmin";
+import { isDocumentOwner } from "@/access/ecommerce/isDocumentOwner";
+import { ProductsCollection } from "@/collections/Products";
+import { CurrenciesConfig } from "@payloadcms/plugin-ecommerce/types";
+import { softyCompAdapter } from '@/lib/softycomp'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Seejol Toep` : 'Seejol Toep'
@@ -28,6 +37,18 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
 
   return doc?.slug ? `${url}/${doc.slug}` : url
 }
+
+export const currencies: CurrenciesConfig = {
+    supportedCurrencies: [
+      {
+        code: 'ZAR',
+        decimals: 2,
+        label: 'South African Rand',
+        symbol: 'R',
+      },
+    ],
+    defaultCurrency: 'ZAR',
+  }
 
 export const plugins: Plugin[] = [
   authjsPlugin({
@@ -113,6 +134,61 @@ export const plugins: Plugin[] = [
       fields: ({ defaultFields }) => {
         return [...defaultFields, ...searchFields]
       },
+    },
+  }),
+  ecommercePlugin({
+    access: {
+      adminOnlyFieldAccess,
+      adminOrPublishedStatus,
+      customerOnlyFieldAccess,
+      isAdmin,
+      isDocumentOwner,
+    },
+    customers: {
+      slug: 'users',
+    },
+    currencies,
+    orders: {
+      ordersCollectionOverride: ({ defaultCollection }) => ({
+        ...defaultCollection,
+        fields: [
+          ...defaultCollection.fields.map((field) => {
+            if ('name' in field && field.name === 'status' && field.type === 'select') {
+              return {
+                ...field,
+                options: [...(field.options || []), { label: 'Pending', value: 'pending'}],
+              }
+            }
+            return field
+          }),
+          {
+            name: 'accessToken',
+            type: 'text',
+            unique: true,
+            index: true,
+            admin: {
+              position: 'sidebar',
+              readOnly: true,
+            },
+            hooks: {
+              beforeValidate: [
+                ({ value, operation }) => {
+                  if (operation === 'create' || !value) {
+                    return crypto.randomUUID()
+                  }
+                  return value
+                },
+              ],
+            },
+          },
+        ],
+      }),
+    },
+    payments: {
+      paymentMethods: [softyCompAdapter()],
+    },
+    products: {
+      productsCollectionOverride: ProductsCollection,
     },
   }),
 ]

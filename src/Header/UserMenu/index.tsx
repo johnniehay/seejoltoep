@@ -1,9 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { Suspense, useState } from 'react'
 
 import { User as UserIcon, LogOut, Settings } from 'lucide-react'
 import { SetupModal } from "@/components/SetupModal";
+import { OpenCartButton } from "@/components/Cart/OpenCart";
+import { Cart } from "@/components/Cart";
 
 export const UserMenu: React.FC<{ userData: {
     id: string | null | undefined,
@@ -17,6 +19,11 @@ export const UserMenu: React.FC<{ userData: {
   <div className="max-w-1/3 flex justify-end items-center gap-4">
     {userData.id && (
       <>
+        <div className="flex justify-end md:w-1/3 gap-4">
+          <Suspense fallback={<OpenCartButton />}>
+            <Cart />
+          </Suspense>
+        </div>
         <div className="relative">
           <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}

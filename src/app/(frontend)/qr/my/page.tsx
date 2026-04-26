@@ -10,7 +10,7 @@ export default async function MyQRPage() {
 
   if (!user) {
     // Redirect to login, and then back here
-    redirect('/login?redirect=%2Fqr%2Fmy')
+    redirect('/signin?redirect=%2Fqr%2Fmy')
   }
 
 

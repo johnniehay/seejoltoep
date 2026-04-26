@@ -2,7 +2,7 @@
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 
 import type { Header } from '@/payload-types'
 
@@ -11,6 +11,8 @@ import { HeaderNav } from './Nav'
 import ServiceWorkerManager from "@/components/service-worker-manager";
 import { UserMenu } from "@/Header/UserMenu";
 import { Button } from "@/components/ui/button";
+import { Cart } from "@/components/Cart";
+import { OpenCartButton } from "@/components/Cart/OpenCart";
 
 export interface HeaderClientProps {
   data: Header
@@ -51,13 +53,21 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setu
           </Link>
           <Link href="/">Seejol App</Link>
         </div>
+
         { userData.id && <UserMenu userData={userData} setupSlot={setupSlot} serverMenuItems={serverMenuItems} />}
         { !userData.id &&
-          <Button asChild size="sm">
-            <Link href={`/signin`}>
-              Teken In
-            </Link>
-          </Button>
+          <div className="max-w-1/3 flex justify-end items-center gap-4">
+            <div className="flex justify-end md:w-1/3 gap-4">
+              <Suspense fallback={<OpenCartButton />}>
+                <Cart />
+              </Suspense>
+            </div>
+            <Button asChild size="sm">
+              <Link href={`/signin`}>
+                Teken In
+              </Link>
+            </Button>
+          </div>
         }
       </div>
       <ServiceWorkerManager />

@@ -22,24 +22,34 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     alt: altFromProps,
     fill,
     pictureClassName,
+    height: heightFromProps,
     imgClassName,
+    onClick,
+    onLoad: onLoadFromProps,
     priority,
     resource,
     size: sizeFromProps,
     src: srcFromProps,
     loading: loadingFromProps,
+    width: widthFromProps,
   } = props
 
-  let width: number | undefined
-  let height: number | undefined
+  let width: number | undefined | null
+  let height: number | undefined | null
   let alt = altFromProps
   let src: StaticImageData | string = srcFromProps || ''
 
   if (!src && resource && typeof resource === 'object') {
-    const { alt: altFromResource, height: fullHeight, url, width: fullWidth } = resource
+    const {
+      alt: altFromResource,
+      filename: fullFilename,
+      height: fullHeight,
+      url,
+      width: fullWidth,
+    } = resource
 
-    width = fullWidth!
-    height = fullHeight!
+    width = widthFromProps ?? fullWidth
+    height = heightFromProps ?? fullHeight
     alt = altFromResource || ''
 
     const cacheTag = resource.updatedAt
@@ -53,7 +63,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   const sizes = sizeFromProps
     ? sizeFromProps
     : Object.entries(breakpoints)
-        .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
+        .map(([, value]) => `(max-width: ${value}px) ${value}px`)
         .join(', ')
 
   return (
@@ -62,7 +72,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         alt={alt || ''}
         className={cn(imgClassName)}
         fill={fill}
-        height={!fill ? height : undefined}
+        height={!fill ? height || heightFromProps : undefined}
+        onClick={onClick}
         placeholder="blur"
         blurDataURL={placeholderBlur}
         priority={priority}
@@ -70,7 +81,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         loading={loading}
         sizes={sizes}
         src={src}
-        width={!fill ? width : undefined}
+      width={!fill ? width || widthFromProps : undefined}
       />
     </picture>
   )
