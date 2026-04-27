@@ -11,6 +11,9 @@ export const PuckPages: CollectionConfig<'pages'> = {
     update: checkPermission("update:pages"),
     readVersions: checkPermission("update:pages")
   },
+  admin: {
+    useAsTitle: 'title'
+  },
   fields: [
     {
       name: 'title',

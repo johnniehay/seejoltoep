@@ -125,6 +125,7 @@ const inheritFields = (fields: Field[]): Field[] => {
         virtual: `huidige_inskrywing.${field.name}`,
         admin: {
           ...(field.admin || {}),
+          readOnly: false,
           description: `${field.admin && "description" in field.admin ? `${field.admin.description} | ` : ''}From Inskrywing`,
         },
       } as Field;
@@ -250,6 +251,7 @@ export const Lede: CollectionConfig<"lede"> = {
       ],
     },
   },
+  enableQueryPresets: true,
   fields: [
     { name: "id", type: "text", required: true, label: "Lidnommer" }, //Moved outside as custom id does not work in tabs
     {

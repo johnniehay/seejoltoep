@@ -1,5 +1,6 @@
 import { CollectionConfig } from "payload";
-import { checkConditionPermission } from "@/access/checkPermission";
+import { checkConditionPermission, checkPermission, checkPermissionOrWhere } from "@/access/checkPermission";
+import { wheredivisieleier } from "@/collections/Lede";
 
 export const Inskrywings: CollectionConfig = {
   slug: "inskrywings",
@@ -14,10 +15,10 @@ export const Inskrywings: CollectionConfig = {
   access: {
     // Define appropriate access control here.
     // Currently open to admin/authenticated based on default Payload config or add specific checks.
-    read: () => true,
-    create: () => true,
-    update: () => true,
-    delete: () => true,
+    create: checkPermission("create:lede"),
+    delete: checkPermission("remove:lede"),
+    read: checkPermission("view:lede"),
+    update: checkPermission("update:lede"),
   },
   fields: [
     {
