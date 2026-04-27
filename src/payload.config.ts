@@ -22,6 +22,8 @@ import { Presensie } from "@/collections/Presensie";
 import { Inklokke } from "@/collections/Inklokke";
 import { Aktiwiteite } from "@/collections/Aktiwiteite";
 import { Groepe } from "@/collections/Groepe";
+import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
+import nodemailer from "nodemailer"
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -87,6 +89,11 @@ export default buildConfig({
     plugins,
     secret: process.env.PAYLOAD_SECRET,
     sharp,
+    email: nodemailerAdapter({
+      defaultFromAddress: process.env['EMAIL_FROM'] ?? 'unset@seejol.voortrekkers.co.za',
+      defaultFromName: 'Seejol Toep',
+      transport: nodemailer.createTransport(process.env['EMAIL_SERVER'])
+    }),
     typescript: {
         outputFile: path.resolve(dirname, 'payload-types.ts'),
     },
