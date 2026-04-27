@@ -3,6 +3,7 @@
 import { fullConfig, extendConfig} from '@delmaredigital/payload-puck/config/editor'
 import { HeroConfig } from "@/puck/components/Hero/client";
 import { IframeConfig } from "@/puck/components/Iframe/client";
+import { FormConfig } from "@/puck/components/Form/client";
 /**
  * Puck Editor Configuration
  *
@@ -19,12 +20,13 @@ const customConfig = extendConfig({
   base: fullConfig,
   components: {
     Hero: HeroConfig,
-    Iframe: IframeConfig
+    Iframe: IframeConfig,
+    Form: FormConfig
   },
   categories: {
     custom: {
       title: 'Custom',
-      components: ['Hero','Iframe'],
+      components: ['Hero','Iframe','Form'],
     },
   },
 })

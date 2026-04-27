@@ -18,7 +18,7 @@ export type IframeProps = {
 
 export const IframeComponent: PuckComponent<IframeProps> = ({ src,srcdoc, height, title }: IframeProps) => (
   <iframe
-    src={src}
+    src={src === "" ? undefined : src}
     srcDoc={srcdoc}
     title={title}
     width="100%"

@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { checkPermission } from "@/access/checkPermission";
+import { checkPermission, checkPermissionOrWhere } from "@/access/checkPermission";
 
 // Extended by PuckPlugin
 export const PuckPages: CollectionConfig<'pages'> = {
@@ -7,7 +7,7 @@ export const PuckPages: CollectionConfig<'pages'> = {
   access: {
     create: checkPermission("create:pages"),
     delete: checkPermission("remove:pages"),
-    read: () => ({_status: {equals: 'published'}}),
+    read: checkPermissionOrWhere("update:pages", {_status: {equals: 'published'}}),
     update: checkPermission("update:pages"),
     readVersions: checkPermission("update:pages")
   },
