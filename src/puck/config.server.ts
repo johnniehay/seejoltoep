@@ -7,6 +7,7 @@
 
 import { baseConfig, extendConfig } from '@delmaredigital/payload-puck/config';
 import { Hero } from "@/puck/components/Hero/server";
+import { Iframe } from "@/puck/components/Iframe/server";
 
 /**
  * Server-safe base configuration
@@ -32,11 +33,12 @@ const customServerConfig = extendConfig({
   base: baseConfig,
   components: {
     Hero: Hero,
+    Iframe: Iframe
   },
   categories: {
     custom: {
       title: 'Custom',
-      components: ['Hero'],
+      components: ['Hero','Iframe'],
     },
   },
 })
