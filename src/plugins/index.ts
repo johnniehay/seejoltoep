@@ -153,7 +153,7 @@ export const plugins: Plugin[] = [
   ecommercePlugin({
     access: {
       adminOnlyFieldAccess: checkFieldPermission("admin:winkel"),
-      adminOrPublishedStatus: checkPermissionOrWhere("admin:winkel",{_status: { equals: 'published ' }}),
+      adminOrPublishedStatus: checkPermissionOrWhere("admin:winkel",{_status: { equals: 'published' }}),
       customerOnlyFieldAccess,
       isCustomer:customerOnlyFieldAccess,
       isAdmin: checkPermission("admin:winkel"),
