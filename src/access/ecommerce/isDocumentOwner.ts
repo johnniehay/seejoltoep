@@ -1,6 +1,6 @@
 import type { Access } from 'payload'
 
-import { checkRole } from '@/access/ecommerce/utilities'
+import { checkPermission, checkPermissionOrWhere } from "@/access/checkPermission";
 
 /**
  * Atomic access checker that verifies if the user owns the document being accessed.
@@ -12,20 +12,11 @@ import { checkRole } from '@/access/ecommerce/utilities'
  * @returns true for admins, Where query for customers, false for guests
  */
 export const isDocumentOwner: Access = ({ req }) => {
-  // Admin has full access
-  if (req.user && checkRole(['admin'], req.user)) {
-    return true
+
+  if (req.user) {
+    return checkPermissionOrWhere("admin:winkel", {customer: { equals: req.user.id }})({ req })
+  } else {
+    return checkPermission("admin:winkel")({ req })
   }
 
-  // Authenticated user - return Where query to filter by customer
-  if (req.user?.id) {
-    return {
-      customer: {
-        equals: req.user.id,
-      },
-    }
-  }
-
-  // Guest - no access
-  return false
 }

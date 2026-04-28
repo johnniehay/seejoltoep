@@ -22,6 +22,15 @@ import { FormItem } from '@/components/forms/FormItem'
 import { toast } from 'sonner'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 
+const defaultCampAddress: Partial<Address> = {
+  company: 'Seejol Voortrekkerkamp',
+  addressLine1: 'Georgeweg 1',
+  city: 'Mosselbaai',
+  postalCode: '6506',
+  state: 'Wes-Kaap',
+  country: 'ZA',
+}
+
 export const CheckoutPage: React.FC = () => {
   const { user } = useAuth()
   const router = useRouter()
@@ -37,8 +46,8 @@ export const CheckoutPage: React.FC = () => {
   const [paymentData, setPaymentData] = useState<null | Record<string, unknown>>(null)
   const { initiatePayment } = usePayments()
   const { addresses } = useAddresses()
-  const [shippingAddress, setShippingAddress] = useState<Partial<Address>>()
-  const [billingAddress, setBillingAddress] = useState<Partial<Address>>()
+  const [shippingAddress, setShippingAddress] = useState<Partial<Address>>(defaultCampAddress) // Default to camp address
+  const [billingAddress, setBillingAddress] = useState<Partial<Address>>(defaultCampAddress) // Default to camp address
   const [billingAddressSameAsShipping, setBillingAddressSameAsShipping] = useState(true)
   const [isProcessingPayment, setProcessingPayment] = useState(false)
 
@@ -62,8 +71,8 @@ export const CheckoutPage: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      setShippingAddress(undefined)
-      setBillingAddress(undefined)
+      setShippingAddress(defaultCampAddress)
+      setBillingAddress(defaultCampAddress)
       setBillingAddressSameAsShipping(true)
       setEmail('')
       setEmailEditable(true)
@@ -191,7 +200,14 @@ export const CheckoutPage: React.FC = () => {
         )}
 
         <h2 className="font-medium text-3xl">Adres</h2>
+        <div className="bg-accent dark:bg-black rounded-lg p-4 ">
+          <p className="prose dark:prose-invert">
+            Alle produkte word by die kamp uitgedeel. Geen aflewering opsies is tans beskikbaar.
+          </p>
+        </div>
 
+        {/* Hidden Address UI */}
+        {/*
         {billingAddress ? (
           <div>
             <AddressItem
@@ -271,6 +287,7 @@ export const CheckoutPage: React.FC = () => {
             )}
           </>
         )}
+        */}
 
         {!paymentData && (
           <div className="flex gap-4">

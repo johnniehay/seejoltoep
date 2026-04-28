@@ -1304,47 +1304,7 @@ export interface Address {
   city?: string | null;
   state?: string | null;
   postalCode?: string | null;
-  country:
-    | 'US'
-    | 'GB'
-    | 'CA'
-    | 'AU'
-    | 'AT'
-    | 'BE'
-    | 'BR'
-    | 'BG'
-    | 'CY'
-    | 'CZ'
-    | 'DK'
-    | 'EE'
-    | 'FI'
-    | 'FR'
-    | 'DE'
-    | 'GR'
-    | 'HK'
-    | 'HU'
-    | 'IN'
-    | 'IE'
-    | 'IT'
-    | 'JP'
-    | 'LV'
-    | 'LT'
-    | 'LU'
-    | 'MY'
-    | 'MT'
-    | 'MX'
-    | 'NL'
-    | 'NZ'
-    | 'NO'
-    | 'PL'
-    | 'PT'
-    | 'RO'
-    | 'SG'
-    | 'SK'
-    | 'SI'
-    | 'ES'
-    | 'SE'
-    | 'CH';
+  country: 'ZA';
   phone?: string | null;
   updatedAt: string;
   createdAt: string;

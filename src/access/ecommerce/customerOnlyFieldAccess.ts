@@ -1,9 +1,9 @@
 import type { FieldAccess } from 'payload'
 
-import { checkRole } from '@/access/ecommerce/utilities'
+import { checkPermission } from "@/access/checkPermission";
 
-export const customerOnlyFieldAccess: FieldAccess = ({ req: { user } }) => {
-  if (user) return checkRole(['customer'], user)
+export const customerOnlyFieldAccess: FieldAccess = ({ req, req: { user } }) => {
+  if (user) return !(checkPermission("admin:winkel")({ req }))
 
   return false
 }

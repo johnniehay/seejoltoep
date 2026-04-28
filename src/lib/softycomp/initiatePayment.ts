@@ -76,6 +76,7 @@ export const initiatePayment: NonNullable<PaymentAdapter>['initiatePayment'] = a
     SuccessURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/checkout/confirm-order?method=softycomp&userReference=${userReference}`,
     NotifyURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/checkout?error=payment_failed`,
     CancelURL: `${process.env.NEXT_PUBLIC_SERVER_URL}/checkout?error=payment_cancelled`,
+    Language: 'AF',
     Items: items,
   }
 

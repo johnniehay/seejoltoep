@@ -19,10 +19,8 @@ import { authConfig } from "@/auth.config";
 import { googleSheetsPlugin } from './google-sheets'
 import { sasImportPlugin } from "@/plugins/sas-import";
 import { ecommercePlugin } from "@payloadcms/plugin-ecommerce";
-import { adminOnlyFieldAccess } from "@/access/ecommerce/adminOnlyFieldAccess";
-import { adminOrPublishedStatus } from "@/access/ecommerce/adminOrPublishedStatus";
+import { checkFieldPermission, checkPermission, checkPermissionOrWhere } from "@/access/checkPermission";
 import { customerOnlyFieldAccess } from "@/access/ecommerce/customerOnlyFieldAccess";
-import { isAdmin } from "@/access/ecommerce/isAdmin";
 import { isDocumentOwner } from "@/access/ecommerce/isDocumentOwner";
 import { ProductsCollection } from "@/collections/Products";
 import { CurrenciesConfig } from "@payloadcms/plugin-ecommerce/types";
@@ -106,6 +104,13 @@ export const plugins: Plugin[] = [
       payment: false,
     },
     formOverrides: {
+      access:{
+        create: checkPermission("all:forms"),
+        update: checkPermission("all:forms"),
+        delete: checkPermission("all:forms"),
+        read: checkPermission("all:forms"),
+        readVersions: checkPermission("all:forms"),
+      },
       fields: ({ defaultFields }) => {
         return defaultFields.map((field) => {
           if ('name' in field && field.name === 'confirmationMessage') {
@@ -126,6 +131,15 @@ export const plugins: Plugin[] = [
         })
       },
     },
+    formSubmissionOverrides:{
+      access:{
+        create: () => true,
+        update: checkPermission("all:forms"),
+        delete: checkPermission("all:forms"),
+        read: checkPermission("all:forms"),
+        readVersions: checkPermission("all:forms"),
+      },
+    }
   }),
   searchPlugin({
     collections: ['posts'],
@@ -138,16 +152,20 @@ export const plugins: Plugin[] = [
   }),
   ecommercePlugin({
     access: {
-      adminOnlyFieldAccess,
-      adminOrPublishedStatus,
+      adminOnlyFieldAccess: checkFieldPermission("admin:winkel"),
+      adminOrPublishedStatus: checkPermissionOrWhere("admin:winkel",{_status: { equals: 'published ' }}),
       customerOnlyFieldAccess,
-      isAdmin,
+      isCustomer:customerOnlyFieldAccess,
+      isAdmin: checkPermission("admin:winkel"),
       isDocumentOwner,
     },
     customers: {
       slug: 'users',
     },
     currencies,
+    addresses: {
+      supportedCountries: [{ label: 'South Africa', value: 'ZA' }]
+    },
     orders: {
       ordersCollectionOverride: ({ defaultCollection }) => ({
         ...defaultCollection,

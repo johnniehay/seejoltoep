@@ -13,6 +13,7 @@ export const LocationManagementPermissions = ["create:location","update:location
 export const InklokManagementPermissions = ["create:inklok","update:inklok","remove:inklok", "view:inklok"] as const
 export const LedeManagementPermissions = ["create:lede", "update:lede", "remove:lede", "view:lede", "import:lede", "export:lede"] as const
 export const DivisieManagementPermissions = ["create:divisie", "update:divisie", "remove:divisie", "view:divisie", "view:divisie:details"] as const
+export const WinkelManagementPermissions = ["admin:winkel"] as const
 
 // export const MCPermissions = ["view:queuing:status", ...VolunteerPermissions] as const
 // export const TechnicalPermissions = ["view:queuing:status", "view:checkin", "view:judging", "view:scoring",...VolunteerPermissions]
@@ -47,7 +48,7 @@ export const KombuisPermissions = [...AlgemeneOffisierPermission] as const
 export const LogistiekPermissions = [...AlgemeneOffisierPermission] as const
 export const DivisieOffisierPermissions = ["view:divisie:lede", "create:presensie", "update:presensie", "view:presensie",...AlgemeneOffisierPermission] as const
 export const DivisieLeierPermissions = ["view:divisie:users","view:divisie:lede","update:divisie:lede","remove:presensie", ...AktiwiteitManagementPermissions, ...PagesPermissions,...DivisieOffisierPermissions] as const
-export const KampRaadPermissions = ["view:users", "create:users", "update:users", "update:user:role", "remove:users", ...LedeManagementPermissions , ...DivisieLeierPermissions, ...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions] as const
+export const KampRaadPermissions = ["view:users", "create:users", "update:users", "update:user:role", "remove:users", ...LedeManagementPermissions , ...DivisieLeierPermissions, ...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions,...WinkelManagementPermissions] as const
 export const KampLeierPermissions = ["admin", ...DivisieManagementPermissions, ...KampRaadPermissions, ...DivisieLeierPermissions, ...LogistiekPermissions, ...KombuisPermissions, ...NoodOffisierPermissions] as const
 export const AdminOnlyPermissions = ["admin", "view:users", "create:users", "update:users", "remove:users",...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions] as const
 export const AdminPermissions = [...AdminOnlyPermissions, ...KampLeierPermissions] as const
