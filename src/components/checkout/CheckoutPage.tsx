@@ -335,16 +335,17 @@ export const CheckoutPage: React.FC = () => {
                 customPrice,
               } = item
               const product = productu as Product
+              const customPriceInZAR = customPrice ? customPrice * 100 : undefined
 
               if (!quantity) return null
 
               let image = gallery?.[0]?.image || meta?.image
-              let price = customPrice || product?.priceInZAR // Use customPrice if available
+              let price = customPriceInZAR || product?.priceInZAR // Use customPrice if available
 
               const isVariant = Boolean(variant) && typeof variant === 'object'
 
               if (isVariant) {
-                price = customPrice || variant?.priceInZAR // Use customPrice if available
+                price = customPriceInZAR || variant?.priceInZAR // Use customPrice if available
 
                 const imageVariant = product.gallery?.find((item) => {
                   if (!item.variantOption) return false

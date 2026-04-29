@@ -1,5 +1,6 @@
 import { APIError } from 'payload'
 import type { PaymentAdapter } from '@payloadcms/plugin-ecommerce/types'
+import type { CartItem } from "@/components/Cart";
 
 async function getSoftyCompToken() {
   const providedURL = process.env.SOFTYCOMP_URL
@@ -107,10 +108,10 @@ export const initiatePayment: NonNullable<PaymentAdapter>['initiatePayment'] = a
         billingAddress,
         cart: cart.id,
         currency: 'ZAR',
-        items: cart.items.map(item => ({
-          product: typeof item.product === 'object' ? item.product.id : item.product,
+        items: cart.items.map((item:CartItem) => ({
+          product: typeof item.product === 'object' ? item.product?.id : item.product,
           quantity: item.quantity,
-          variant: typeof item.variant === 'object' ? item.variant.id : item.variant,
+          variant: typeof item.variant === 'object' ? item.variant?.id : item.variant,
           lidnommer: item.lidnommer,
           customPrice: item.customPrice,
         })),

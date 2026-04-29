@@ -64,7 +64,7 @@ export function CartModal() {
                   const product = item.product as Product
                   const variant = item.variant as Variant
                   const lidnommer = item.lidnommer
-                  const customPrice = item.customPrice
+                  const customPriceInZAR = item.customPrice * 100
 
                   if (typeof product !== 'object' || !item || !product || !product.slug)
                     return <React.Fragment key={i} />
@@ -80,12 +80,12 @@ export function CartModal() {
                       : undefined
 
                   let image = firstGalleryImage || metaImage
-                  let price = customPrice || product.priceInZAR
+                  let price = customPriceInZAR || product.priceInZAR
 
                   const isVariant = Boolean(variant) && typeof variant === 'object'
 
                   if (isVariant) {
-                    price = customPrice || variant?.priceInZAR
+                    price = customPriceInZAR || variant?.priceInZAR
 
                     const imageVariant = product.gallery?.find((item) => {
                       if (!item.variantOption) return false

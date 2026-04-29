@@ -30,6 +30,8 @@ export const ProductItem: React.FC<Props> = ({
 }) => {
   const { title } = product
 
+  const customPriceInZAR = customPrice ? customPrice * 100 : undefined
+
   const metaImage =
     product.meta?.image && typeof product.meta?.image !== 'string' ? product.meta.image : undefined
 
@@ -59,7 +61,7 @@ export const ProductItem: React.FC<Props> = ({
     }
   }
 
-  const itemPrice = customPrice || variant?.priceInZAR || product.priceInZAR
+  const itemPrice = customPriceInZAR || variant?.priceInZAR || product.priceInZAR
   const itemURL = `/products/${product.slug}${variant ? `?variant=${variant.id}` : ''}`
 
   return (

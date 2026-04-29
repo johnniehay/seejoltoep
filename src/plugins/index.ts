@@ -25,6 +25,7 @@ import { isDocumentOwner } from "@/access/ecommerce/isDocumentOwner";
 import { ProductsCollection } from "@/collections/Products";
 import { CurrenciesConfig } from "@payloadcms/plugin-ecommerce/types";
 import { softyCompAdapter } from '@/lib/softycomp'
+import { beforeChangeCart } from "@/components/Cart/beforeChange";
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Seejol Toep` : 'Seejol Toep'
@@ -179,7 +180,12 @@ export const plugins: Plugin[] = [
         const newlidnommer = newItem.lidnommer as string | undefined
         const lidnommerMatches = existinglidnommer === newlidnommer
 
-        return productMatches && variantMatches && lidnommerMatches
+        // lidnommer matching: items with different lidnommer options are separate
+        const existingcustomPrice = existingItem.customPrice as number | undefined
+        const newcustomPrice = newItem.customPrice as number | undefined
+        const customPriceMatches = existingcustomPrice === newcustomPrice
+
+        return productMatches && variantMatches && lidnommerMatches && customPriceMatches
       },
       cartsCollectionOverride: ({ defaultCollection }) => ({
         ...defaultCollection,
@@ -204,6 +210,10 @@ export const plugins: Plugin[] = [
           }
           return f
         }),
+        hooks: {
+          ...defaultCollection.hooks,
+          beforeChange: [ beforeChangeCart({ productsSlug: 'products', variantsSlug: 'variants' }) ]
+        }
       }),
     },
     orders: {
