@@ -111,6 +111,8 @@ export const initiatePayment: NonNullable<PaymentAdapter>['initiatePayment'] = a
           product: typeof item.product === 'object' ? item.product.id : item.product,
           quantity: item.quantity,
           variant: typeof item.variant === 'object' ? item.variant.id : item.variant,
+          lidnommer: item.lidnommer,
+          customPrice: item.customPrice,
         })),
         status: 'pending',
         softycomp: {

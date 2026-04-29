@@ -1370,6 +1370,10 @@ export interface Product {
   priceInZAREnabled?: boolean | null;
   priceInZAR?: number | null;
   relatedProducts?: (string | Product)[] | null;
+  customInputs?: {
+    lidnommer?: boolean | null;
+    customPrice?: boolean | null;
+  };
   meta?: {
     title?: string | null;
     /**
@@ -1492,6 +1496,8 @@ export interface Cart {
         product?: (string | null) | Product;
         variant?: (string | null) | Variant;
         quantity: number;
+        lidnommer?: string | null;
+        customPrice?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -1515,6 +1521,8 @@ export interface Order {
         product?: (string | null) | Product;
         variant?: (string | null) | Variant;
         quantity: number;
+        lidnommer?: string | null;
+        customPrice?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -1552,6 +1560,8 @@ export interface Transaction {
         product?: (string | null) | Product;
         variant?: (string | null) | Variant;
         quantity: number;
+        lidnommer?: string | null;
+        customPrice?: number | null;
         id?: string | null;
       }[]
     | null;
@@ -2676,6 +2686,12 @@ export interface ProductsSelect<T extends boolean = true> {
   priceInZAREnabled?: T;
   priceInZAR?: T;
   relatedProducts?: T;
+  customInputs?:
+    | T
+    | {
+        lidnommer?: T;
+        customPrice?: T;
+      };
   meta?:
     | T
     | {
@@ -2735,6 +2751,8 @@ export interface CartsSelect<T extends boolean = true> {
         product?: T;
         variant?: T;
         quantity?: T;
+        lidnommer?: T;
+        customPrice?: T;
         id?: T;
       };
   secret?: T;
@@ -2757,6 +2775,8 @@ export interface OrdersSelect<T extends boolean = true> {
         product?: T;
         variant?: T;
         quantity?: T;
+        lidnommer?: T;
+        customPrice?: T;
         id?: T;
       };
   shippingAddress?:
@@ -2795,6 +2815,8 @@ export interface TransactionsSelect<T extends boolean = true> {
         product?: T;
         variant?: T;
         quantity?: T;
+        lidnommer?: T;
+        customPrice?: T;
         id?: T;
       };
   paymentMethod?: T;

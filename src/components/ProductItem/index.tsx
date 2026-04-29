@@ -11,6 +11,8 @@ type Props = {
   style?: 'compact' | 'default'
   variant?: Variant
   quantity?: number
+  lidnommer?: string
+  customPrice?: number
   /**
    * Force all formatting to a particular currency.
    */
@@ -22,6 +24,8 @@ export const ProductItem: React.FC<Props> = ({
   style = 'default',
   quantity,
   variant,
+  lidnommer,
+  customPrice,
   currencyCode,
 }) => {
   const { title } = product
@@ -55,7 +59,7 @@ export const ProductItem: React.FC<Props> = ({
     }
   }
 
-  const itemPrice = variant?.priceInZAR || product.priceInZAR
+  const itemPrice = customPrice || variant?.priceInZAR || product.priceInZAR
   const itemURL = `/products/${product.slug}${variant ? `?variant=${variant.id}` : ''}`
 
   return (
@@ -72,13 +76,13 @@ export const ProductItem: React.FC<Props> = ({
           <p className="font-medium text-lg">
             <Link href={itemURL}>{title}</Link>
           </p>
-          {variant && (
+          {(variant || lidnommer) && (
             <p className="text-sm font-mono text-primary/50 tracking-widest">
-              {variant.options
-                ?.map((option) => {
-                  if (typeof option === 'object') return option.label
-                  return null
-                })
+              {[
+                ...(variant?.options?.map((option) => (typeof option === 'object' ? option.label : null)) || []),
+                lidnommer ? `Lid: ${lidnommer}` : null,
+              ]
+                .filter(Boolean)
                 .join(', ')}
             </p>
           )}

@@ -52,6 +52,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
     priceInZAR: true,
     inventory: true,
     meta: true,
+    customInputs: true,
   },
   fields: [
     { name: 'title', type: 'text', required: true },
@@ -164,6 +165,25 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
               },
               hasMany: true,
               relationTo: 'products',
+            },
+            {
+              name: 'customInputs',
+              type: 'group',
+              label: 'Custom Inputs',
+              fields: [
+                {
+                  name: 'lidnommer',
+                  type: 'checkbox',
+                  label: 'Lidnommer required',
+                  defaultValue: false,
+                },
+                {
+                  name: 'customPrice',
+                  type: 'checkbox',
+                  label: 'Custom Price allowed',
+                  defaultValue: false,
+                },
+              ],
             },
           ],
           label: 'Product Details',

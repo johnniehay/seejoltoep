@@ -63,6 +63,8 @@ export function CartModal() {
                 {cart?.items?.map((item, i) => {
                   const product = item.product as Product
                   const variant = item.variant as Variant
+                  const lidnommer = item.lidnommer
+                  const customPrice = item.customPrice
 
                   if (typeof product !== 'object' || !item || !product || !product.slug)
                     return <React.Fragment key={i} />
@@ -78,12 +80,12 @@ export function CartModal() {
                       : undefined
 
                   let image = firstGalleryImage || metaImage
-                  let price = product.priceInZAR
+                  let price = customPrice || product.priceInZAR
 
                   const isVariant = Boolean(variant) && typeof variant === 'object'
 
                   if (isVariant) {
-                    price = variant?.priceInZAR
+                    price = customPrice || variant?.priceInZAR
 
                     const imageVariant = product.gallery?.find((item) => {
                       if (!item.variantOption) return false
@@ -129,13 +131,13 @@ export function CartModal() {
 
                           <div className="flex flex-1 flex-col text-base">
                             <span className="leading-tight">{product?.title}</span>
-                            {isVariant && variant ? (
+                            {(isVariant && variant) || lidnommer ? (
                               <p className="text-sm text-neutral-500 dark:text-neutral-400 capitalize">
-                                {variant.options
-                                  ?.map((option) => {
-                                    if (typeof option === 'object') return option.label
-                                    return null
-                                  })
+                                {[
+                                  ...(variant?.options?.map((option) => (typeof option === 'object' ? option.label : null)) || []),
+                                  lidnommer ? `Lid: ${lidnommer}` : null,
+                                ]
+                                  .filter(Boolean)
                                   .join(', ')}
                               </p>
                             ) : null}

@@ -10,9 +10,11 @@ import React, { useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 type Props = {
   product: Product
+  lidnommer?: string
+  customPrice?: number
 }
 
-export function AddToCart({ product }: Props) {
+export function AddToCart({ product, lidnommer, customPrice }: Props) {
   const { addItem, cart, isLoading } = useCart()
   const searchParams = useSearchParams()
 
@@ -44,11 +46,13 @@ export function AddToCart({ product }: Props) {
       addItem({
         product: product.id,
         variant: selectedVariant?.id ?? undefined,
-      }).then(() => {
+        lidnommer,
+        customPrice,
+      } as Parameters<typeof addItem>[0]).then(() => {
         toast.success('Item by mandjie gevoeg.')
       })
     },
-    [addItem, product, selectedVariant],
+    [addItem, product, selectedVariant, lidnommer, customPrice],
   )
 
   const disabled = useMemo<boolean>(() => {

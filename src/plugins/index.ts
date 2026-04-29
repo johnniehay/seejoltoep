@@ -166,6 +166,46 @@ export const plugins: Plugin[] = [
     addresses: {
       supportedCountries: [{ label: 'South Africa', value: 'ZA' }]
     },
+    carts: {
+      cartItemMatcher: ({ existingItem, newItem, }) => {
+        const existingProductID = typeof existingItem.product === 'object'? existingItem.product.id : existingItem.product
+        const existingVariantID = existingItem.variant && typeof existingItem.variant === 'object' ? existingItem.variant.id : existingItem.variant
+        const productMatches = existingProductID === newItem.product
+        // Variant matching: both must have same variant or both must have no variant
+        const variantMatches = newItem.variant ? existingVariantID === newItem.variant : !existingVariantID
+
+        // lidnommer matching: items with different lidnommer options are separate
+        const existinglidnommer = existingItem.lidnommer as string | undefined
+        const newlidnommer = newItem.lidnommer as string | undefined
+        const lidnommerMatches = existinglidnommer === newlidnommer
+
+        return productMatches && variantMatches && lidnommerMatches
+      },
+      cartsCollectionOverride: ({ defaultCollection }) => ({
+        ...defaultCollection,
+        fields: defaultCollection.fields.map((f) => {
+          if ('name' in f && f.name === 'items' && f.type === 'array') {
+            return {
+              ...f,
+              fields: [
+                ...f.fields,
+                {
+                  name: 'lidnommer',
+                  type: 'text',
+                  label: 'Lidnommer',
+                },
+                {
+                  name: 'customPrice',
+                  type: 'number',
+                  label: 'Custom Price',
+                },
+              ],
+            }
+          }
+          return f
+        }),
+      }),
+    },
     orders: {
       ordersCollectionOverride: ({ defaultCollection }) => ({
         ...defaultCollection,
@@ -177,6 +217,32 @@ export const plugins: Plugin[] = [
                 options: [...(field.options || []), { label: 'Pending', value: 'pending'}],
               }
             }
+            if (field.type !== 'tabs') return field
+            field.tabs = field.tabs.map((tab) => (
+              {
+                ...tab,
+                fields: tab.fields.map((f) => {
+                  if ('name' in f && f.name === 'items' && f.type === 'array') {
+                    return {
+                      ...f,
+                      fields: [
+                        ...f.fields,
+                        {
+                          name: 'lidnommer',
+                          type: 'text',
+                          label: 'Lidnommer',
+                        },
+                        {
+                          name: 'customPrice',
+                          type: 'number',
+                          label: 'Custom Price',
+                        },
+                      ],
+                    }
+                  }
+                  return f
+                })
+              }))
             return field
           }),
           {
@@ -200,6 +266,40 @@ export const plugins: Plugin[] = [
             },
           },
         ],
+      }),
+    },
+    transactions: {
+      transactionsCollectionOverride: ({ defaultCollection }) => ({
+        ...defaultCollection,
+        fields: defaultCollection.fields.map((outerf) => {
+          if (outerf.type !== 'tabs') return outerf
+          outerf.tabs = outerf.tabs.map((tab) => (
+            {
+              ...tab,
+              fields: tab.fields.map((f) => {
+                if ('name' in f && f.name === 'items' && f.type === 'array') {
+                  return {
+                    ...f,
+                    fields: [
+                      ...f.fields,
+                      {
+                        name: 'lidnommer',
+                        type: 'text',
+                        label: 'Lidnommer',
+                      },
+                      {
+                        name: 'customPrice',
+                        type: 'number',
+                        label: 'Custom Price',
+                      },
+                    ],
+                  }
+                }
+                return f
+              })
+            }))
+          return outerf
+        })
       }),
     },
     payments: {

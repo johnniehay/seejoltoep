@@ -331,18 +331,20 @@ export const CheckoutPage: React.FC = () => {
                 product: { id, meta, title, gallery },
                 quantity,
                 variant,
+                lidnommer,
+                customPrice,
               } = item
               const product = productu as Product
 
               if (!quantity) return null
 
               let image = gallery?.[0]?.image || meta?.image
-              let price = product?.priceInZAR
+              let price = customPrice || product?.priceInZAR // Use customPrice if available
 
               const isVariant = Boolean(variant) && typeof variant === 'object'
 
               if (isVariant) {
-                price = variant?.priceInZAR
+                price = customPrice || variant?.priceInZAR // Use customPrice if available
 
                 const imageVariant = product.gallery?.find((item) => {
                   if (!item.variantOption) return false
@@ -376,13 +378,13 @@ export const CheckoutPage: React.FC = () => {
                   <div className="flex grow justify-between items-center">
                     <div className="flex flex-col gap-1">
                       <p className="font-medium text-lg">{title}</p>
-                      {variant && typeof variant === 'object' && (
+                      {((variant && typeof variant === 'object') || lidnommer) && ( // Display lidnommer if present
                         <p className="text-sm font-mono text-primary/50 tracking-widest">
-                          {variant.options
-                            ?.map((option) => {
-                              if (typeof option === 'object') return option.label
-                              return null
-                            })
+                          {[
+                            ...((typeof variant === 'object'? variant?.options : [])?.map((option) => (typeof option === 'object' ? option.label : null)) || []),
+                            lidnommer ? `Lid: ${lidnommer}` : null,
+                          ]
+                            .filter(Boolean)
                             .join(', ')}
                         </p>
                       )}
