@@ -96,9 +96,12 @@ export default async function TempHome() {
               Wagstaan
             </ConstructionButton>
           )}
-          <ConstructionButton icon={<IconShoppingCart size={48}/>} className={btnClass}>
-            Winkel
-          </ConstructionButton>
+          <Button asChild className={btnClass} variant="outline">
+            <Link href="/shop">
+              <IconShoppingCart size={48} />
+              <span>Winkel</span>
+            </Link>
+          </Button>
           <ConstructionButton icon={<IconUsers size={48}/>} className={btnClass}>
             My Divisie
           </ConstructionButton>

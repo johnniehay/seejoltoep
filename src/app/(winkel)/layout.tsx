@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
-import { Footer } from '@/components/ecommerce/Footer'
+import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { ensureStartsWith } from '@/utilities/ensureStartsWith'
