@@ -174,14 +174,47 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
                 {
                   name: 'lidnommer',
                   type: 'checkbox',
-                  label: 'Lidnommer required',
+                  label: 'Lidnommer input',
                   defaultValue: false,
+                },
+                {
+                  name: 'lidnommerRequired',
+                  type: 'checkbox',
+                  label: 'Make lidnommer required',
+                  defaultValue: true,
+                  admin: {
+                    condition: (data) => Boolean(data.customInputs.lidnommer),
+                  }
                 },
                 {
                   name: 'customPrice',
                   type: 'checkbox',
-                  label: 'Custom Price allowed',
+                  label: 'Show user input for Custom Price',
                   defaultValue: false,
+                },
+                {
+                  name: 'customPriceLabel',
+                  type: 'text',
+                  label: 'Custom Price Label',
+                  defaultValue: 'Prys',
+                  admin: {
+                    condition: (data) => Boolean(data.customInputs.customPrice),
+                  }
+                },
+                {
+                  name: 'customText',
+                  type: 'checkbox',
+                  label: 'Show custom text user input',
+                  defaultValue: false,
+                },
+                {
+                  name: 'customTextLabel',
+                  type: 'text',
+                  label: 'Custom Text Input Label',
+                  defaultValue: '',
+                  admin: {
+                    condition: (data) => Boolean(data.customInputs.customText),
+                  }
                 },
               ],
             },

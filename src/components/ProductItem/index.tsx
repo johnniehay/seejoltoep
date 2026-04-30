@@ -12,6 +12,7 @@ type Props = {
   variant?: Variant
   quantity?: number
   lidnommer?: string
+  customText?: string
   customPrice?: number
   /**
    * Force all formatting to a particular currency.
@@ -25,6 +26,7 @@ export const ProductItem: React.FC<Props> = ({
   quantity,
   variant,
   lidnommer,
+  customText,
   customPrice,
   currencyCode,
 }) => {
@@ -78,11 +80,12 @@ export const ProductItem: React.FC<Props> = ({
           <p className="font-medium text-lg">
             <Link href={itemURL}>{title}</Link>
           </p>
-          {(variant || lidnommer) && (
+          {(variant || lidnommer || customText) && (
             <p className="text-sm font-mono text-primary/50 tracking-widest">
               {[
                 ...(variant?.options?.map((option) => (typeof option === 'object' ? option.label : null)) || []),
                 lidnommer ? `Lid: ${lidnommer}` : null,
+                customText ? `${product.customInputs?.customTextLabel}: ${customText}` : null,
               ]
                 .filter(Boolean)
                 .join(', ')}

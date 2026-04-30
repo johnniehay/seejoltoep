@@ -113,6 +113,7 @@ export const initiatePayment: NonNullable<PaymentAdapter>['initiatePayment'] = a
           quantity: item.quantity,
           variant: typeof item.variant === 'object' ? item.variant?.id : item.variant,
           lidnommer: item.lidnommer,
+          customText: item.customText,
           customPrice: item.customPrice,
         })),
         status: 'pending',

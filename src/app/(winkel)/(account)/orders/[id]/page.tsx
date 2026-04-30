@@ -180,6 +180,7 @@ export default async function Order({ params, searchParams }: PageProps) {
                       quantity={item.quantity}
                       variant={variant}
                       lidnommer={item.lidnommer ?? undefined}
+                      customText={item.customText ?? undefined}
                       customPrice={item.customPrice ?? undefined}
                     />
                   </li>

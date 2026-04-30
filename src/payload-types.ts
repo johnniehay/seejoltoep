@@ -1372,7 +1372,11 @@ export interface Product {
   relatedProducts?: (string | Product)[] | null;
   customInputs?: {
     lidnommer?: boolean | null;
+    lidnommerRequired?: boolean | null;
     customPrice?: boolean | null;
+    customPriceLabel?: string | null;
+    customText?: boolean | null;
+    customTextLabel?: string | null;
   };
   meta?: {
     title?: string | null;
@@ -1497,6 +1501,7 @@ export interface Cart {
         variant?: (string | null) | Variant;
         quantity: number;
         lidnommer?: string | null;
+        customText?: string | null;
         customPrice?: number | null;
         id?: string | null;
       }[]
@@ -1522,6 +1527,7 @@ export interface Order {
         variant?: (string | null) | Variant;
         quantity: number;
         lidnommer?: string | null;
+        customText?: string | null;
         customPrice?: number | null;
         id?: string | null;
       }[]
@@ -1561,6 +1567,7 @@ export interface Transaction {
         variant?: (string | null) | Variant;
         quantity: number;
         lidnommer?: string | null;
+        customText?: string | null;
         customPrice?: number | null;
         id?: string | null;
       }[]
@@ -2690,7 +2697,11 @@ export interface ProductsSelect<T extends boolean = true> {
     | T
     | {
         lidnommer?: T;
+        lidnommerRequired?: T;
         customPrice?: T;
+        customPriceLabel?: T;
+        customText?: T;
+        customTextLabel?: T;
       };
   meta?:
     | T
@@ -2752,6 +2763,7 @@ export interface CartsSelect<T extends boolean = true> {
         variant?: T;
         quantity?: T;
         lidnommer?: T;
+        customText?: T;
         customPrice?: T;
         id?: T;
       };
@@ -2776,6 +2788,7 @@ export interface OrdersSelect<T extends boolean = true> {
         variant?: T;
         quantity?: T;
         lidnommer?: T;
+        customText?: T;
         customPrice?: T;
         id?: T;
       };
@@ -2816,6 +2829,7 @@ export interface TransactionsSelect<T extends boolean = true> {
         variant?: T;
         quantity?: T;
         lidnommer?: T;
+        customText?: T;
         customPrice?: T;
         id?: T;
       };

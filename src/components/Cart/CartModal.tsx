@@ -64,6 +64,7 @@ export function CartModal() {
                   const product = item.product as Product
                   const variant = item.variant as Variant
                   const lidnommer = item.lidnommer
+                  const customText = item.customText
                   const customPriceInZAR = item.customPrice * 100
 
                   if (typeof product !== 'object' || !item || !product || !product.slug)
@@ -131,11 +132,12 @@ export function CartModal() {
 
                           <div className="flex flex-1 flex-col text-base">
                             <span className="leading-tight">{product?.title}</span>
-                            {(isVariant && variant) || lidnommer ? (
+                            {(isVariant && variant) || lidnommer || customText ? (
                               <p className="text-sm text-neutral-500 dark:text-neutral-400 capitalize">
                                 {[
                                   ...(variant?.options?.map((option) => (typeof option === 'object' ? option.label : null)) || []),
                                   lidnommer ? `Lid: ${lidnommer}` : null,
+                                  customText ? `${product.customInputs?.customTextLabel ?? "Text"}: ${customText}` : null,
                                 ]
                                   .filter(Boolean)
                                   .join(', ')}

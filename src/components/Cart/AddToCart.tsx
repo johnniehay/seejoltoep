@@ -11,10 +11,11 @@ import { toast } from 'sonner'
 type Props = {
   product: Product
   lidnommer?: string
+  customText?: string
   customPrice?: number
 }
 
-export function AddToCart({ product, lidnommer, customPrice }: Props) {
+export function AddToCart({ product, lidnommer, customText, customPrice }: Props) {
   const { addItem, cart, isLoading } = useCart()
   const searchParams = useSearchParams()
 
@@ -47,12 +48,13 @@ export function AddToCart({ product, lidnommer, customPrice }: Props) {
         product: product.id,
         variant: selectedVariant?.id ?? undefined,
         lidnommer,
+        customText,
         customPrice,
       } as Parameters<typeof addItem>[0]).then(() => {
         toast.success('Item by mandjie gevoeg.')
       })
     },
-    [addItem, product, selectedVariant, lidnommer, customPrice],
+    [addItem, product, selectedVariant, lidnommer, customText, customPrice],
   )
 
   const disabled = useMemo<boolean>(() => {
@@ -71,6 +73,16 @@ export function AddToCart({ product, lidnommer, customPrice }: Props) {
         return true
       }
     })
+
+    if (product.customInputs?.lidnommerRequired && (!lidnommer || lidnommer === '')) {
+      return true
+    }
+    if (product.customInputs?.customText && (!customText || customText === '')) {
+      return true
+    }
+    if (product.customInputs?.customPrice && !customPrice) {
+      return true
+    }
 
     if (existingItem) {
       const existingQuantity = existingItem.quantity
@@ -96,7 +108,7 @@ export function AddToCart({ product, lidnommer, customPrice }: Props) {
     }
 
     return false
-  }, [selectedVariant, cart?.items, product])
+  }, [selectedVariant, cart?.items, product, lidnommer, customText, customPrice])
 
   return (
     <Button

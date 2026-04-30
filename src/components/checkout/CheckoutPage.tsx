@@ -332,6 +332,7 @@ export const CheckoutPage: React.FC = () => {
                 quantity,
                 variant,
                 lidnommer,
+                customText,
                 customPrice,
               } = item
               const product = productu as Product
@@ -379,11 +380,12 @@ export const CheckoutPage: React.FC = () => {
                   <div className="flex grow justify-between items-center">
                     <div className="flex flex-col gap-1">
                       <p className="font-medium text-lg">{title}</p>
-                      {((variant && typeof variant === 'object') || lidnommer) && ( // Display lidnommer if present
+                      {((variant && typeof variant === 'object') || lidnommer || customText) && ( // Display lidnommer if present
                         <p className="text-sm font-mono text-primary/50 tracking-widest">
                           {[
                             ...((typeof variant === 'object'? variant?.options : [])?.map((option) => (typeof option === 'object' ? option.label : null)) || []),
                             lidnommer ? `Lid: ${lidnommer}` : null,
+                            customText ? `${product.customInputs?.customTextLabel ?? "Text"}: ${customText}` : null,
                           ]
                             .filter(Boolean)
                             .join(', ')}

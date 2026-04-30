@@ -180,12 +180,17 @@ export const plugins: Plugin[] = [
         const newlidnommer = newItem.lidnommer as string | undefined
         const lidnommerMatches = existinglidnommer === newlidnommer
 
-        // lidnommer matching: items with different lidnommer options are separate
+        // customPrice matching: items with different customPrice options are separate
         const existingcustomPrice = existingItem.customPrice as number | undefined
         const newcustomPrice = newItem.customPrice as number | undefined
         const customPriceMatches = existingcustomPrice === newcustomPrice
 
-        return productMatches && variantMatches && lidnommerMatches && customPriceMatches
+        // customText matching: items with different customText options are separate
+        const existingcustomText = existingItem.customText as number | undefined
+        const newcustomText = newItem.customText as number | undefined
+        const customTextMatches = existingcustomText === newcustomText
+
+        return productMatches && variantMatches && lidnommerMatches && customPriceMatches && customTextMatches
       },
       cartsCollectionOverride: ({ defaultCollection }) => ({
         ...defaultCollection,
@@ -199,6 +204,11 @@ export const plugins: Plugin[] = [
                   name: 'lidnommer',
                   type: 'text',
                   label: 'Lidnommer',
+                },
+                {
+                  name: 'customText',
+                  type: 'text',
+                  label: 'Custom Text',
                 },
                 {
                   name: 'customPrice',
@@ -241,6 +251,11 @@ export const plugins: Plugin[] = [
                           name: 'lidnommer',
                           type: 'text',
                           label: 'Lidnommer',
+                        },
+                        {
+                          name: 'customText',
+                          type: 'text',
+                          label: 'Custom Text',
                         },
                         {
                           name: 'customPrice',
@@ -296,6 +311,11 @@ export const plugins: Plugin[] = [
                         name: 'lidnommer',
                         type: 'text',
                         label: 'Lidnommer',
+                      },
+                      {
+                        name: 'customText',
+                        type: 'text',
+                        label: 'Custom Text',
                       },
                       {
                         name: 'customPrice',

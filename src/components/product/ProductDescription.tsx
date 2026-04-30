@@ -23,6 +23,7 @@ export function ProductDescription({ product }: { product: Product }) {
   const hasVariants = product.enableVariants && Boolean(product.variants?.docs?.length)
 
   const [lidnommer, setLidnommer] = useState<string>('')
+  const [customText, setCustomText] = useState<string | undefined>(undefined)
   const [customPrice, setCustomPrice] = useState<number | undefined>(undefined)
   const [isFocused, setIsFocused] = useState(false)
 
@@ -82,6 +83,9 @@ export function ProductDescription({ product }: { product: Product }) {
   } else if (product[priceField] && typeof product[priceField] === 'number') {
     amount = product[priceField]
   }
+  if (customPrice){
+    amount = customPrice * 100
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -120,6 +124,7 @@ export function ProductDescription({ product }: { product: Product }) {
             onBlur={() => setTimeout(() => setIsFocused(false), 200)} // Delay to allow clicking an option
             autoComplete="off"
             placeholder="Tik lidnommer hier"
+            required={product.customInputs?.lidnommerRequired ?? undefined}
           />
           {isFocused && lidnommerOptions.length > 0 && (
             <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-background border rounded-md shadow-lg max-h-40 overflow-auto">
@@ -141,9 +146,20 @@ export function ProductDescription({ product }: { product: Product }) {
         </div>
       )}
 
+      {product.customInputs?.customText && (
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="customText">{product.customInputs.customTextLabel}</Label>
+          <Input
+            id="customText"
+            value={customText || ''}
+            onChange={(e) => setCustomText(e.target.value)}
+          />
+        </div>
+      )}
+
       {product.customInputs?.customPrice && (
         <div className="flex flex-col gap-2">
-          <Label htmlFor="customPrice">Custom Price</Label>
+          <Label htmlFor="customPrice">{product.customInputs.customPriceLabel}</Label>
           <Input
             type="number"
             id="customPrice"
@@ -161,7 +177,7 @@ export function ProductDescription({ product }: { product: Product }) {
 
       <div className="flex items-center justify-between">
         <Suspense fallback={null}>
-          <AddToCart product={product} lidnommer={lidnommer} customPrice={customPrice} />
+          <AddToCart product={product} lidnommer={lidnommer} customText={customText} customPrice={customPrice} />
         </Suspense>
       </div>
     </div>
