@@ -107,6 +107,13 @@ export const softyCompCallbackEndpoint: Endpoint = {
           })
         }
 
+        await payload.update({
+          collection: 'eitems',
+          where: {id: {in: transaction.items}},
+          data: {_status: 'published'},
+          req,
+        })
+
         payload.logger.info(`Order ${orderId} finalized via SoftyComp callback`)
       } else if (activityTypeID === 6) {
         await payload.update({

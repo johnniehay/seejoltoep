@@ -1,6 +1,7 @@
 import { APIError } from 'payload'
 import type { PaymentAdapter } from '@payloadcms/plugin-ecommerce/types'
 import type { CartItem } from "@/components/Cart";
+import { Cart, Eitem } from "@/payload-types"
 
 async function getSoftyCompToken() {
   const providedURL = process.env.SOFTYCOMP_URL
@@ -32,6 +33,8 @@ export const initiatePayment: NonNullable<PaymentAdapter>['initiatePayment'] = a
 }) => {
   const { payload } = req
   const { customerEmail, billingAddress, shippingAddress, cart } = data
+  // const cart = datacart as Cart
+
   const amount = cart.subtotal
 
   const providedURL = process.env.SOFTYCOMP_URL
@@ -98,7 +101,19 @@ export const initiatePayment: NonNullable<PaymentAdapter>['initiatePayment'] = a
       payload.logger.error({ msg: 'SoftyComp Error', result })
       throw new APIError(result.message || 'Failed to initiate SoftyComp payment', 500)
     }
-
+    const eItemsFromCart = await Promise.all(cart.items.map((item: CartItem) => ( payload.create({
+      collection: 'eitems',
+      data: {
+        product: typeof item.product === 'object' ? item.product?.id : item.product,
+        quantity: item.quantity,
+        variant: typeof item.variant === 'object' ? item.variant?.id : item.variant,
+        lidnommer: item.lidnommer,
+        customText: item.customText,
+        customPrice: item.customPrice,
+      },
+      draft: true,
+      req,
+    }))))
     // Create the transaction in Payload BEFORE redirecting
     await payload.create({
       collection: transactionsSlug as 'transactions',
@@ -108,14 +123,7 @@ export const initiatePayment: NonNullable<PaymentAdapter>['initiatePayment'] = a
         billingAddress,
         cart: cart.id,
         currency: 'ZAR',
-        items: cart.items.map((item:CartItem) => ({
-          product: typeof item.product === 'object' ? item.product?.id : item.product,
-          quantity: item.quantity,
-          variant: typeof item.variant === 'object' ? item.variant?.id : item.variant,
-          lidnommer: item.lidnommer,
-          customText: item.customText,
-          customPrice: item.customPrice,
-        })),
+        items: eItemsFromCart,
         status: 'pending',
         softycomp: {
           userReference: userReference,

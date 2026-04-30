@@ -24,6 +24,7 @@ import { Aktiwiteite } from "@/collections/Aktiwiteite";
 import { Groepe } from "@/collections/Groepe";
 import { nodemailerAdapter } from "@payloadcms/email-nodemailer";
 import nodemailer from "nodemailer"
+import { eItems } from "@/collections/eItems";
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -83,7 +84,7 @@ export default buildConfig({
     db: mongooseAdapter({
         url: process.env.DATABASE_URL || '',
     }),
-    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite, Groepe],
+    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite, Groepe, eItems],
     cors: [getServerSideURL()].filter(Boolean),
     globals: [Header, Footer],
     plugins,

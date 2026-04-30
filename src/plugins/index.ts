@@ -56,7 +56,7 @@ export const plugins: Plugin[] = [
   }),
   googleSheetsPlugin({
     enabled: true,
-    collections: ['lede', 'inskrywings', 'inklokke', 'presensie', 'aktiwiteit']
+    collections: ['lede', 'inskrywings', 'inklokke', 'presensie', 'aktiwiteit', "eitems"]
   }),
   sasImportPlugin({
     enabled: true,
@@ -244,25 +244,11 @@ export const plugins: Plugin[] = [
                 fields: tab.fields.map((f) => {
                   if ('name' in f && f.name === 'items' && f.type === 'array') {
                     return {
-                      ...f,
-                      fields: [
-                        ...f.fields,
-                        {
-                          name: 'lidnommer',
-                          type: 'text',
-                          label: 'Lidnommer',
-                        },
-                        {
-                          name: 'customText',
-                          type: 'text',
-                          label: 'Custom Text',
-                        },
-                        {
-                          name: 'customPrice',
-                          type: 'number',
-                          label: 'Custom Price',
-                        },
-                      ],
+                      name: 'items',
+                      type: 'relationship',
+                      relationTo: 'eitems',
+                      hasMany: true,
+                      required: true
                     }
                   }
                   return f
@@ -304,25 +290,11 @@ export const plugins: Plugin[] = [
               fields: tab.fields.map((f) => {
                 if ('name' in f && f.name === 'items' && f.type === 'array') {
                   return {
-                    ...f,
-                    fields: [
-                      ...f.fields,
-                      {
-                        name: 'lidnommer',
-                        type: 'text',
-                        label: 'Lidnommer',
-                      },
-                      {
-                        name: 'customText',
-                        type: 'text',
-                        label: 'Custom Text',
-                      },
-                      {
-                        name: 'customPrice',
-                        type: 'number',
-                        label: 'Custom Price',
-                      },
-                    ],
+                    name: 'items',
+                    type: 'relationship',
+                    relationTo: 'eitems',
+                    hasMany: true,
+                    required: true
                   }
                 }
                 return f
