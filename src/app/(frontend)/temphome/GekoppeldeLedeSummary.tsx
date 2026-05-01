@@ -72,7 +72,7 @@ export default async function GekoppeldeLedeSummary() {
             {members.map((m, i) => (
               <div key={i} className={`p-4 rounded-lg border ${m.colorClass}`}>
                 <div className="flex justify-between items-center flex-wrap gap-2">
-                  <div>
+                  <div className="flex-grow">
                     <p className="font-bold">{m.name}</p>
                     <p className="text-sm opacity-80">{m.lidnommer}</p>
                   </div>

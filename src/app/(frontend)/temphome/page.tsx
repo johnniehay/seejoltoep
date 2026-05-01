@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React from 'react'
 import {
   IconFirstAidKit,
+  IconInfoCircle,
   IconListCheck,
   IconLogin2,
   IconQrcode,
@@ -61,6 +62,18 @@ export default async function TempHome() {
 
         {/* Flexbox container instead of grid */}
         <div className="flex flex-wrap justify-center gap-6 w-full max-w-6xl">
+          <Button asChild className={btnClass} variant="outline">
+            <Link href="/tuis">
+              <IconInfoCircle color="#38b6ff" size={48} />
+              <span>Inligting</span>
+            </Link>
+          </Button>
+          <Button asChild className={btnClass} variant="outline">
+            <Link href="/inskrywingsinligting">
+              <IconLogin2 color="#0b844d" size={48} />
+              <span>Skryf in</span>
+            </Link>
+          </Button>
           {/* Functional Buttons */}
           {canViewLede && (
             <Button asChild className={btnClass} variant="outline">
