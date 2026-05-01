@@ -43,7 +43,7 @@ export default async function TempHome() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-50 invisible" />
       </div>
 
-      <div className="container mx-auto py-10 px-4 flex flex-col items-center gap-12 -mt-16 relative z-10">
+      <div className="container mx-auto py-10 px-4 flex flex-col items-center gap-12 -mt-8 relative z-10">
         {!user && (
           <Button
             asChild
@@ -81,28 +81,28 @@ export default async function TempHome() {
           {user && (
             <Button asChild className={btnClass} variant="outline">
               <Link href="/presensie">
-                <IconListCheck size={48} />
+                <IconListCheck color="#7ed957" size={48} />
                 <span>Presensies</span>
               </Link>
             </Button>
           )}
 
           {/* Construction Buttons */}
-          <ConstructionButton icon={<IconFirstAidKit size={48}/>} className={btnClass}>
+          <ConstructionButton icon={<IconFirstAidKit color="#ff3131" size={48}/>} className={btnClass}>
             Noodhulp
           </ConstructionButton>
           {isOffisier && (
-            <ConstructionButton icon={<IconShield size={48}/>} className={btnClass}>
+            <ConstructionButton icon={<IconShield color="#ff751f" size={48}/>} className={btnClass}>
               Wagstaan
             </ConstructionButton>
           )}
           <Button asChild className={btnClass} variant="outline">
             <Link href="/shop">
-              <IconShoppingCart size={48} />
+              <IconShoppingCart color="#5284e2" size={48} />
               <span>Winkel</span>
             </Link>
           </Button>
-          <ConstructionButton icon={<IconUsers size={48}/>} className={btnClass}>
+          <ConstructionButton icon={<IconUsers color="#cb6ce6" size={48}/>} className={btnClass}>
             My Divisie
           </ConstructionButton>
         </div>

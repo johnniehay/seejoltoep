@@ -27,3 +27,10 @@ export function ConstructionButton({
     </Button>
   )
 }
+
+
+export function AlertParagraph({className, alertMessage, children}: {className: string, alertMessage: string , children: React.ReactNode}) {
+  return (<p className={className} onClick={ () => alert(alertMessage) } >
+    {children}
+  </p>)
+}

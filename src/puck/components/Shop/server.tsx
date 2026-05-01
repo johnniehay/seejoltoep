@@ -4,8 +4,8 @@ import { ShopProductsDisplay, ShopProps } from "@/puck/components/Shop/index";
 
 import configPromise from "@payload-config";
 
-export const ShopPuckComponent: PuckComponent<ShopProps> = ({ q, sort, category}: ShopProps) => {
-  return (<ShopPuckComponentAsync q={q} sort={sort} category={category} />)
+export const ShopPuckComponent: PuckComponent<ShopProps> = ({ q, sort, category, ...restShopProps}: ShopProps) => {
+  return (<ShopPuckComponentAsync q={q} sort={sort} category={category} {...restShopProps}/>)
 }
 export async function ShopPuckComponentAsync({ q:searchValue, sort, category, ...restShopProps}: ShopProps) {
   const payload = await getPayload({ config: configPromise })

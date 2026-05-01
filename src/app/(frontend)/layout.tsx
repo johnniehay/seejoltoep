@@ -16,6 +16,7 @@ import { draftMode } from 'next/headers'
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 import { hasPermission } from "@/lib/permissions";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
@@ -41,6 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
           <Footer />
         </Providers>
+        <GoogleAnalytics gaId="G-69V5WD9Y4E" />
       </body>
     </html>
   )

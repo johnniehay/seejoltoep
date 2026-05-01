@@ -32,6 +32,7 @@
     "@delmaredigital/payload-puck": "^0.6.23",
     "@hookform/resolvers": "^5.2.2",
     "@marsidev/react-turnstile": "^1.5.0",
+    "@next/third-parties": "^16.2.4",
     "@payloadcms/admin-bar": "3.83.0",
     "@payloadcms/db-mongodb": "3.83.0",
     "@payloadcms/email-nodemailer": "^3.83.0",
