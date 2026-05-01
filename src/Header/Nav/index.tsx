@@ -28,7 +28,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
         } md:flex flex-col md:flex-row absolute md:static top-full left-0 w-full md:w-auto bg-[hsl(var(--background))] md:bg-transparent p-4 md:p-0 gap-4 md:gap-3 border-b md:border-none shadow-lg md:shadow-none z-50`}
       >
         {navItems.map(({ link }, i) => {
-          return <CMSLink key={i} {...link} appearance="link" />
+          return <div key={i} onClick={() => setIsOpen(false)}><CMSLink key={i} {...link} appearance="link" /></div>
         })}
         <Link href="/search">
           <span className="sr-only">Search</span>

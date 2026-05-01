@@ -167,6 +167,12 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
               relationTo: 'products',
             },
             {
+              name: 'listed',
+              type: 'checkbox',
+              label: 'Listed',
+              defaultValue: true,
+            },
+            {
               name: 'customInputs',
               type: 'group',
               label: 'Custom Inputs',

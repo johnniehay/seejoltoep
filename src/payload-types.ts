@@ -1062,6 +1062,7 @@ export interface Product {
   priceInZAREnabled?: boolean | null;
   priceInZAR?: number | null;
   relatedProducts?: (string | Product)[] | null;
+  listed?: boolean | null;
   customInputs?: {
     lidnommer?: boolean | null;
     lidnommerRequired?: boolean | null;
@@ -2714,6 +2715,7 @@ export interface ProductsSelect<T extends boolean = true> {
   priceInZAREnabled?: T;
   priceInZAR?: T;
   relatedProducts?: T;
+  listed?: T;
   customInputs?:
     | T
     | {
