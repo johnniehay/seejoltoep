@@ -162,7 +162,7 @@ export default async function Order({ params, searchParams }: PageProps) {
             <h2 className="font-mono text-primary/50 mb-4 uppercase text-sm">Items</h2>
             <ul className="flex flex-col gap-6">
               {order.items?.map((item, index) => {
-                if (typeof item.product === 'string') {
+                if (typeof item === 'string' || typeof item.product === 'string') {
                   return null
                 }
 
