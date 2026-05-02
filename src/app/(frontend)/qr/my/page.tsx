@@ -35,7 +35,7 @@ export default async function MyQRPage() {
   const qrValue = `${serverUrl}/lid/${lid_id}`
 
   return (
-    <div className="container mx-auto py-10 min-h-screen flex flex-col items-center justify-center gap-8">
+    <div className="container mx-auto py-10 flex flex-col items-center justify-center gap-8">
       <Card className="w-full max-w-2xl">
         <CardHeader>
           {/*<CardTitle className="text-center text-3xl">{lid.noemnaam || `${lid.naam} ${lid.van}`}</CardTitle>*/}
