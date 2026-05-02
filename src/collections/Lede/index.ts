@@ -250,6 +250,7 @@ export const Lede: CollectionConfig<"lede"> = {
       beforeList: [
         '@/collections/Lede/merge-button#LedeMergeButton',
         '@/collections/Lede/add-to-groep-button#AddToGroepButton',
+        '@/collections/Lede/LinkUsersButton#LinkUsersButton', // Added this line
       ],
     },
   },

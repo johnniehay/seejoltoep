@@ -31,6 +31,11 @@ export const Users: CollectionConfig = {
   admin: {
     defaultColumns: ['name', 'email'],
     useAsTitle: 'email',
+    components: {
+      beforeList: [
+        '@/collections/Lede/LinkUsersButton#LinkUsersButton', // Added this line
+      ],
+    },
   },
   auth: {
     useSessions: false,

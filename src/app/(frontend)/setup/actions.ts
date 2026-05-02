@@ -7,9 +7,8 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { SettingsSchema, LidFormSchema } from './schema'
 import { Lede } from '@/payload-types'
-import { ledeRoles } from '@/collections/Lede'
-import { Role } from '@/lib/roles'
 import { getUpdatedRole } from "@/collections/Lede/hooks/updateuser";
+import { hasPermission } from "@/lib/permissions";
 
 type LedeLookupResult = {
   found: boolean
@@ -44,7 +43,7 @@ async function findLede(payload: any, lidnommer: string, dob: string): Promise<L
 
   if (lidDate >= startOfDay && lidDate <= endOfDay) {
     const nameParts = [lid.noemnaam || lid.naam, lid.van].filter(Boolean)
-    return { found: true, id: lid.id, name: nameParts.join(' '), lid: lid }
+    return { found: true, id: lid.id, name: lid.vertoonnaam || nameParts.join(' '), lid: lid }
   }
 
   return { found: false, reason: 'invalid_dob' }
@@ -277,5 +276,109 @@ export async function removeChild(id: string, type: 'linked' | 'candidate') {
     return { success: true, message: 'Lid verwyder' }
   } catch (error) {
     return { success: false, message: 'Kon nie verwyder nie' }
+  }
+}
+
+export async function linkAllCandidateUsers() {
+  const payload = await getPayload({ config })
+  const { user } = await payload.auth({ headers: await headers() })
+
+  if (!user || !await hasPermission("update:users")) {
+    return { success: false, message: 'Nie gemagtig nie' }
+  }
+
+  const usersToProcess = await payload.find({
+    collection: 'users',
+    where: {
+      or: [
+        { candidate_self_lid_nommer: { exists: true } },
+        { candidate_gekoppelde_lede: { exists: true } },
+      ],
+    },
+    depth: 0,
+    limit: 1000, // Limit to prevent overwhelming the server
+  })
+
+  let successfulLinks = 0
+  let failedLinks = 0
+
+  for (const currentUser of usersToProcess.docs) {
+    const updateData: any = {}
+    let userUpdated = false
+
+    // Process candidate_self_lid
+    if (currentUser.candidate_self_lid_nommer && currentUser.candidate_self_lid_dob) {
+      const lookup = await findLede(payload, currentUser.candidate_self_lid_nommer, currentUser.candidate_self_lid_dob)
+      if (lookup.found && lookup.id && lookup.lid) { // Ensure lookup.lid exists
+        updateData.self_lid = lookup.id
+        if (lookup.name) updateData.name = lookup.name
+        updateData.candidate_self_lid_nommer = null
+        updateData.candidate_self_lid_dob = null
+        updateData.candidate_self_lid_invalid_dob = null
+
+        const userRoleUpdate = getUpdatedRole(lookup.lid, currentUser.role)
+        payload.logger.warn(`userRoleUpdate for user ${currentUser.id}: ${JSON.stringify(userRoleUpdate)}`)
+        if ("role" in userRoleUpdate) {
+          updateData.role = userRoleUpdate.role
+        }
+
+        userUpdated = true
+        successfulLinks++
+      } else {
+        updateData.candidate_self_lid_invalid_dob = lookup.reason === 'invalid_dob'
+        userUpdated = true
+        failedLinks++
+      }
+    }
+
+    // Process candidate_gekoppelde_lede
+    if (currentUser.candidate_gekoppelde_lede && currentUser.candidate_gekoppelde_lede.length > 0) {
+      let gekoppelde = (currentUser.gekoppelde_lede as string[]) || []
+      let candidates = []
+
+      for (const candidate of currentUser.candidate_gekoppelde_lede) {
+        if (candidate.lid_nommer && candidate.dob) {
+          const lookup = await findLede(payload, candidate.lid_nommer, candidate.dob)
+          if (lookup.found && lookup.id) {
+            if (!gekoppelde.includes(lookup.id)) {
+              gekoppelde.push(lookup.id)
+            }
+            successfulLinks++
+          } else {
+            candidates.push({
+              ...candidate,
+              invalid_dob: lookup.reason === 'invalid_dob'
+            })
+            failedLinks++
+          }
+        } else {
+          candidates.push(candidate) // Keep invalid candidates
+          failedLinks++
+        }
+      }
+      updateData.gekoppelde_lede = gekoppelde
+      updateData.candidate_gekoppelde_lede = candidates
+      userUpdated = true
+    }
+
+    if (userUpdated) {
+      try {
+        await payload.update({
+          collection: 'users',
+          id: currentUser.id,
+          data: updateData,
+          req: { user: user } as any, // Pass the admin user for access control
+        })
+      } catch (error) {
+        console.error(`Error updating user ${currentUser.id}:`, error)
+        // Handle error, maybe log it or add to a separate failed list
+      }
+    }
+  }
+
+  revalidatePath('/setup') // Revalidate relevant paths if needed
+  return {
+    success: true,
+    message: `Linking process complete. Successful links: ${successfulLinks}, Failed links: ${failedLinks}.`,
   }
 }
