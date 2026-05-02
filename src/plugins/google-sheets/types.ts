@@ -5,6 +5,7 @@ export interface GoogleSheetsSyncTarget {
   tabName: string
   mapping?: Record<string, string>
   keyField?: string
+  where?: Record<string, any>
 }
 
 export interface GoogleSheetsSettings {
@@ -16,6 +17,7 @@ export interface GoogleSheetsSettings {
       tabName: string
       keyField: string
       mapping: Record<string, string>
+      where?: Record<string, any>
     }[]
   }[]
 }

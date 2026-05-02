@@ -65,6 +65,24 @@ export const GoogleSheetsSettingsGlobal: GlobalConfig = {
               },
               required: true,
             },
+            {
+              name: 'where',
+              type: 'json',
+              admin: {
+                description: 'JSON "where" query to limit the documents synced from Payload. Example: {"status": {"equals": "published"}}',
+              },
+              jsonSchema: {
+                uri: 'a://b/where.json',
+                fileMatch: ['a://b/where.json'],
+                schema: {
+                  type: 'object',
+                  description: 'Payload "where" query object',
+                  // Allow any valid JSON structure for the where clause
+                  // This is a simplified schema, a more robust one would validate against Payload's query syntax
+                  additionalProperties: true,
+                },
+              },
+            },
           ],
         },
       ],

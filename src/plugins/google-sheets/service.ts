@@ -122,7 +122,7 @@ export class GoogleSheetsService {
    * Syncs Payload Collection -> Google Sheet
    * ONLY updates cells that have changed.
    */
-  async exportToSheet(payload: Payload, collectionSlug: CollectionSlug, tabName: string, mapping?: Record<string, string>, keyField: string = 'id', dryRun: boolean = true, onlySyncIds?: string[]): Promise<SyncResult> {
+  async exportToSheet(payload: Payload, collectionSlug: CollectionSlug, tabName: string, mapping?: Record<string, string>, keyField: string = 'id', dryRun: boolean = true, onlySyncIds?: string[], where?: Record<string, any>): Promise<SyncResult> {
     const sheets = await this.getSheetsClient()
     const sheetKeyHeader = mapping?.[keyField] || keyField
 
@@ -131,6 +131,7 @@ export class GoogleSheetsService {
       collection: collectionSlug,
       limit: 10000, // Adjust based on needs
       depth: 1, // Increased depth to allow accessing related fields (e.g. user.email)
+      where: where,
     })
 
     const collectionConfig = payload.config.collections.find(c => c.slug === collectionSlug)

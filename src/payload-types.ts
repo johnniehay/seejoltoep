@@ -3080,6 +3080,12 @@ export interface GoogleSheetsSetting {
       mapping: {
         [k: string]: string;
       };
+      /**
+       * Payload "where" query object
+       */
+      where?: {
+        [k: string]: unknown;
+      };
       id?: string | null;
     }[];
     id?: string | null;
@@ -3165,6 +3171,7 @@ export interface GoogleSheetsSettingsSelect<T extends boolean = true> {
               tabName?: T;
               keyField?: T;
               mapping?: T;
+              where?: T;
               id?: T;
             };
         id?: T;

@@ -115,6 +115,7 @@ export const googleSheetsPlugin =
               const tabName = selectedTarget.tabName
               const mapping = selectedTarget.mapping
               const keyField = selectedTarget.keyField || 'id'
+              const where = selectedTarget.where
 
               try {
                 const service = new GoogleSheetsService(settings.sheetId)
@@ -122,7 +123,7 @@ export const googleSheetsPlugin =
                 const dryRun = mode === 'analyze'
 
                 if (direction === 'export') {
-                  result = await service.exportToSheet(req.payload, collectionSlug, tabName, mapping, keyField, dryRun, selection as string[])
+                  result = await service.exportToSheet(req.payload, collectionSlug, tabName, mapping, keyField, dryRun, selection as string[], where)
                 } else {
                   result = await service.importFromSheet(req.payload, collectionSlug, tabName, mapping, keyField, dryRun, selection as number[])
                 }
