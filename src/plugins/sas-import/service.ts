@@ -382,6 +382,7 @@ export class SasImportService {
   private mapping: Record<string, string>
   private keyField: string
   private displayColumns: string[]
+  private updateHook: (changes: Record<string, { old: any, new: any }>) => Promise<boolean>;
 
   constructor(
     webhookUrl: string,
@@ -396,6 +397,7 @@ export class SasImportService {
     this.mapping = customConfig?.mapping || {}
     this.keyField = (customConfig?.keyField || 'import_id')
     this.displayColumns = customConfig?.displayColumns || collectionConfig?.admin?.defaultColumns || ['id']
+    this.updateHook = customConfig?.updateHook || (async () => true)
   }
 
   private getFieldMap(fields: Field[]): Map<string, Field> {
@@ -526,6 +528,10 @@ export class SasImportService {
             hasChanges = true
           }
         })
+        if (hasChanges) {
+          // Let the updateHook decide if changes should proceed
+          hasChanges = await this.updateHook(changes)
+        }
 
         if (hasChanges) {
           changesList.push({

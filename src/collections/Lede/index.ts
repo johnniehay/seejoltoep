@@ -8,6 +8,7 @@ import {
   ledeAfterChangeGenerator,
   syncInskrywingHookGenerator
 } from "@/collections/Lede/hooks/updateinskrywing";
+import type { SasImportCollectionConfig } from "@/plugins/sas-import/types";
 
 export const ledeRoleOptions = [
   { label: "Default", value: "default" },
@@ -155,6 +156,7 @@ export const Lede: CollectionConfig<"lede"> = {
       enabled: true,
       keyField: 'id',
       displayColumns: ["naam", "noemnaam", "van", "id", "rol", "divisie"],
+      updateHook: async (changes) => !("import_id" in changes && changes.import_id.new < changes.import_id.old),
       mapping: {
         import_id: "ID",
         import_name: "Name",
@@ -233,7 +235,7 @@ export const Lede: CollectionConfig<"lede"> = {
         // qr_skakel: "QR Skakel",
         // qr_prent: "QR Prent",
       }
-    },
+    } as SasImportCollectionConfig,
   },
   access: {
     create: checkPermissionOrWhere("create:lede",wheredivisieleier),
