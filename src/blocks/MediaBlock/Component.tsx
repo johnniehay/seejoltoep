@@ -6,7 +6,7 @@ import RichText from '@/components/RichText'
 
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
-import { Media } from '../../components/Media'
+import { Media } from '@/components/Media'
 
 type Props = MediaBlockProps & {
   breakout?: boolean
@@ -25,6 +25,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
     enableGutter = true,
     imgClassName,
     media,
+    show_caption,
     staticImage,
     disableInnerContainer,
   } = props
@@ -49,7 +50,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
           src={staticImage}
         />
       )}
-      {caption && (
+      {caption && show_caption && (
         <div
           className={cn(
             'mt-6',

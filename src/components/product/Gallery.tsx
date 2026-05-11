@@ -1,6 +1,6 @@
 'use client'
 
-import type { Media as MediaType, Product } from '@/payload-types'
+import type { Product } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import { GridTileImage } from '@/components/Grid/tile'
@@ -12,11 +12,13 @@ import { DefaultDocumentIDType } from 'payload'
 
 type Props = {
   gallery: NonNullable<Product['gallery']>
+  initialIndex?: number
+  className?: string
 }
 
-export const Gallery: React.FC<Props> = ({ gallery }) => {
+export const Gallery: React.FC<Props> = ({ gallery, initialIndex, className }) => {
   const searchParams = useSearchParams()
-  const [current, setCurrent] = React.useState(0)
+  const [current, setCurrent] = React.useState(initialIndex ?? 0)
   const [api, setApi] = React.useState<CarouselApi>()
 
   useEffect(() => {
@@ -48,14 +50,14 @@ export const Gallery: React.FC<Props> = ({ gallery }) => {
   }, [searchParams, api, gallery])
 
   return (
-    <div>
-      <div className="relative w-full overflow-hidden mb-8">
+    <div className={className}>
+      {current !== -1 && <div className="relative w-full overflow-hidden mb-8">
         <Media
           resource={gallery[current].image}
           className="w-full"
           imgClassName="w-full rounded-lg"
         />
-      </div>
+      </div>}
 
       <Carousel setApi={setApi} className="w-full" opts={{ align: 'start', loop: false }}>
         <CarouselContent>

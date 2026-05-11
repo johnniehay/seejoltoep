@@ -9,6 +9,7 @@ import {
   syncInskrywingHookGenerator
 } from "@/collections/Lede/hooks/updateinskrywing";
 import type { SasImportCollectionConfig } from "@/plugins/sas-import/types";
+import { Lede as PayloadLede } from "@/payload-types";
 
 export const ledeRoleOptions = [
   { label: "Default", value: "default" },
@@ -32,15 +33,18 @@ export const ledeRoleOptions = [
 
 export const ledeRoles = ledeRoleOptions.map((roleoption) => roleoption.value)
 
-export const divisieleierdivisiesquery = async (user: UserWithIdRole | null | undefined, payload: BasePayload)=> {
+interface UserSelfLid {
+  self_lid?: string | PayloadLede | null
+}
+
+export const divisieleierdivisiesquery = async (user: UserWithIdRole & UserSelfLid | null | undefined, payload: BasePayload)=> {
   if (getRoleFromUser(user) === "divisieleier") {
-    const divisies = (await payload.find({
-      collection: "lede",
-      select: { divisie: true },
-      depth:0,
-      where: { and: [{ user: { equals: user?.id } }, { role: { equals: "divisieleier" } }] }
-    })).docs
-    return divisies.map(t => t.divisie)
+    if (!user?.self_lid || typeof user.self_lid === "string" || !user.self_lid.divisie) return []
+    if (user?.self_lid.rol === "divisieleier") {
+      if (typeof user.self_lid.divisie === "string") return [user.self_lid.divisie]
+      return [user.self_lid.divisie.id]
+    }
+    return []
   } else {
     return []
   }

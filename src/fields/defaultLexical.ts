@@ -7,7 +7,15 @@ import {
   lexicalEditor,
   UnderlineFeature,
   type LinkFields,
+  FixedToolbarFeature,
+  InlineToolbarFeature,
+  BlocksFeature,
+  ChecklistFeature,
+  UnorderedListFeature,
+  OrderedListFeature,
 } from '@payloadcms/richtext-lexical'
+import { MediaBlock } from "@/blocks/MediaBlock/config";
+// regenerate importmap for new features to show
 
 export const defaultLexical = lexicalEditor({
   features: [
@@ -15,12 +23,17 @@ export const defaultLexical = lexicalEditor({
     UnderlineFeature(),
     BoldFeature(),
     ItalicFeature(),
+    UnorderedListFeature(),
+    OrderedListFeature(),
+    ChecklistFeature(),
+    InlineToolbarFeature(),
+    FixedToolbarFeature(),
+    BlocksFeature({blocks:[MediaBlock]}),
     LinkFeature({
       enabledCollections: ['pages', 'posts'],
       fields: ({ defaultFields }) => {
         const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
-          if ('name' in field && field.name === 'url') return false
-          return true
+          return !('name' in field && field.name === 'url');
         })
 
         return [

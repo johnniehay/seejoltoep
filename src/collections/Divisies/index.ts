@@ -8,6 +8,7 @@ import {
 } from "@/access/checkPermission";
 import { divisieleierdivisiesquery, divisiewheredivisieleierReq } from "@/collections/Lede";
 import { Permission } from "@/lib/roles";
+import { slugify } from "payload/shared";
 
 const viewonlyunlesspermission = {
   create: checkFieldPermission("create:divisie"),
@@ -53,12 +54,181 @@ export const Divisies: CollectionConfig<"divisie"> = {
   },
   admin: {useAsTitle:"naam"},
   fields:[
-    { name:"number", type:"text", required:true,unique:true, access:viewonlyunlesspermission }, //Afkorting
+    { name:"id", type: "text", required: true, label: "ID Slug", access:viewonlyunlesspermission, admin: {
+      position: "sidebar",
+    },
+      hooks:{beforeValidate: [({value, siblingData}) => {
+        console.log(`divisie id beforeValidate ${value} ${slugify(siblingData.naam)} ${JSON.stringify(siblingData)}`)
+        return (value ? value : slugify(siblingData.naam))
+        }]  }
+    },
     { name:"naam", type:"text", required:true, unique:true, access:viewonlyunlesspermission },
-    // Lys van Kursusse
-    { name:"shared_contact", label:"Divisie contact details visible to other Divisies", type:"text",
-      admin:{description:"Contact information that other divisies can use to get touch with you such as a divisie email or social-media page/handle"},
-      access:viewonlybutdivisieleierupdateable,
+    { name:"afkorting", type:"text", required:true, unique:true, access:viewonlyunlesspermission },
+    { name:"kleur", type:"text", access:viewonlyunlesspermission, admin:{description:"The main color associated with this division (e.g., 'Blou', 'Groen')"}},
+    { name:"spesialisasies", type:"text", required:true, hasMany:true, minRows:1, access:viewonlyunlesspermission },
+    { name:"kontak", label:"Divisie kontak detail(foon nommer of epoasadres)", type:"text",access:viewonlybutdivisieleierupdateable },
+    {
+      name: "hero_image",
+      type: "upload",
+      relationTo: "media",
+      access: viewonlybutdivisieleierupdateable,
+      admin: {
+        description: "Main image for the division's hero section.",
+      },
+    },
+    {
+      name: "kort_sin",
+      label: "Kort Sin (Hero Subtitel)",
+      type: "text",
+      access: viewonlybutdivisieleierupdateable,
+      admin: {
+        description: "A short descriptive sentence for the hero section.",
+      },
+    },
+    {
+      name: "hero_button_text",
+      label: "Hero Knoppie Teks",
+      type: "text",
+      access: viewonlybutdivisieleierupdateable,
+      admin: {
+        description: "Text for the call-to-action button in the hero section (e.g., 'Sien program').",
+      },
+    },
+    {
+      name: "hero_button_link",
+      label: "Hero Knoppie Skakel",
+      type: "text",
+      access: viewonlybutdivisieleierupdateable,
+      admin: {
+        description: "Link for the call-to-action button in the hero section.",
+      },
+    },
+    {
+      name: "beskrywing",
+      label: "Wat is hierdie divisie? (Kort beskrywing)",
+      type: "richText",
+      access: viewonlybutdivisieleierupdateable,
+    },
+    {
+      name: "grade",
+      label: "Grade",
+      type: "text",
+      required:true,
+      hasMany: true,
+      access: viewonlyunlesspermission,
+      admin: {
+        description: "Age group or grade level for this division (e.g., 'Graad X').",
+      },
+    },
+    {
+      name: "whatsapp_link",
+      label: "WhatsApp Skakel",
+      type: "text",
+      access: viewonlybutdivisieleierupdateable,
+      admin: {
+        description: "Link vir WhatsApp groep vir die divisie.(Opsioneel)",
+      },
+    },
+    {
+      name: "aktiwiteite_beskrywing",
+      label: "Aktiwiteite Beskrywing",
+      type: "richText",
+      access: viewonlybutdivisieleierupdateable,
+      admin: {
+        description: "Description of activities for this division.",
+      },
+    },
+    {
+      name: "wat_om_saam_te_bring",
+      label: "Wat om saam te bring",
+      type: "richText",
+
+      access: viewonlybutdivisieleierupdateable,
+      admin: {
+        description: "Information on what participants should bring.",
+      },
+    },
+    {
+      name: "dokumente",
+      label: "Belangrike Dokumente",
+      type: "array",
+      access: viewonlybutdivisieleierupdateable,
+      fields: [
+        {
+          name: "document",
+          label: "Dokument",
+          type: "upload",
+          relationTo: "media",
+          required: true,
+        },
+        {
+          name: "title",
+          label: "Titel",
+          type: "text",
+        }
+      ],
+      admin: {
+        description: "Important documents related to the division (e.g., Paklys, Reëls).",
+      },
+    },
+    {
+      name: "kennisgewings_test",
+      label: "Kennisgewings",
+      type: "array",
+      access: viewonlybutdivisieleierupdateable,
+      fields: [
+        {
+          name: "notice",
+          label: "Kennisgewing",
+          type: "text",
+          required: true,
+        },
+        {
+          name: "date",
+          label: "Datum",
+          type: "date",
+          required: true,
+          admin: {
+            date: {
+              pickerAppearance: 'dayAndTime',
+              displayFormat:"EEE do MMM HH:mm"
+            },
+          },
+        },
+      ],
+      admin: {
+        description: "Important notices for the division.",
+      },
+    },
+    {
+      name: "gallery",
+      label: "Divisie Foto Gallery",
+      type: "array",
+      access: viewonlybutdivisieleierupdateable,
+      fields: [
+        {
+          name: "image",
+          label: "Beeld",
+          type: "upload",
+          relationTo: "media",
+          required: true,
+        },
+      ],
+      admin: {
+        description: "A gallery of photos for the division.",
+      },
+    },
+    {
+      name: "divisieleier",
+      label: "Divisieleier",
+      type: "join",
+      collection: "lede",
+      on: "divisie",
+      where: {rol: {equals: "divisieleier"}},
+      // access: viewonlybutdivisieleierupdateable,
+      admin: {
+        allowCreate: false
+      },
     },
     { name:"lede", type:"join", collection:"lede", on:"divisie", defaultLimit:0, admin:{defaultColumns:["name","role"]}},
     { name:"aktiwiteite", type:"join", collection:"aktiwiteit", on:"divisies", defaultLimit:0},

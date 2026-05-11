@@ -15,7 +15,8 @@ const nextConfig: NextConfig = {
           protocol: "https" as const,
         }
       }),
-    ]
+    ],
+    qualities: [100, 75]
   },
   reactStrictMode: true,
   output: "standalone",

@@ -24,7 +24,7 @@ export function LinkUsersButton() {
   }
 
   return (
-    <div className={"mt-2"}>
+    <div style={{marginTop: "2rem"}}>
       <Button
         onClick={handleClick}
         buttonStyle="primary"

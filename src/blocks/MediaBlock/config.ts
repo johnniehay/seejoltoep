@@ -10,5 +10,11 @@ export const MediaBlock: Block = {
       relationTo: 'media',
       required: true,
     },
+    {
+      name: 'show_caption',
+      label: 'Show Caption',
+      type: "checkbox",
+      defaultValue: true,
+    }
   ],
 }

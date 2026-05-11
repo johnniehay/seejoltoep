@@ -140,7 +140,7 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
 
   const targetOptions = targets.map((t) => ({ label: t.name, value: t.name }))
 
-  return (<>{targets.length > 1 && (
+  return (<>{targets.length > 0 && (
     <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
 
       <div style={{ width: '200px' }}>

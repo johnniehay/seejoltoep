@@ -138,6 +138,7 @@ export interface Config {
       inskrywings_geskiedenis: 'inskrywings';
     };
     divisie: {
+      divisieleier: 'lede';
       lede: 'lede';
       aktiwiteite: 'aktiwiteit';
     };
@@ -146,6 +147,7 @@ export interface Config {
     };
     groepe: {
       lede: 'lede';
+      users: 'users';
     };
     variantTypes: {
       options: 'variantOptions';
@@ -556,6 +558,7 @@ export interface User {
         id?: string | null;
       }[]
     | null;
+  groepe?: (string | Groepe)[] | null;
   accounts?:
     | {
         provider: string;
@@ -843,12 +846,123 @@ export interface Lede {
  */
 export interface Divisie {
   id: string;
-  number: string;
   naam: string;
+  afkorting: string;
   /**
-   * Contact information that other divisies can use to get touch with you such as a divisie email or social-media page/handle
+   * The main color associated with this division (e.g., 'Blou', 'Groen')
    */
-  shared_contact?: string | null;
+  kleur?: string | null;
+  spesialisasies: string[];
+  kontak?: string | null;
+  /**
+   * Main image for the division's hero section.
+   */
+  hero_image?: (string | null) | Media;
+  /**
+   * A short descriptive sentence for the hero section.
+   */
+  kort_sin?: string | null;
+  /**
+   * Text for the call-to-action button in the hero section (e.g., 'Sien program').
+   */
+  hero_button_text?: string | null;
+  /**
+   * Link for the call-to-action button in the hero section.
+   */
+  hero_button_link?: string | null;
+  beskrywing?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Age group or grade level for this division (e.g., 'Graad X').
+   */
+  grade: string[];
+  /**
+   * Link vir WhatsApp groep vir die divisie.(Opsioneel)
+   */
+  whatsapp_link?: string | null;
+  /**
+   * Description of activities for this division.
+   */
+  aktiwiteite_beskrywing?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Information on what participants should bring.
+   */
+  wat_om_saam_te_bring?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Important documents related to the division (e.g., Paklys, Reëls).
+   */
+  dokumente?:
+    | {
+        document: string | Media;
+        title?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Important notices for the division.
+   */
+  kennisgewings_test?:
+    | {
+        notice: string;
+        date: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * A gallery of photos for the division.
+   */
+  gallery?:
+    | {
+        image: string | Media;
+        id?: string | null;
+      }[]
+    | null;
+  divisieleier?: {
+    docs?: (string | Lede)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   lede?: {
     docs?: (string | Lede)[];
     hasNextPage?: boolean;
@@ -871,10 +985,10 @@ export interface Aktiwiteit {
   title: string;
   begin: string;
   einde: string;
-  aktiwiteitType: 'robotgame' | 'judging' | 'robotgame-queue' | 'judging-queue' | 'cultural' | 'general';
+  aktiwiteitType: 'kamp' | 'divisie' | 'verkenners' | 'offisiere' | 'bus';
   beskrywing?: string | null;
   presensie?: (string | null) | Presensie;
-  virAlle?: ('divisies' | 'volunteers')[] | null;
+  virAlle?: ('divisies' | 'verkenners' | 'offisiere')[] | null;
   divisies?: (string | Divisie)[] | null;
   updatedAt: string;
   createdAt: string;
@@ -977,8 +1091,20 @@ export interface Groepe {
   naam: string;
   tipe?: ('vervoer' | 'divisie' | 'divisie_subgroep' | 'tent') | null;
   subgroepe?: (string | Groepe)[] | null;
+  /**
+   * Payload "where" query object
+   */
+  add_lede_where?: {
+    [k: string]: unknown;
+  };
+  remove_lede_not_in_where?: boolean | null;
   lede?: {
     docs?: (string | Lede)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  users?: {
+    docs?: (string | User)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -1178,6 +1304,7 @@ export interface CallToActionBlock {
  */
 export interface MediaBlock {
   media: string | Media;
+  show_caption?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -2148,6 +2275,7 @@ export interface UsersSelect<T extends boolean = true> {
         invalid_dob?: T;
         id?: T;
       };
+  groepe?: T;
   accounts?:
     | T
     | {
@@ -2341,9 +2469,42 @@ export interface InskrywingsSelect<T extends boolean = true> {
  * via the `definition` "divisie_select".
  */
 export interface DivisieSelect<T extends boolean = true> {
-  number?: T;
+  id?: T;
   naam?: T;
-  shared_contact?: T;
+  afkorting?: T;
+  kleur?: T;
+  spesialisasies?: T;
+  kontak?: T;
+  hero_image?: T;
+  kort_sin?: T;
+  hero_button_text?: T;
+  hero_button_link?: T;
+  beskrywing?: T;
+  grade?: T;
+  whatsapp_link?: T;
+  aktiwiteite_beskrywing?: T;
+  wat_om_saam_te_bring?: T;
+  dokumente?:
+    | T
+    | {
+        document?: T;
+        title?: T;
+        id?: T;
+      };
+  kennisgewings_test?:
+    | T
+    | {
+        notice?: T;
+        date?: T;
+        id?: T;
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  divisieleier?: T;
   lede?: T;
   aktiwiteite?: T;
   updatedAt?: T;
@@ -2401,7 +2562,10 @@ export interface GroepeSelect<T extends boolean = true> {
   naam?: T;
   tipe?: T;
   subgroepe?: T;
+  add_lede_where?: T;
+  remove_lede_not_in_where?: T;
   lede?: T;
+  users?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2771,6 +2935,7 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
+  show_caption?: T;
   id?: T;
   blockName?: T;
 }
