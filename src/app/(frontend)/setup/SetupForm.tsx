@@ -12,6 +12,7 @@ import { updateSettings, updateSelfLid, upsertChild, removeChild } from './actio
 import { SettingsSchema, LidFormSchema } from './schema'
 import { signIn } from 'next-auth/webauthn'
 import { User } from "@/payload-types";
+import { format } from "date-fns";
 
 type SettingsFormData = z.infer<typeof SettingsSchema>
 type LidFormData = z.infer<typeof LidFormSchema>
@@ -30,7 +31,7 @@ const formatDate = (date?: string | null) => {
   if (!date) return ''
   const d = new Date(date)
   if (isNaN(d.getTime())) return ''
-  return d.toISOString().split('T')[0]
+  return format(date, 'yyyy-MM-dd')
 }
 
 function StatusIndicator({ status }: { status?: string }) {
