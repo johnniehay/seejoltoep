@@ -4,7 +4,7 @@ import { z } from "zod";
 import { authActionClient, optionalAuthActionClient } from "@/lib/safe-action";
 import webpush from 'web-push'
 import { NotificationSubscription } from "@/payload-types";
-import { PaginatedDocs } from "payload";
+import { BasePayload, PaginatedDocs } from "payload";
 import { NotificationTopics } from "@/lib/types";
 // import { prisma } from "@/prisma";
 // import { NotificationSubscription } from "@prisma/client";
@@ -123,7 +123,37 @@ export const setSubscriptionTopics = optionalAuthActionClient
     }
   })
 
+export async function sendNotificationToSubscription(
+  endpoint: string,
+  keys: { p256dh: string; auth: string; },
+  notificationPayload: object,
+  payload: BasePayload,
+): Promise<{ success: boolean; error?: string }> {
+  const subscription: webpush.PushSubscription = {
+    endpoint: endpoint,
+    keys: keys,
+  };
 
+  try {
+    await webpush.sendNotification(
+      subscription,
+      JSON.stringify(notificationPayload)
+    );
+    return { success: true };
+  } catch (error: any) {
+    console.error(`Error sending push notification to ${endpoint}:`, error);
+
+    // If the subscription is no longer valid, delete it from the database
+    if (error.statusCode === 410 || error.statusCode === 404) { // GONE or NOT_FOUND
+      console.log(`Deleting invalid subscription: ${endpoint}`);
+      await payload.delete({
+        collection: 'notificationSubscription',
+        where: { endpoint: { equals: endpoint } },
+      });
+    }
+    return { success: false, error: error.message };
+  }
+}
 
 export const sendNotification = authActionClient
   .metadata({ actionName: "sendNotification: " })
@@ -141,28 +171,21 @@ export const sendNotification = authActionClient
     console.log("notifySubscriptions", notifySubscriptions)
     const failedSubcriptions: webpush.PushSubscription[] = []
     for (const dbsubscription of notifySubscriptions) {
-      const subscription: webpush.PushSubscription = {
-        endpoint: dbsubscription.endpoint,
-        keys: dbsubscription.keys
-      }
-
-      try {
-        await webpush.sendNotification(
-          subscription,
-          JSON.stringify({
+      if (dbsubscription.endpoint && dbsubscription.keys) {
+        const result = await sendNotificationToSubscription(
+          dbsubscription.endpoint,
+          dbsubscription.keys,
+          {
             title: 'Toets Kennisgewing',
             body: message,
             icon: '/icon-192.png',
             url: '/'
-          })
-        )
-        // return {success: true}
-      } catch (error) {
-        failedSubcriptions.push(subscription)
-        console.error('Error sending push notification:', error, subscription)
-        await payload.delete({
-          collection:'notificationSubscription',
-          where: { endpoint: { equals: subscription.endpoint } } })
+          },
+          payload
+        );
+        if (!result.success) {
+          failedSubcriptions.push({ endpoint: dbsubscription.endpoint, keys: dbsubscription.keys });
+        }
       }
     }
     if (failedSubcriptions.length > 0) {

@@ -1,7 +1,4 @@
-import {
-  createSafeActionClient,
-  DEFAULT_SERVER_ERROR_MESSAGE,
-} from "next-safe-action";
+import { createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE, } from "next-safe-action";
 import { z } from "zod";
 import { getPayloadSession } from "payload-authjs";
 import { getPayload } from "payload";
@@ -44,9 +41,9 @@ export const actionClient = createSafeActionClient({
   logObject.bindArgsClientInputs = bindArgsClientInputs;
   logObject.metadata = metadata;
   const {ctx:resultctx, ...resultwithoutctx} = result
-  const {payload:_, ...ctxwithoutpayload} = { payload: "", ...resultctx };
-  const resultwithoutpayload = {ctx:ctxwithoutpayload, ...resultwithoutctx};
-  logObject.result = resultwithoutpayload;
+  const {payload:_, session:ctxsession, ...ctxwithoutpayloadandsession} = { payload: "", session:{user: {id:"", email:""}}, ...resultctx };
+  const ctxsessionreduceduser = {...ctxsession, user:{id:ctxsession.user.id, email:ctxsession.user.email}}
+  logObject.result = { ctx: { ...ctxwithoutpayloadandsession, session: ctxsessionreduceduser }, ...resultwithoutctx };
 
   console.dir(logObject, { depth: null });
 

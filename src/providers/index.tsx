@@ -7,6 +7,7 @@ import { SonnerProvider } from "@/providers/Sonner";
 import { EcommerceProvider } from "@payloadcms/plugin-ecommerce/client/react";
 import { AuthProvider } from "@/providers/Auth";
 import { currencies } from "@/plugins";
+import { KennisgewingLogContextProvider } from "@/providers/KennisgewingProvider";
 
 export const Providers: React.FC<{
   children: React.ReactNode
@@ -44,7 +45,9 @@ export const Providers: React.FC<{
                 label: 'Card',
               }]}
             >
-              {children}
+              <KennisgewingLogContextProvider>
+                {children}
+              </KennisgewingLogContextProvider>
             </EcommerceProvider>
           </HeaderThemeProvider>
         </AuthProvider>

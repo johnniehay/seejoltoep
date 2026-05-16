@@ -8,11 +8,11 @@ import Link from 'next/link';
 import { Gallery } from "@/components/product/Gallery";
 import { Media } from '@/components/Media'; // Import the Media component
 
-import { parseISO, format, isToday } from 'date-fns';
+import { parseISO, format } from 'date-fns';
 import RichText from "@/components/RichText";
-import { Checkbox } from '@/components/ui/checkbox';
 import { auth } from "@/auth";
 import { hasPermission } from "@/lib/permissions";
+import { KennisgewingsDisplay } from "@/components/kennisgewings/KennisgewingsDisplay";
 
 export default async function DivisiePage({ params }: { params: Promise<{ divisie: string }> }) {
   const payload = await getPayload({ config });
@@ -144,24 +144,7 @@ export default async function DivisiePage({ params }: { params: Promise<{ divisi
         )}
 
         {/* 6. Kennisgewings */}
-        {data.kennisgewings_test && data.kennisgewings_test.length > 0 && (
-          <section id="kennisgewings" className="w-full max-w-4xl p-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded-xl shadow-md  border-t-(--divisie-color) border-t-4">
-            <h2 className="text-2xl font-semibold mb-4">Kennisgewings</h2>
-            <div className="flex flex-col gap-2">
-              {data.kennisgewings_test.map((notice, index) => {
-                const noticeDate = parseISO(notice.date);
-                const formattedDate = isToday(noticeDate) ? format(noticeDate, 'HH:mm') : format(noticeDate, 'd MMM HH:mm');
-                return (
-                  <div key={index} className="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                    <span className="text-sm font-semibold text-gray-500 mr-4">{formattedDate}</span>
-                    <p className="flex-grow text-gray-800">{notice.notice}</p>
-                    <Checkbox className="ml-4" />
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        <KennisgewingsDisplay where={{"groepe.id":{in:[typeof data.groep === 'string' ? data.groep : data.groep?.id]}}} limit={7}/>
 
         {/* 7. Divisie foto / gallery */}
         {data.gallery && data.gallery.length > 0 && <Gallery gallery={data.gallery} initialIndex={-1} className={"flex flex-col-reverse max-w-4xl"}/>}

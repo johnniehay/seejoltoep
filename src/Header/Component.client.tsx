@@ -24,10 +24,11 @@ export interface HeaderClientProps {
   },
   setupSlot?: React.ReactNode,
   serverMenuItems?: React.ReactNode
+  notificationSettingsSlot?: React.ReactNode
 }
 
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setupSlot, serverMenuItems }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setupSlot, serverMenuItems, notificationSettingsSlot }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
@@ -54,9 +55,9 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, userData, setu
           <Link href="/">Seejol App</Link>
         </div>
 
-        { userData.id && <UserMenu userData={userData} setupSlot={setupSlot} serverMenuItems={serverMenuItems} />}
+        { userData.id && <UserMenu userData={userData} setupSlot={setupSlot} serverMenuItems={serverMenuItems} notificationSettingsSlot={notificationSettingsSlot}/>}
         { !userData.id &&
-          <div className="max-w-1/3 flex justify-end items-center gap-4">
+          <div className="max-w-1/3 flex justify-end items-center gap-1">
             <div className="flex justify-end md:w-1/3 gap-4">
               <Suspense fallback={<OpenCartButton />}>
                 <Cart />

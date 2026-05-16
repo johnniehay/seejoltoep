@@ -15,10 +15,10 @@ export const Aktiwiteite: CollectionConfig<"aktiwiteit"> = {
     { name: "title", type: "text", required: true },
     { name: "begin", type: "date", required: true, admin:{date:{pickerAppearance: "dayAndTime",displayFormat:"EEE do MMM HH:mm"}} },
     { name: "einde", type: "date", required: true, admin:{date:{pickerAppearance: "dayAndTime",displayFormat:"EEE do MMM HH:mm"}} },
-    { name: "aktiwiteitType", type: "select",required:true,options:["robotgame","judging","robotgame-queue","judging-queue","cultural","general"]},
+    { name: "aktiwiteitType", type: "select",required:true,options:["kamp","divisie","verkenners","offisiere","bus"]},
     { name: "beskrywing", type: "text" },
     { name: "presensie", type: "relationship", relationTo: "presensie" },
-    { name: "virAlle", type: "select",options:["divisies","volunteers"], hasMany:true },
+    { name: "virAlle", type: "select",options:["divisies","verkenners","offisiere"], hasMany:true },
     { name: "divisies", type: "relationship", relationTo:"divisie", hasMany:true },
   ]
 }

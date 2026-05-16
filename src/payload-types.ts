@@ -111,6 +111,8 @@ export interface Config {
     aktiwiteit: Aktiwiteit;
     groepe: Groepe;
     eitems: Eitem;
+    kennisgewings: Kennisgewing;
+    kennisgewingLogs: KennisgewingLog;
     'puck-templates': PuckTemplate;
     redirects: Redirect;
     forms: Form;
@@ -174,6 +176,8 @@ export interface Config {
     aktiwiteit: AktiwiteitSelect<false> | AktiwiteitSelect<true>;
     groepe: GroepeSelect<false> | GroepeSelect<true>;
     eitems: EitemsSelect<false> | EitemsSelect<true>;
+    kennisgewings: KennisgewingsSelect<false> | KennisgewingsSelect<true>;
+    kennisgewingLogs: KennisgewingLogsSelect<false> | KennisgewingLogsSelect<true>;
     'puck-templates': PuckTemplatesSelect<false> | PuckTemplatesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -940,16 +944,6 @@ export interface Divisie {
       }[]
     | null;
   /**
-   * Important notices for the division.
-   */
-  kennisgewings_test?:
-    | {
-        notice: string;
-        date: string;
-        id?: string | null;
-      }[]
-    | null;
-  /**
    * A gallery of photos for the division.
    */
   gallery?:
@@ -958,6 +952,7 @@ export interface Divisie {
         id?: string | null;
       }[]
     | null;
+  groep?: (string | null) | Groepe;
   divisieleier?: {
     docs?: (string | Lede)[];
     hasNextPage?: boolean;
@@ -970,6 +965,35 @@ export interface Divisie {
   };
   aktiwiteite?: {
     docs?: (string | Aktiwiteit)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "groepe".
+ */
+export interface Groepe {
+  id: string;
+  naam: string;
+  tipe?: ('vervoer' | 'divisie' | 'divisie_subgroep' | 'tent' | 'kennisgewing') | null;
+  subgroepe?: (string | Groepe)[] | null;
+  /**
+   * Payload "where" query object
+   */
+  add_lede_where?: {
+    [k: string]: unknown;
+  };
+  remove_lede_not_in_where?: boolean | null;
+  lede?: {
+    docs?: (string | Lede)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  users?: {
+    docs?: (string | User)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -1079,35 +1103,6 @@ export interface Inskrywing {
   addisionele_notas?: string | null;
   qr_skakel?: string | null;
   qr_prent?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "groepe".
- */
-export interface Groepe {
-  id: string;
-  naam: string;
-  tipe?: ('vervoer' | 'divisie' | 'divisie_subgroep' | 'tent') | null;
-  subgroepe?: (string | Groepe)[] | null;
-  /**
-   * Payload "where" query object
-   */
-  add_lede_where?: {
-    [k: string]: unknown;
-  };
-  remove_lede_not_in_where?: boolean | null;
-  lede?: {
-    docs?: (string | Lede)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  users?: {
-    docs?: (string | User)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -1328,6 +1323,64 @@ export interface Variant {
   createdAt: string;
   deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kennisgewings".
+ */
+export interface Kennisgewing {
+  id: string;
+  title: string;
+  /**
+   * Opsomming van die kennisgewing, word in Push kennisgewing gewys
+   */
+  body: string;
+  detail?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Stuur 'n Push kennisgewing
+   */
+  notify?: boolean | null;
+  manual_confirmation?: boolean | null;
+  visble_until?: string | null;
+  groepe?: (string | Groepe)[] | null;
+  icon?: (string | null) | Media;
+  image?: (string | null) | Media;
+  tag?: string | null;
+  timestamp?: string | null;
+  navigate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kennisgewingLogs".
+ */
+export interface KennisgewingLog {
+  id: string;
+  kennisgewing: string | Kennisgewing;
+  user: string | User;
+  shown?: boolean | null;
+  acknowledged?: boolean | null;
+  viewed_details?: boolean | null;
+  closed?: boolean | null;
+  sent_to_subscription?: (string | NotificationSubscription)[] | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * Reusable component templates for the visual editor
@@ -1914,6 +1967,14 @@ export interface PayloadLockedDocument {
         value: string | Eitem;
       } | null)
     | ({
+        relationTo: 'kennisgewings';
+        value: string | Kennisgewing;
+      } | null)
+    | ({
+        relationTo: 'kennisgewingLogs';
+        value: string | KennisgewingLog;
+      } | null)
+    | ({
         relationTo: 'puck-templates';
         value: string | PuckTemplate;
       } | null)
@@ -2491,19 +2552,13 @@ export interface DivisieSelect<T extends boolean = true> {
         title?: T;
         id?: T;
       };
-  kennisgewings_test?:
-    | T
-    | {
-        notice?: T;
-        date?: T;
-        id?: T;
-      };
   gallery?:
     | T
     | {
         image?: T;
         id?: T;
       };
+  groep?: T;
   divisieleier?: T;
   lede?: T;
   aktiwiteite?: T;
@@ -2585,6 +2640,42 @@ export interface EitemsSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kennisgewings_select".
+ */
+export interface KennisgewingsSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  detail?: T;
+  notify?: T;
+  manual_confirmation?: T;
+  visble_until?: T;
+  groepe?: T;
+  icon?: T;
+  image?: T;
+  tag?: T;
+  timestamp?: T;
+  navigate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "kennisgewingLogs_select".
+ */
+export interface KennisgewingLogsSelect<T extends boolean = true> {
+  kennisgewing?: T;
+  user?: T;
+  shown?: T;
+  acknowledged?: T;
+  viewed_details?: T;
+  closed?: T;
+  sent_to_subscription?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3375,10 +3466,15 @@ export interface TaskSchedulePublish {
   input: {
     type?: ('publish' | 'unpublish') | null;
     locale?: string | null;
-    doc?: {
-      relationTo: 'posts';
-      value: string | Post;
-    } | null;
+    doc?:
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null)
+      | ({
+          relationTo: 'kennisgewings';
+          value: string | Kennisgewing;
+        } | null);
     global?: string | null;
     user?: (string | null) | User;
   };

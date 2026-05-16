@@ -85,7 +85,7 @@ export const Users: CollectionConfig = {
       type: "date",
       access: {
         create: () => false,
-        read: checkFieldPermissionOrIf("view:users",({id,req:{user,payload}}) => (user ? id === undefined || (id === user.id) : false )),
+        read: checkFieldPermissionOrIf("view:users",({id,req:{user}}) => (user ? id === undefined || (id === user.id) : false )),
         update: checkFieldPermission("update:users")
       },
     },
@@ -119,6 +119,7 @@ export const Users: CollectionConfig = {
         { name: "invalid_dob", type: "checkbox", label: "Ongeldige Geboortedatum" }
       ]
     },
+    { name: "groepe", type: "relationship", relationTo: "groepe", hasMany: true },
   ],
   timestamps: true,
 }

@@ -1,6 +1,6 @@
 // export const VolunteerPermissions = ["view:divisie:details:basic","view:volunteer", "view:schedule:robotgame", "view:schedule:judgingroom","view:users:basic"] as const
 
-export const NonPublicPermissions = ["view:nonpublic"] as const
+export const NonPublicPermissions = ["view:nonpublic", "view:kennisgewing"] as const
 
 // export const BaseDivisiePermissions = [...NonPublicPermissions] as const
 // export const CoachPermissions = [...NonPublicPermissions] as const
@@ -13,6 +13,8 @@ export const LocationManagementPermissions = ["create:location","update:location
 export const InklokManagementPermissions = ["create:inklok","update:inklok","remove:inklok", "view:inklok"] as const
 export const LedeManagementPermissions = ["create:lede", "update:lede", "remove:lede", "view:lede", "import:lede", "export:lede"] as const
 export const DivisieManagementPermissions = ["create:divisie", "update:divisie", "remove:divisie", "view:divisie", "view:divisie:details"] as const
+export const KennisgewingManagementPermissions = ["create:kennisgewing", "update:kennisgewing", "remove:kennisgewing"]
+export const KennisgewingLogManagementPermissions = ["create:kennisgewinglog", "update:kennisgewinglog", "remove:kennisgewinglog", "view:kennisgewinglog"]
 export const WinkelManagementPermissions = ["admin:winkel"] as const
 
 // export const MCPermissions = ["view:queuing:status", ...VolunteerPermissions] as const
@@ -33,7 +35,7 @@ export const WinkelManagementPermissions = ["admin:winkel"] as const
 // export const AllPermissions = [...VolunteerAdminPermissions, ...JudgeAdvisorPermissions, ...FieldManagerPermissions, ...DivisieAdminPermissions, ...AdminPermissions, ...AllDivisiePermissions, ...NonPublicPermissions] as const
 
 
-export const AlgemeneOffisierPermission = ["view:offisier"] as const
+export const AlgemeneOffisierPermission = ["view:offisier",...NonPublicPermissions] as const
 
 export const OuerPermissions = [...NonPublicPermissions] as const
 export const VerkennerPermissions = [...NonPublicPermissions] as const
@@ -48,9 +50,9 @@ export const KombuisPermissions = [...AlgemeneOffisierPermission] as const
 export const LogistiekPermissions = [...AlgemeneOffisierPermission] as const
 export const DivisieOffisierPermissions = ["view:divisie:lede", "create:presensie", "update:presensie", "view:presensie",...AlgemeneOffisierPermission] as const
 export const DivisieLeierPermissions = ["view:divisie:users","view:divisie:lede","update:divisie:lede","remove:presensie", ...AktiwiteitManagementPermissions, ...PagesPermissions,...DivisieOffisierPermissions] as const
-export const KampRaadPermissions = ["view:users", "create:users", "update:users", "update:user:role", "remove:users", ...LedeManagementPermissions , ...DivisieLeierPermissions, ...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions,...WinkelManagementPermissions] as const
+export const KampRaadPermissions = ["view:users", "create:users", "update:users", "update:user:role", "remove:users", "view:kennisgewinglog", ...LedeManagementPermissions , ...DivisieLeierPermissions, ...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions,...WinkelManagementPermissions,...KennisgewingManagementPermissions] as const
 export const KampLeierPermissions = ["admin", ...DivisieManagementPermissions, ...KampRaadPermissions, ...DivisieLeierPermissions, ...LogistiekPermissions, ...KombuisPermissions, ...NoodOffisierPermissions] as const
-export const AdminOnlyPermissions = ["admin", "view:users", "create:users", "update:users", "remove:users",...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions] as const
+export const AdminOnlyPermissions = ["admin", "view:users", "create:users", "update:users", "remove:users",...AktiwiteitManagementPermissions,...LocationManagementPermissions,...InklokManagementPermissions,...KennisgewingLogManagementPermissions] as const
 export const AdminPermissions = [...AdminOnlyPermissions, ...KampLeierPermissions] as const
 export const AllPermissions = [...AdminPermissions, ...NonPublicPermissions] as const
 export type Permission = typeof AllPermissions[number]

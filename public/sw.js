@@ -15,13 +15,7 @@ SWself.addEventListener('push', function (event) {
     if (event.data) {
         var data = event.data.json();
         var d = Date.now();
-        var options = {
-            body: data.body,
-            icon: data.icon || '/icon-192.png',
-            badge: '/icon-192.png',
-            vibrate: [100, 50, 100],
-            data: __assign({ dateOfArrival: Date.now(), primaryKey: '2' }, data),
-        };
+        var options = __assign(__assign({ icon: '/icon-192.png', badge: '/icon-192.png', vibrate: [100, 50, 100] }, data), { data: __assign({ dateOfArrival: Date.now(), primaryKey: '2' }, data) });
         event.waitUntil(SWself.registration.showNotification(data.title, options));
     }
 });
@@ -32,7 +26,7 @@ SWself.addEventListener("install", function (event) {
 SWself.addEventListener('notificationclick', function (event) {
     var _a, _b;
     console.log('Notification click received.');
-    var url = (_b = (_a = event.notification.data) === null || _a === void 0 ? void 0 : _a.url) !== null && _b !== void 0 ? _b : '/';
+    var url = (_b = (_a = event.notification.data) === null || _a === void 0 ? void 0 : _a.navigate) !== null && _b !== void 0 ? _b : '/';
     event.notification.close();
     event.waitUntil(SWself.clients.openWindow(url));
 });

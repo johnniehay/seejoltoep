@@ -6,20 +6,27 @@ import { User as UserIcon, LogOut, Settings } from 'lucide-react'
 import { SetupModal } from "@/components/SetupModal";
 import { OpenCartButton } from "@/components/Cart/OpenCart";
 import { Cart } from "@/components/Cart";
+import { IconBellOff } from "@tabler/icons-react";
+import { KennisgewingsMenuItem } from "@/Header/UserMenu/KennisgewingsMenuItem";
 
 export const UserMenu: React.FC<{ userData: {
     id: string | null | undefined,
     name: string | null | undefined,
     email: string | null | undefined,
     image: string | null | undefined
-  }, setupSlot: React.ReactNode, serverMenuItems: React.ReactNode }> = ({ userData, setupSlot, serverMenuItems }) => {
+  }, setupSlot: React.ReactNode, notificationSettingsSlot: React.ReactNode, serverMenuItems: React.ReactNode }> = ({ userData, setupSlot, serverMenuItems, notificationSettingsSlot }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isSetupOpen, setIsSetupOpen] = useState(false)
   return (
-  <div className="max-w-1/3 flex justify-end items-center gap-4">
+  <div className="max-w-1/3 flex justify-end items-center gap-1">
     {userData.id && (
       <>
-        <div className="flex justify-end md:w-1/3 gap-4">
+        <div className="flex justify-end">
+          <Suspense fallback={<IconBellOff/>}>
+            <KennisgewingsMenuItem notificationSettingsSlot={notificationSettingsSlot}/>
+          </Suspense>
+        </div>
+        <div className="flex justify-end">
           <Suspense fallback={<OpenCartButton />}>
             <Cart />
           </Suspense>

@@ -172,35 +172,6 @@ export const Divisies: CollectionConfig<"divisie"> = {
       },
     },
     {
-      name: "kennisgewings_test",
-      label: "Kennisgewings",
-      type: "array",
-      access: viewonlybutdivisieleierupdateable,
-      fields: [
-        {
-          name: "notice",
-          label: "Kennisgewing",
-          type: "text",
-          required: true,
-        },
-        {
-          name: "date",
-          label: "Datum",
-          type: "date",
-          required: true,
-          admin: {
-            date: {
-              pickerAppearance: 'dayAndTime',
-              displayFormat:"EEE do MMM HH:mm"
-            },
-          },
-        },
-      ],
-      admin: {
-        description: "Important notices for the division.",
-      },
-    },
-    {
       name: "gallery",
       label: "Divisie Foto Gallery",
       type: "array",
@@ -218,6 +189,7 @@ export const Divisies: CollectionConfig<"divisie"> = {
         description: "A gallery of photos for the division.",
       },
     },
+    { name:"groep", type:"relationship", relationTo: "groepe", access:viewonlyunlesspermission},
     {
       name: "divisieleier",
       label: "Divisieleier",

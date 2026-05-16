@@ -62,7 +62,7 @@ const selectInputOptions = [
   { label: 'all', value: 'all' },
 ];
 
-export default function PushNotificationSettingsClient({ visibleTopics, vapidPublicKey }: { visibleTopics: NotificationTopics, vapidPublicKey:string }) {
+export default function PushNotificationSettingsClient({ visibleTopics, vapidPublicKey, compact = false }: { visibleTopics: NotificationTopics, vapidPublicKey:string, compact?: boolean }) {
   const [isSupported, setIsSupported] = useState(false)
   const { subscription, setSubscription } = useContext(subscribeContext)
   const [message, setMessage] = useState('')
@@ -204,23 +204,23 @@ export default function PushNotificationSettingsClient({ visibleTopics, vapidPub
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className={"flex-grow"}>
+      {!compact && <CardHeader>
         <CardTitle>Kennisgewings (aanbeveel)</CardTitle>
         <p className="text-sm text-muted-foreground">
           Kennisgewings (Notifications) help ons om jou in kennis te stel van nuwe inhoud of uitstaande aksies wat van jou benodig word.
         </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-          <div className="space-y-1">
+      </CardHeader>}
+      <CardContent className={compact ? "p-0" : "space-y-6"}>
+        <div className={cn("flex space-y-4 flex-row items-center justify-between gap-2", compact && "space-y-0")}>
+          <div className={compact ? "hidden" : "space-y-1"}>
             <Label className="text-base">Kennisgewings (Notifications)</Label>
             <p className="text-sm text-muted-foreground">
               {subscription ? "Jy is ingeteken vir kennisgewings." : "Jy is nie ingeteken vir kennisgewings nie. Ons beveel sterk aan dat jy inteken vir Alle kennisgewings hieronder"}
             </p>
           </div>
 
-          <div className="flex items-center space-x-1 rounded-md border bg-muted p-1">
+          <div className="flex items-center space-x-1 rounded-md border bg-muted p-1 flex-grow">
             {options.map((option) => (
               <Button
                 key={option.value}
@@ -229,7 +229,7 @@ export default function PushNotificationSettingsClient({ visibleTopics, vapidPub
                 onClick={() => handleOnChangeSubscribeAll(option.value)}
                 disabled={option.disabled}
                 className={cn(
-                  "h-8 px-3 text-sm font-medium",
+                  "h-8 px-3 text-sm font-medium flex-grow",
                   subscriptionSwitchvalue !== option.value && "text-muted-foreground hover:text-foreground",
                   subscriptionSwitchvalue === option.value && option.value !== "off" && option.value !== "all" && "bg-background shadow-sm text-foreground hover:bg-background",
                   subscriptionSwitchvalue === option.value && option.value === "off" && "bg-red-500 text-white shadow-sm hover:bg-red-600",
@@ -240,18 +240,18 @@ export default function PushNotificationSettingsClient({ visibleTopics, vapidPub
               </Button>
             ))}
           </div>
+          {/*{ compact && <Button variant="ghost" size="icon" className={"h-6 w-4"} onClick={toggle}><GearIcon className=""}/></Button> }*/}
         </div>
-
-        <div className="relative py-2">
+        { !compact && <Button variant="ghost" size="icon" className={cn("h-6 rounded-full p-0 w-full",compact && 'h-3 rounded-none')} onClick={toggle}>
+        <div className={compact ? "relative w-full" : "relative w-full py-2"}>
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <Button variant="outline" size="icon" className="h-6 w-6 rounded-full bg-background p-0" onClick={toggle}>
-               <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-            </Button>
+               <ChevronDown className={cn("h-4 w-7 transition-transform bg-card rounded-full",compact && 'h-3 w-5 ', open && "rotate-180")} />
           </div>
         </div>
+        </Button>}
 
         {open && (
           <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
