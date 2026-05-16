@@ -11,7 +11,7 @@ WORKDIR /app
 RUN mkdir ./vendor
 COPY vendor/part-db-html5-qrcode-4.0.1-prerelease.tgz ./vendor/
 
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* pnpm-workspace.yaml* .npmrc* ./
 #COPY --from=local pnpm-lock.yaml .
 RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
