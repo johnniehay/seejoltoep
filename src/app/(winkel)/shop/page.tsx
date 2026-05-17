@@ -1,3 +1,4 @@
+import { auth } from "@/auth"
 import { Grid } from '@/components/Grid'
 import { ProductGridItem } from '@/components/ProductGridItem'
 import configPromise from '@payload-config'
@@ -18,11 +19,13 @@ type Props = {
 export default async function ShopPage({ searchParams }: Props) {
   const { q: searchValue, sort, category } = await searchParams
   const payload = await getPayload({ config: configPromise })
+  const user = (await auth())?.user
 
   const products = await payload.find({
     collection: 'products',
     draft: false,
     overrideAccess: false,
+    user,
     select: {
       title: true,
       slug: true,
