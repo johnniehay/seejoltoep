@@ -18,6 +18,7 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
   const [direction, setDirection] = useState<'export' | 'import'>('export')
   const [columns, setColumns] = useState<string[]>([])
   const [targets, setTargets] = useState<GoogleSheetsSyncTarget[]>([])
+  const [removeExtra, setRemoveExtra] = useState(false)
   const [selectedTarget, setSelectedTarget] = useState<string>('')
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set())
   const { openModal, closeModal } = useModal()
@@ -41,14 +42,15 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
     fetchTargets()
   }, [collectionSlug])
 
-  const analyzeSync = async (dir: 'export' | 'import') => {
+  const analyzeSync = async (dir: 'export' | 'import', remExtra: boolean = false) => {
     setIsLoading(true)
     setDirection(dir)
+    setRemoveExtra(remExtra)
     try {
       const req = await fetch(`/api/google-sheets/sync/${collectionSlug}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direction: dir, mode: 'analyze', target: selectedTarget }),
+        body: JSON.stringify({ direction: dir, mode: 'analyze', target: selectedTarget, removeExtra: remExtra }),
       })
 
       const res = await req.json()
@@ -90,13 +92,16 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
       const req = await fetch(`/api/google-sheets/sync/${collectionSlug}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ direction, mode: 'execute', selection, target: selectedTarget }),
+        body: JSON.stringify({ direction, mode: 'execute', selection, target: selectedTarget, removeExtra }),
       })
 
       const res = await req.json()
 
       if (req.ok) {
-        toast.success(`Sync Complete: Updated ${res.stats.updated} items, Created ${res.stats.created} items.`)
+        const { updated, created, deleted } = res.stats || {}
+        toast.success(
+          `Sync Complete: Updated ${updated} items, Created ${created} items${deleted ? `, Deleted ${deleted} items` : ''}.`,
+        )
         closeModal(modalSlug)
         setChanges([])
         router.refresh()
@@ -156,6 +161,21 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
         onClick={() => analyzeSync('export')}
         disabled={isLoading}
         buttonStyle="secondary"
+        SubMenuPopupContent={() => (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <Button
+              buttonStyle="none"
+              onClick={(e) => {
+                // Prevent event bubbling so we don't trigger the main button onClick
+                e.stopPropagation();
+                analyzeSync('export', true);
+              }}
+              margin={false}
+            >
+              Sync to and Remove Extra
+            </Button>
+          </div>
+        )}
       >
         {isLoading ? 'Analyzing...' : 'Sync to Sheets'}
       </Button>
@@ -211,8 +231,8 @@ export const SyncButton: React.FC<Props> = ({ collectionSlug }) => {
                         <span style={{
                           padding: '2px 6px',
                           borderRadius: '4px',
-                          background: change.action === 'create' ? '#e6fffa' : '#ebf8ff',
-                          color: change.action === 'create' ? '#2c7a7b' : '#2b6cb0',
+                          background: change.action === 'create' ? '#e6fffa' : change.action === 'delete' ? '#fff5f5' : '#ebf8ff',
+                          color: change.action === 'create' ? '#2c7a7b' : change.action === 'delete' ? '#c53030' : '#2b6cb0',
                           width: 'fit-content'
                         }}>
                           {change.action.toUpperCase()}

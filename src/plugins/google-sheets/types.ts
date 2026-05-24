@@ -44,7 +44,7 @@ export interface GoogleSheetsPluginConfig {
 
 export interface SyncChange {
   id?: string | number
-  action: 'create' | 'update'
+  action: 'create' | 'update' | 'delete'
   changes: Record<string, { old: any; new: any }>
   row?: number
   data?: Record<string, any>
@@ -56,6 +56,7 @@ export interface SyncResult {
   stats?: {
     updated: number
     created: number
+    deleted?: number
     total: number
   }
   error?: string

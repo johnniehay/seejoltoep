@@ -122,7 +122,7 @@ export class GoogleSheetsService {
    * Syncs Payload Collection -> Google Sheet
    * ONLY updates cells that have changed.
    */
-  async exportToSheet(payload: Payload, collectionSlug: CollectionSlug, tabName: string, mapping?: Record<string, string>, keyField: string = 'id', dryRun: boolean = true, onlySyncIds?: string[], where?: Record<string, any>): Promise<SyncResult> {
+  async exportToSheet(payload: Payload, collectionSlug: CollectionSlug, tabName: string, mapping?: Record<string, string>, keyField: string = 'id', dryRun: boolean = true, onlySyncIds?: string[], where?: Record<string, any>, removeExtra: boolean = false): Promise<SyncResult> {
     const sheets = await this.getSheetsClient()
     const sheetKeyHeader = mapping?.[keyField] || keyField
 
@@ -181,6 +181,8 @@ export class GoogleSheetsService {
     const appendRows: any[][] = []
     const changesList: SyncChange[] = []
 
+    const docKeysInPayload = new Set<string>()
+
     // Map existing sheet rows by ID for fast lookup
     const sheetMap = new Map<string, { rowIndex: number; row: string[] }>()
     sheetData.slice(1).forEach((row, index) => {
@@ -190,6 +192,7 @@ export class GoogleSheetsService {
 
     for (const doc of docs) {
       const docKey = String(this.getDocValue(doc, keyField) ?? '')
+      docKeysInPayload.add(docKey)
 
       // Filter if specific IDs are requested
       if (onlySyncIds && !onlySyncIds.includes(docKey)) continue
@@ -282,8 +285,38 @@ export class GoogleSheetsService {
       }
     }
 
+    // Handle Deletions if removeExtra is enabled
+    if (removeExtra) {
+      for (const [sheetKey, { rowIndex, row }] of sheetMap.entries()) {
+        if (!docKeysInPayload.has(sheetKey)) {
+          const rowChanges: Record<string, { old: any; new: any }> = {}
+          const docData: Record<string, any> = {}
+          
+          headers.forEach((header, colIndex) => {
+            rowChanges[header] = { old: row[colIndex], new: null }
+            let fieldName = header
+            if (mapping) {
+               const found = Object.keys(mapping).find(key => mapping[key] === header)
+               if (found) fieldName = found
+            }
+            this.setDocValue(docData, fieldName, row[colIndex])
+          })
+
+          changesList.push({
+            id: sheetKey,
+            action: 'delete',
+            changes: rowChanges,
+            row: rowIndex,
+            data: docData,
+          })
+        }
+      }
+    }
+
+    const deletedCount = changesList.filter(c => c.action === 'delete' && (!onlySyncIds || onlySyncIds.includes(String(c.id)))).length
+
     if (dryRun) {
-      return { success: true, changes: changesList, stats: { updated: updates.length, created: appendRows.length, total: docs.length }, defaultColumns }
+      return { success: true, changes: changesList, stats: { updated: updates.length, created: appendRows.length, deleted: deletedCount, total: docs.length }, defaultColumns }
     }
 
     // 5. Execute Updates (Batch)
@@ -315,12 +348,45 @@ export class GoogleSheetsService {
 
     await Promise.all(promises)
 
+    // Execute Deletions (sequentially or in a separate batch to ensure indices don't shift during cell updates)
+    if (removeExtra) {
+      const toDelete = changesList
+        .filter(c => c.action === 'delete' && (!onlySyncIds || onlySyncIds.includes(String(c.id))))
+        .map(c => c.row!)
+        .sort((a, b) => b - a) // Sort descending to maintain indices
+
+      if (toDelete.length > 0) {
+        const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: this.sheetId })
+        const sheet = spreadsheet.data.sheets?.find(s => s.properties?.title === tabName)
+        const gSheetId = sheet?.properties?.sheetId
+
+        if (gSheetId !== undefined) {
+          await sheets.spreadsheets.batchUpdate({
+            spreadsheetId: this.sheetId,
+            requestBody: {
+              requests: toDelete.map(rowIndex => ({
+                deleteDimension: {
+                  range: {
+                    sheetId: gSheetId,
+                    dimension: 'ROWS',
+                    startIndex: rowIndex - 1,
+                    endIndex: rowIndex
+                  }
+                }
+              }))
+            }
+          })
+        }
+      }
+    }
+
     return {
       success: true,
       changes: changesList,
       stats: {
         updated: updates.length,
         created: appendRows.length,
+        deleted: deletedCount,
         total: docs.length,
       },
       defaultColumns

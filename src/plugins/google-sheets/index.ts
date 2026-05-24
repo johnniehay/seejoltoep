@@ -97,11 +97,13 @@ export const googleSheetsPlugin =
                 mode = 'analyze',
                 selection,
                 target,
+                removeExtra = false,
               } = ((await req.json?.().catch(() => ({}))) || {}) as {
                 direction: 'export' | 'import'
                 mode: 'analyze' | 'execute'
                 selection?: string[] | number[]
                 target?: string
+                removeExtra?: boolean
               }
 
               const settings = await getSettings(req.payload)
@@ -123,7 +125,7 @@ export const googleSheetsPlugin =
                 const dryRun = mode === 'analyze'
 
                 if (direction === 'export') {
-                  result = await service.exportToSheet(req.payload, collectionSlug, tabName, mapping, keyField, dryRun, selection as string[], where)
+                  result = await service.exportToSheet(req.payload, collectionSlug, tabName, mapping, keyField, dryRun, selection as string[], where, removeExtra)
                 } else {
                   result = await service.importFromSheet(req.payload, collectionSlug, tabName, mapping, keyField, dryRun, selection as number[])
                 }
