@@ -20,9 +20,10 @@ const BODY_TRUNCATE_LIMIT = 25;
 
 interface KennisgewingCardProps {
   notice: Kennisgewing;
+  defaultOpen?: boolean;
 }
 
-export function KennisgewingCard({ notice }: KennisgewingCardProps) {
+export function KennisgewingCard({ notice, defaultOpen }: KennisgewingCardProps) {
   const { kennisgewinglogs, refreshKennisgewinglogs } = useKennisgewinglogs()
   const noticeLog = kennisgewinglogs?.find((logentry) => typeof logentry.kennisgewing !== 'string' && logentry.kennisgewing.id === notice.id )
   const noticeDate = notice.timestamp ? new Date(notice.timestamp) : parseISO(notice.updatedAt);
@@ -87,9 +88,10 @@ export function KennisgewingCard({ notice }: KennisgewingCardProps) {
       triggerOnce: true,
     },
   );
+  if (defaultOpen) handleViewDetails()
 
   return (
-    <Dialog>
+    <Dialog defaultOpen={defaultOpen}>
       <div ref={trackingRef} className="flex justify-between p-3 bg-background text-primary rounded-lg shadow-sm">
         {/* Left side: Title and Body */}
         <div className="flex flex-col flex-grow mr-4">

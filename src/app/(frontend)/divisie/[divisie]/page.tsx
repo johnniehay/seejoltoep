@@ -13,6 +13,7 @@ import RichText from "@/components/RichText";
 import { auth } from "@/auth";
 import { hasPermission } from "@/lib/permissions";
 import { KennisgewingsDisplay } from "@/components/kennisgewings/KennisgewingsDisplay";
+import { getDocNotID } from "@/utilities/getDocNotID";
 
 export default async function DivisiePage({ params }: { params: Promise<{ divisie: string }> }) {
   const payload = await getPayload({ config });
@@ -74,6 +75,11 @@ export default async function DivisiePage({ params }: { params: Promise<{ divisi
               Verander Diviesieblad
             </Link>
           </Button>
+          <Button asChild className="h-9 px-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all">
+            <Link href={`/admin/collections/kennisgewings`}>
+              Skep/Verander Kennisgewings
+            </Link>
+          </Button>
         </section>}
         {/* 2. Wat is this division? */}
         {data.beskrywing && <section className="w-full max-w-4xl p-6 bg-background rounded-xl shadow-md border-[var(--divisie-color)] border-t-4 border-l-4">
@@ -86,7 +92,7 @@ export default async function DivisiePage({ params }: { params: Promise<{ divisi
           <div className="flex flex-wrap gap-2">
             <div className="bg-background p-6 rounded-xl shadow-md flex-grow border-[var(--divisie-color)] border-t-4 border-l-4">
               <h3 className="text-l font-bold mb-2">Divisieleier</h3>
-              <p>{(data.divisieleier as any)?.docs?.[0]?.vertoonnaam || 'N/A'}</p>
+              {data.divisieleier && data.divisieleier.docs?.filter((dl) => typeof dl !== "string" && (data.divisieleier?.totalDocs ?? 0 > 1 ? dl.kamp_kursus?.includes("Divisieleiers") : true)).map((dl) => <p>{getDocNotID(dl).vertoonnaam}</p>)}
               {data.kontak && <p>{(data.kontak || '')}</p>}
             </div>
             {data.grade.length > 0 && <div className="bg-background p-6 rounded-xl shadow-md flex-grow border-[var(--divisie-color)] border-t-4 border-l-4">

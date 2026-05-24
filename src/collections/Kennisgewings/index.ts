@@ -1,6 +1,7 @@
 import { CollectionConfig } from "payload";
-import { checkPermission } from "@/access/checkPermission";
-import { sendPushNotification } from "./hooks/sendPushNotification"; // Import the hook
+import { checkPermission, checkPermissionOrWhere } from "@/access/checkPermission";
+import { sendPushNotification } from "./hooks/sendPushNotification";
+import { wherelidgroepeinfo } from "@/collections/Lede";
 
 export const Kennisgewings: CollectionConfig<"kennisgewings"> = {
   slug: "kennisgewings",
@@ -9,13 +10,17 @@ export const Kennisgewings: CollectionConfig<"kennisgewings"> = {
     singular: "Kennisgewing"
   },
   access: {
-    create: checkPermission("create:kennisgewing"),
+    create: checkPermissionOrWhere("create:kennisgewing",wherelidgroepeinfo),
     delete: checkPermission("remove:kennisgewing"),
     read: checkPermission("view:kennisgewing"),
-    update: checkPermission("update:kennisgewing"),
+    update: checkPermissionOrWhere("update:kennisgewing",wherelidgroepeinfo),
   },
   admin:{
     defaultColumns: ['title', 'body', 'groepe'],
+    baseFilter: async ({req: payloadreq}) => {
+      const lgi = await wherelidgroepeinfo(payloadreq)
+      return lgi ? lgi : null
+    },
     useAsTitle: 'title'
   },
   versions: {

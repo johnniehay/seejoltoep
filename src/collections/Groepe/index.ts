@@ -1,10 +1,27 @@
 import type { CollectionConfig } from 'payload'
+import { checkConditionPermission, checkPermissionOrWhere } from "@/access/checkPermission";
+import { addLidtoGroepInfoOnCreate } from "./hooks/addLidtoGroepInfoOnCreate";
+import { divisieleierdivisiequery } from "@/collections/Lede";
+import { hasPermissionReq } from "@/lib/permissions-payload";
+import { getDocNotID } from "@/utilities/getDocNotID";
+import {
+  getlidgroepeinfo,
+  isdivisieleier,
+  isdivisieleier_and_lidgroepeinfo_and_divisiesubgroep,
+  wherelidgroepeinfo
+} from "@/collections/Groepe/access";
 
 export const Groepe: CollectionConfig = {
   slug: 'groepe',
   labels:{
     singular: 'Groep',
     plural: 'Groepe',
+  },
+  access: {
+    create: checkPermissionOrWhere("create:groepe",isdivisieleier),
+    delete: checkPermissionOrWhere("remove:groepe",isdivisieleier_and_lidgroepeinfo_and_divisiesubgroep),
+    read: checkPermissionOrWhere("view:groepe",wherelidgroepeinfo),
+    update: checkPermissionOrWhere("update:groepe",wherelidgroepeinfo),
   },
   admin: {
     useAsTitle: 'naam',
@@ -25,6 +42,15 @@ export const Groepe: CollectionConfig = {
         { label: 'Tent', value: 'tent' },
         { label: 'Kennisgewing', value: 'kennisgewing' }
       ],
+      filterOptions: ({req: payloadreq, options,data, siblingData}) => {
+        if (hasPermissionReq("update:groepe",payloadreq.user)) return options
+        const divisiegroep = getDocNotID(divisieleierdivisiequery(payloadreq.user,payloadreq.payload))?.groep
+        console.log(`groepTipefilterOptions ${divisiegroep} ${siblingData.id}`)
+        if (getlidgroepeinfo(payloadreq).length > 0)
+          return options.filter((option) => (typeof option === 'string'?option:option.value).includes( divisiegroep === siblingData.id ? "divisie": "divisie_subgroep"))
+        return []
+      },
+      defaultValue: ({user}) => hasPermissionReq("update:groepe",user)?null:'divisie_subgroep'
     },
     {
       name: 'subgroepe',
@@ -38,6 +64,7 @@ export const Groepe: CollectionConfig = {
       type: "json",
       admin: {
         description: 'JSON "where" query to filter which lede gets added to the group automatically',
+        condition: checkConditionPermission("update:groepe")
       },
       jsonSchema: {
         uri: 'a://b/where.json',
@@ -55,6 +82,9 @@ export const Groepe: CollectionConfig = {
       name: 'remove_lede_not_in_where',
       label: 'Remove lede not in where',
       type: "checkbox",
+      admin: {
+        condition: checkConditionPermission("update:groepe")
+      },
     },
     {
       name: 'lede',
@@ -68,7 +98,11 @@ export const Groepe: CollectionConfig = {
       type: 'join',
       collection: 'users',
       on: 'groepe',
-      admin:{allowCreate:false}
+      admin:{
+        allowCreate:false,
+        condition: checkConditionPermission("view:users")
+      }
     },
   ],
+  hooks: {afterChange:[addLidtoGroepInfoOnCreate]}
 }

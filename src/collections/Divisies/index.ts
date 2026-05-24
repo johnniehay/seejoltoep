@@ -6,7 +6,7 @@ import {
   checkPermission,
   checkPermissionOrWhere
 } from "@/access/checkPermission";
-import { divisieleierdivisiesquery, divisiewheredivisieleierReq } from "@/collections/Lede";
+import { divisieleierdivisieid, divisiewheredivisieleierReq } from "@/collections/Lede";
 import { Permission } from "@/lib/roles";
 import { slugify } from "payload/shared";
 
@@ -20,13 +20,14 @@ const checkFieldPermissionOrDivisieLeier = (permission: Permission) => checkFiel
     const { id, req: { user, payload } } = args
     // console.log("shared_contact update access", user?.role,getRoleFromUser(user), id, doc?.id)
     if (id === undefined) return true //not necessary to check divisieleier as just a pre-check
-    const divisieids = await divisieleierdivisiesquery(user, payload)
+    const divisieid = divisieleierdivisieid(user, payload)
     // console.log("shared_contact update access divisieids", divisieids)
+    if (!divisieid) return false
     if (typeof id !== "string") {
       console.log("Got id as %s in Divisies shared_contact update access", typeof id, id)
       return false
     }
-    return divisieids.includes(id);
+    return divisieid === id
   })
 
 const viewonlybutdivisieleierupdateable = {
@@ -203,6 +204,6 @@ export const Divisies: CollectionConfig<"divisie"> = {
       },
     },
     { name:"lede", type:"join", collection:"lede", on:"divisie", defaultLimit:0, admin:{defaultColumns:["name","role"]}},
-    { name:"aktiwiteite", type:"join", collection:"aktiwiteit", on:"divisies", defaultLimit:0},
+    { name:"aktiwiteite", label:"Divisie Program Aktiwiteite", type:"join", collection:"aktiwiteit", on:"divisies", defaultLimit:0},
   ]
 }

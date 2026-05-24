@@ -1,5 +1,10 @@
-import { BasePayload, CollectionConfig, DefaultValue, Field, FilterOptions, PayloadRequest, Where } from "payload";
-import { checkConditionPermission, checkPermissionOrWhere } from "@/access/checkPermission";
+import type { BasePayload, CollectionConfig, DefaultValue, Field, FieldAccess, FilterOptions, PayloadRequest, Where } from "payload";
+import {
+  checkConditionPermission,
+  checkFieldPermission,
+  checkPermission,
+  checkPermissionOrWhere
+} from "@/access/checkPermission";
 import { updateuser } from "@/collections/Lede/hooks/updateuser";
 import snakeCase from "lodash/snakeCase";
 import { getRoleFromUser, type UserWithIdRole } from "@/lib/get-role";
@@ -10,6 +15,8 @@ import {
 } from "@/collections/Lede/hooks/updateinskrywing";
 import type { SasImportCollectionConfig } from "@/plugins/sas-import/types";
 import { Lede as PayloadLede } from "@/payload-types";
+import { getID } from "@/utilities/getID";
+import { getlidgroepeinfo } from "@/collections/Groepe/access";
 
 export const ledeRoleOptions = [
   { label: "Default", value: "default" },
@@ -37,17 +44,19 @@ interface UserSelfLid {
   self_lid?: string | PayloadLede | null
 }
 
-export const divisieleierdivisiesquery = async (user: UserWithIdRole & UserSelfLid | null | undefined, payload: BasePayload)=> {
+export const divisieleierdivisiequery = (user: UserWithIdRole & UserSelfLid | null | undefined, payload: BasePayload)=> {
   if (getRoleFromUser(user) === "divisieleier") {
-    if (!user?.self_lid || typeof user.self_lid === "string" || !user.self_lid.divisie) return []
+    if (!user?.self_lid || typeof user.self_lid === "string" || !user.self_lid.divisie) return
     if (user?.self_lid.rol === "divisieleier") {
-      if (typeof user.self_lid.divisie === "string") return [user.self_lid.divisie]
-      return [user.self_lid.divisie.id]
+      return user.self_lid.divisie
     }
-    return []
-  } else {
-    return []
   }
+  return
+}
+
+export const divisieleierdivisieid = (user: UserWithIdRole & UserSelfLid | null | undefined, payload: BasePayload)=> {
+  const divisie = divisieleierdivisiequery(user,payload)
+  return divisie ? getID(divisie) : undefined
 }
 
 export const persondivisiesquery = async (user: UserWithIdRole | null | undefined, payload: BasePayload, depth: number =0) => {
@@ -63,14 +72,14 @@ export const persondivisiesquery = async (user: UserWithIdRole | null | undefine
 }
 
 const divisieleierdivisies = async (payloadreq: PayloadRequest) => {
-  return divisieleierdivisiesquery(payloadreq.user, payloadreq.payload)
+  return [divisieleierdivisieid(payloadreq.user, payloadreq.payload)]
 }
 
 export const wheredivisieleier = async (payloadreq: PayloadRequest) => {
   if (getRoleFromUser(payloadreq.user) === "divisieleier") {
-    const divisieids = await divisieleierdivisies(payloadreq)
-    if (divisieids.length === 0) return false
-    return {divisie:{in:divisieids.join(",")}} as Where
+    const divisieid = divisieleierdivisieid(payloadreq.user, payloadreq.payload)
+    if (!divisieid) return false
+    return {divisie:{equals:divisieid}} as Where
   } else {
     return false
   }
@@ -102,7 +111,14 @@ const defaultdivisie: DefaultValue =  async ({req: payloadreq, user}) => {
   }
 }
 
+export const wherelidgroepeinfo = async (payloadreq: PayloadRequest) => {
+  const lidgroepeinfo = getlidgroepeinfo(payloadreq)
+  console.log(`wherelidgroepeinfo ${payloadreq.user?.email} ${JSON.stringify(lidgroepeinfo)}`)
+  if (lidgroepeinfo.length === 0) return false
+  return {groepe:{in:lidgroepeinfo.join(",")}} as Where
+}
 
+const defaultFieldUpdateAccess: {access:{update:FieldAccess}} = {access:{update:checkFieldPermission("update:lede")}}
 
 const inheritedFieldNames: string[] = []
 
@@ -133,6 +149,7 @@ const inheritFields = (fields: Field[]): Field[] => {
           readOnly: false,
           description: `${field.admin && "description" in field.admin ? `${field.admin.description} | ` : ''}From Inskrywing`,
         },
+        ...defaultFieldUpdateAccess,
       } as Field;
     })
     .filter((field): field is Field => field !== null);
@@ -242,9 +259,9 @@ export const Lede: CollectionConfig<"lede"> = {
     } as SasImportCollectionConfig,
   },
   access: {
-    create: checkPermissionOrWhere("create:lede",wheredivisieleier),
-    delete: checkPermissionOrWhere("remove:lede",wheredivisieleier),
-    read: checkPermissionOrWhere("view:lede",wheredivisieleier),
+    create: checkPermission("create:lede"),
+    delete: checkPermission("remove:lede"),
+    read: checkPermissionOrWhere("view:lede",wherelidgroepeinfo),
     update: checkPermissionOrWhere("update:lede",wheredivisieleier),
   },
   admin: {
@@ -271,36 +288,36 @@ export const Lede: CollectionConfig<"lede"> = {
               type: "row",
               fields: [
                 { name: "user", type: "join", collection: "users", on:"self_lid", required: false, admin: { allowCreate: false, condition: checkConditionPermission("view:lede"),  } },
-                { name: "divisie", type: "relationship", relationTo: "divisie", required: false, defaultValue: defaultdivisie, filterOptions: divisiewheredivisieleier },
-                { name: "rol", type: "select", options: ledeRoleOptions, interfaceName: "ledeRole" },
-                { name: "huidige_inskrywing", type: "relationship", relationTo: "inskrywings", label: "Huidige Inskrywing" },
+                { name: "divisie", type: "relationship", relationTo: "divisie", required: false, defaultValue: defaultdivisie, filterOptions: divisiewheredivisieleier , ...defaultFieldUpdateAccess},
+                { name: "rol", type: "select", options: ledeRoleOptions, interfaceName: "ledeRole", ...defaultFieldUpdateAccess},
+                { name: "huidige_inskrywing", type: "relationship", relationTo: "inskrywings", label: "Huidige Inskrywing", ...defaultFieldUpdateAccess },
               ]
             },
             {
               type: "row",
               fields: [
-                { name: "naam", type: "text", label: "Naam" },
-                { name: "van", type: "text", label: "Van" },
-                { name: "noemnaam", type: "text", label: "Noemnaam" },
-                { name: "vertoonnaam", type: "text", label: "Vertoon Naam", hooks: {afterRead: [({ siblingData, value }) => value ?? `${siblingData.noemnaam ?? siblingData.naam} ${siblingData.van}`]}}
+                { name: "naam", type: "text", label: "Naam", ...defaultFieldUpdateAccess },
+                { name: "van", type: "text", label: "Van", ...defaultFieldUpdateAccess },
+                { name: "noemnaam", type: "text", label: "Noemnaam", ...defaultFieldUpdateAccess },
+                { name: "vertoonnaam", type: "text", label: "Vertoon Naam", hooks: {afterRead: [({ siblingData, value }) => value ?? `${siblingData.noemnaam ?? siblingData.naam} ${siblingData.van}`]}, ...defaultFieldUpdateAccess}
               ]
             },
             {
               type: "row",
               fields: [
-                { name: "geboortedatum", type: "date", required: true, label: "Geboortedatum" },
-                { name: "geslag", type: "text", label: "Geslag" },
+                { name: "geboortedatum", type: "date", required: true, label: "Geboortedatum", ...defaultFieldUpdateAccess },
+                { name: "geslag", type: "text", label: "Geslag", ...defaultFieldUpdateAccess },
               ]
             },
             {
               type: "row",
               fields: [
-                { name: "skoolgraad", type: "text", label: "Skoolgraad" },
-                { name: "posisie", type: "text", label: "Posisie" },
-                { name: "kommando", type: "text", label: "Kommando" },
+                { name: "skoolgraad", type: "text", label: "Skoolgraad", ...defaultFieldUpdateAccess },
+                { name: "posisie", type: "text", label: "Posisie", ...defaultFieldUpdateAccess },
+                { name: "kommando", type: "text", label: "Kommando", ...defaultFieldUpdateAccess },
               ]
             },
-            { name: "hoeveelste_jaar_kamp_jy_op_seejol", type: "text", label: "Hoeveelste jaar kamp jy op Seejol?" },
+            { name: "hoeveelste_jaar_kamp_jy_op_seejol", type: "text", label: "Hoeveelste jaar kamp jy op Seejol?", ...defaultFieldUpdateAccess },
             { name: "groepe", type: "relationship", relationTo: "groepe", hasMany: true },
             { name: "lid_inligting_sigbaar_vir_groepe", type: "relationship", relationTo: "groepe", hasMany: true },
           ]
@@ -311,8 +328,8 @@ export const Lede: CollectionConfig<"lede"> = {
             {
               type: "row",
               fields: [
-                { name: "lid_eposadres", type: "email", label: "Lid Eposadres" },
-                { name: "lid_kontaknommer", type: "text", label: "Lid Kontaknommer" },
+                { name: "lid_eposadres", type: "email", label: "Lid Eposadres", ...defaultFieldUpdateAccess },
+                { name: "lid_kontaknommer", type: "text", label: "Lid Kontaknommer", ...defaultFieldUpdateAccess },
               ]
             },
             {
@@ -322,9 +339,9 @@ export const Lede: CollectionConfig<"lede"> = {
                 {
                   type: "row",
                   fields: [
-                    { name: "kontakpersoon_voor_kamp", type: "text", label: "Kontakpersoon" },
-                    { name: "kontaknommer_voor_kamp", type: "text", label: "Kontaknommer" },
-                    { name: "eposadres_voor_kamp", type: "email", label: "Eposadres" },
+                    { name: "kontakpersoon_voor_kamp", type: "text", label: "Kontakpersoon", ...defaultFieldUpdateAccess },
+                    { name: "kontaknommer_voor_kamp", type: "text", label: "Kontaknommer", ...defaultFieldUpdateAccess },
+                    { name: "eposadres_voor_kamp", type: "email", label: "Eposadres", ...defaultFieldUpdateAccess },
                   ]
                 }
               ]
@@ -336,9 +353,9 @@ export const Lede: CollectionConfig<"lede"> = {
                 {
                   type: "row",
                   fields: [
-                    { name: "kontakpersoon_tydens_kamp", type: "text", label: "Kontakpersoon" },
-                    { name: "kontaknommer_tydens_kamp", type: "text", label: "Kontaknommer" },
-                    { name: "eposadres_tydens_kamp", type: "email", label: "Eposadres" },
+                    { name: "kontakpersoon_tydens_kamp", type: "text", label: "Kontakpersoon", ...defaultFieldUpdateAccess },
+                    { name: "kontaknommer_tydens_kamp", type: "text", label: "Kontaknommer", ...defaultFieldUpdateAccess },
+                    { name: "eposadres_tydens_kamp", type: "email", label: "Eposadres", ...defaultFieldUpdateAccess },
                   ]
                 }
               ]
@@ -355,9 +372,9 @@ export const Lede: CollectionConfig<"lede"> = {
                 {
                   type: "row",
                   fields: [
-                    { name: "ma_volle_naam", type: "text", label: "Ma Volle Naam" },
-                    { name: "ma_kontaknommer", type: "text", label: "Ma Kontaknommer" },
-                    { name: "ma_eposadres", type: "email", label: "Ma Eposadres" },
+                    { name: "ma_volle_naam", type: "text", label: "Ma Volle Naam", ...defaultFieldUpdateAccess },
+                    { name: "ma_kontaknommer", type: "text", label: "Ma Kontaknommer", ...defaultFieldUpdateAccess },
+                    { name: "ma_eposadres", type: "email", label: "Ma Eposadres", ...defaultFieldUpdateAccess },
                   ]
                 }
               ]
@@ -369,9 +386,9 @@ export const Lede: CollectionConfig<"lede"> = {
                 {
                   type: "row",
                   fields: [
-                    { name: "pa_volle_naam", type: "text", label: "Pa Volle Naam" },
-                    { name: "pa_kontaknommer", type: "text", label: "Pa Kontaknommer" },
-                    { name: "pa_eposadres", type: "email", label: "Pa Eposadres" },
+                    { name: "pa_volle_naam", type: "text", label: "Pa Volle Naam", ...defaultFieldUpdateAccess },
+                    { name: "pa_kontaknommer", type: "text", label: "Pa Kontaknommer", ...defaultFieldUpdateAccess },
+                    { name: "pa_eposadres", type: "email", label: "Pa Eposadres", ...defaultFieldUpdateAccess },
                   ]
                 }
               ]
@@ -383,9 +400,9 @@ export const Lede: CollectionConfig<"lede"> = {
                 {
                   type: "row",
                   fields: [
-                    { name: "voog_volle_naam", type: "text", label: "Voog Volle Naam" },
-                    { name: "voog_kontaknommer", type: "text", label: "Voog Kontaknommer" },
-                    { name: "voog_eposadres", type: "email", label: "Voog Eposadres" },
+                    { name: "voog_volle_naam", type: "text", label: "Voog Volle Naam", ...defaultFieldUpdateAccess },
+                    { name: "voog_kontaknommer", type: "text", label: "Voog Kontaknommer", ...defaultFieldUpdateAccess },
+                    { name: "voog_eposadres", type: "email", label: "Voog Eposadres", ...defaultFieldUpdateAccess },
                   ]
                 }
               ]
@@ -398,15 +415,15 @@ export const Lede: CollectionConfig<"lede"> = {
             {
               type: "row",
               fields: [
-                { name: "mediese_fonds_naam", type: "text", label: "Mediese Fonds Naam" },
-                { name: "mediese_fonds_nommer", type: "text", label: "Mediese Fonds Nommer" },
-                { name: "mediese_fonds_afhanklikheidskode", type: "text", label: "Afhanklikheidskode" },
+                { name: "mediese_fonds_naam", type: "text", label: "Mediese Fonds Naam", ...defaultFieldUpdateAccess },
+                { name: "mediese_fonds_nommer", type: "text", label: "Mediese Fonds Nommer", ...defaultFieldUpdateAccess },
+                { name: "mediese_fonds_afhanklikheidskode", type: "text", label: "Afhanklikheidskode", ...defaultFieldUpdateAccess },
               ]
             },
-            { name: "allergiee", type: "textarea", label: "Allergieë" },
-            { name: "mediese_kondisies", type: "textarea", label: "Mediese Kondisies" },
-            { name: "kroniese_medikasie", type: "textarea", label: "Kroniese Medikasie" },
-            { name: "mediese_notas", type: "textarea", label: "Mediese Notas" },
+            { name: "allergiee", type: "textarea", label: "Allergieë", ...defaultFieldUpdateAccess },
+            { name: "mediese_kondisies", type: "textarea", label: "Mediese Kondisies", ...defaultFieldUpdateAccess },
+            { name: "kroniese_medikasie", type: "textarea", label: "Kroniese Medikasie", ...defaultFieldUpdateAccess },
+            { name: "mediese_notas", type: "textarea", label: "Mediese Notas", ...defaultFieldUpdateAccess },
           ]
         },
         ...tabsFromInskrywings,

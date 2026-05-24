@@ -3,7 +3,7 @@
 import { authActionClient } from "@/lib/safe-action";
 import { z } from "zod";
 import { hasPermissionReq } from "@/lib/permissions-payload";
-import { divisieleierdivisiesquery } from "@/collections/Lede/index";
+import { divisieleierdivisieid } from "@/collections/Lede";
 import { redirect } from "next/navigation";
 import { flattenValidationErrors } from "next-safe-action";
 
@@ -14,11 +14,11 @@ export const mergeLede = authActionClient
     console.log("merge",mergeledeids)
     throw Error("merge not implemented")
     const hasRolePerm = hasPermissionReq("update:lede",user) && hasPermissionReq("remove:lede",user)
-    const divisieleierdivisieids = await divisieleierdivisiesquery(user, payload) as string[]
-    if (!hasRolePerm && divisieleierdivisieids.length === 0)
+    const userdivisieleierdivisieid = divisieleierdivisieid(user, payload)
+    if (!hasRolePerm && !userdivisieleierdivisieid)
       return {error:"Unauthorized"}
     const mwhere = {id:{in:mergeledeids.join(',')}}
-    const qwhere = hasRolePerm ? mwhere : {and:[mwhere,{divisie:{in:divisieleierdivisieids.join(',')}}]}
+    const qwhere = hasRolePerm ? mwhere : {and:[mwhere,{divisie:{equals:userdivisieleierdivisieid}}]}
     const mergelede = (await payload.find({collection:"lede",depth:0,where:qwhere})).docs
     if (mergelede.length !== 2) return {error:"Select 2 valid lede to merge"}
     console.log("Merging lede",mergelede)
