@@ -7,6 +7,8 @@ services:
 #      dockerfile: /home/vts/toep.seejol/Dockerfile
       additional_contexts:
         local: .
+      args:
+        INSTANCE: production
       secrets:
         - env-app
     env_file: &build-seejoltoep-env

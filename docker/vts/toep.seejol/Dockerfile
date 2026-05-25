@@ -34,7 +34,7 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
-
+ARG INSTANCE
 RUN --mount=type=secret,id=env-app,target=/app/.env.production \
   if [ -f package-lock.json ] || [ -f pnpm-lock.yaml ]; then npm run build:auth-lib && npm run build-compile; \
   else echo "Lockfile not found." && exit 1; \
