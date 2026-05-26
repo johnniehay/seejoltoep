@@ -92,7 +92,7 @@ export default async function DivisiePage({ params }: { params: Promise<{ divisi
           <div className="flex flex-wrap gap-2">
             <div className="bg-background p-6 rounded-xl shadow-md flex-grow border-[var(--divisie-color)] border-t-4 border-l-4">
               <h3 className="text-l font-bold mb-2">Divisieleier</h3>
-              {data.divisieleier && data.divisieleier.docs?.filter((dl) => typeof dl !== "string" && ((data.divisieleier?.totalDocs ?? 0) > 1 ? dl.kamp_kursus?.includes("Divisieleiers") : true)).map((dl) => <p>{getDocNotID(dl).vertoonnaam}</p>)}
+              {data.divisieleier && data.divisieleier.docs?.filter((dl) => typeof dl !== "string" && ((data.divisieleier?.docs?.length ?? 0) > 1 ? dl.kamp_kursus?.includes("Divisieleiers") : true)).map((dl) => <p>{getDocNotID(dl).vertoonnaam}</p>)}
               {data.kontak && <p>{(data.kontak || '')}</p>}
             </div>
             {data.grade.length > 0 && <div className="bg-background p-6 rounded-xl shadow-md flex-grow border-[var(--divisie-color)] border-t-4 border-l-4">
