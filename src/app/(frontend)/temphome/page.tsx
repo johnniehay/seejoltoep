@@ -18,12 +18,17 @@ import { auth } from '@/auth'
 // import Image from 'next/image'
 import { ConstructionButton } from './ConstructionButton'
 import { Metadata } from "next";
+import { getDocNotID } from "@/utilities/getDocNotID";
+import { getID } from "@/utilities/getID";
 
 export default async function TempHome() {
   const canViewLede = await hasPermission('view:lede')
   const isOffisier = await hasPermission('view:offisier')
   const user = (await auth())?.user
-  const self_lid = user?.self_lid
+  const self_lid = getDocNotID(user?.self_lid)
+
+  const user_divisie_string = self_lid?.divisie ? getID(self_lid.divisie) : null
+  const user_divisie = getDocNotID(self_lid?.divisie)
 
   // Changed w-full to flex-1 and added a min-width to allow growth while maintaining button size
   const btnClass = 'h-40 text-2xl rounded-3xl flex-col gap-4 shadow-lg hover:shadow-xl transition-all flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(33.33%-16px)] lg:min-w-[calc(25%-18px)]'
@@ -116,9 +121,25 @@ export default async function TempHome() {
               <span>Winkel</span>
             </Link>
           </Button>
-          <ConstructionButton icon={<IconUsers color="#cb6ce6" size={48}/>} className={btnClass}>
-            My Divisie
-          </ConstructionButton>
+          {user_divisie || user_divisie_string ? (
+            <Button asChild className={btnClass} variant="outline">
+              <Link href={`/divisie/${user_divisie_string}`}>
+                <IconUsers color="#cb6ce6" size={48} />
+                <div className="flex flex-col items-center">
+                  <span>My Divisie</span>
+                  {user_divisie && (
+                    <span className="text-sm font-normal opacity-70 leading-none">
+                      {user_divisie.naam}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </Button>
+          ) : (
+            <ConstructionButton icon={<IconUsers color="#cb6ce6" size={48} />} className={btnClass}>
+              My Divisie
+            </ConstructionButton>
+          )}
         </div>
       </div>
     </div>
