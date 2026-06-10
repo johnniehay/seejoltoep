@@ -103,18 +103,28 @@ export class GoogleSheetsService {
    */
   private getFieldMap(fields: Field[]): Map<string, Field> {
     const fieldMap = new Map<string, Field>()
-    const traverse = (fields: Field[]) => {
-      fields.forEach(field => {
-        if ('name' in field && !('virtual' in field && field.virtual && 'readonly' in field && field.readonly)) {
-          fieldMap.set(field.name, field)
-        } else if ('fields' in field) {
-          traverse(field.fields)
+    const traverse = (fields: Field[], path: string = '') => {
+      fields.forEach((field) => {
+        if ('virtual' in field && field.virtual && 'readonly' in field && field.readonly) return
+
+        const fieldName = 'name' in field ? field.name : undefined
+        const currentPath = fieldName ? (path ? `${path}.${fieldName}` : fieldName) : path
+
+        if (fieldName) {
+          fieldMap.set(currentPath, field)
+        }
+
+        if ('fields' in field) {
+          traverse(field.fields, currentPath)
         } else if (field.type === 'tabs') {
-          field.tabs.forEach(tab => traverse(tab.fields))
+          field.tabs.forEach((tab) => {
+            const tabPath = 'name' in tab && tab.name ? (currentPath ? `${currentPath}.${tab.name}` : tab.name) : currentPath
+            traverse(tab.fields, tabPath)
+          })
         }
       })
     }
-    traverse(fields)
+    traverse(fields, '')
     return fieldMap
   }
 
@@ -214,6 +224,19 @@ export class GoogleSheetsService {
 
           let rawValue = this.getDocValue(doc, fieldName)
 
+          // Automatically handle relationship objects if depth: 1 is used
+          if (
+            typeof rawValue === 'object' &&
+            rawValue !== null &&
+            'id' in rawValue &&
+            !Array.isArray(rawValue)
+          ) {
+            // const field = fieldMap.get(fieldName)
+            if (field?.type === 'relationship' || field?.type === 'upload') {
+              rawValue = rawValue.id
+            }
+          }
+
           if (typeof rawValue === 'object' && rawValue !== null) {
             rawValue = JSON.stringify(rawValue)
           }
@@ -291,7 +314,7 @@ export class GoogleSheetsService {
         if (!docKeysInPayload.has(sheetKey)) {
           const rowChanges: Record<string, { old: any; new: any }> = {}
           const docData: Record<string, any> = {}
-          
+
           headers.forEach((header, colIndex) => {
             rowChanges[header] = { old: row[colIndex], new: null }
             let fieldName = header
@@ -465,23 +488,46 @@ export class GoogleSheetsService {
 
       const row = sheetData[i]
       const keyVal = row[keyIndex]
-      const rowData: Record<string, any> = {}
+      const rowDataForSync: Record<string, any> = {}
+      const rowMappedPaths = new Set<string>()
+      const updateDataForPayload: Record<string, any> = {}
 
-      headers.forEach((h, idx) => {
+      for (let idx = 0; idx < headers.length; idx++) {
+        const h = headers[idx]
         let fieldName = h
         if (mapping) {
            const found = Object.keys(mapping).find(key => mapping[key] === h)
            if (found) fieldName = found
         }
 
-        // if (fieldName !== 'id') {
-          const field = fieldMap.get(fieldName)
-          // Only process fields that actually exist in the config
-          if (field) {
-            this.setDocValue(rowData, fieldName, this.castValue(row[idx], field))
+        let field = fieldMap.get(fieldName)
+        let payloadPath = fieldName
+        const value = row[idx]
+
+        // Handle special '.id' case for relationships
+        if (!field && fieldName.includes('.')) {
+          const parts = fieldName.split('.')
+          const suffix = parts.pop()
+          const prefix = parts.join('.')
+          const potentialField = fieldMap.get(prefix)
+
+          if (potentialField && (potentialField.type === 'relationship' || potentialField.type === 'upload')) {
+            if (suffix === 'id') {
+              field = potentialField
+              payloadPath = prefix
+            }
           }
-        // }
-      })
+        }
+
+        if (field) {
+          const castedValue = this.castValue(value, field)
+          // Store original mapping in syncedData
+          this.setDocValue(rowDataForSync, fieldName, castedValue)
+          rowMappedPaths.add(fieldName)
+          // Store payload-compatible path for update
+          this.setDocValue(updateDataForPayload, payloadPath, castedValue)
+        }
+      }
 
       if (keyVal && payloadMap.has(keyVal)) {
         // Update existing
@@ -492,8 +538,8 @@ export class GoogleSheetsService {
         const updateData: Record<string, any> = {}
         let hasChanges = false
 
-        Object.keys(rowData).forEach(key => {
-          const newVal = this.getDocValue(rowData, key)
+        rowMappedPaths.forEach(key => {
+          const newVal = this.getDocValue(rowDataForSync, key)
           const oldSyncedVal = this.getDocValue(lastSynced, key)
           const currentVal = this.getDocValue(existingDoc, key)
 
@@ -510,15 +556,23 @@ export class GoogleSheetsService {
             if (JSON.stringify(newVal) !== JSON.stringify(currentVal)) {
                if (!newVal && !currentVal) return
                changes[key] = { old: currentVal, new: newVal }
-               this.setDocValue(updateData, key, newVal)
+
+               // Determine correct path for updateData (strip .id if needed)
+               let targetPath = key
+               if (key.endsWith('.id')) {
+                 const prefix = key.slice(0, -3)
+                 const f = fieldMap.get(prefix)
+                 if (f?.type === 'relationship' || f?.type === 'upload') targetPath = prefix
+               }
+
+               this.setDocValue(updateData, targetPath, this.getDocValue(updateDataForPayload, targetPath))
                hasChanges = true
             }
           }
         })
 
         // Always update the syncedData baseline to match the current Sheet state
-        // This ensures future imports compare against THIS version
-        updateData['syncedData'] = { ...(existingDoc.syncedData as Record<string, any> || {}), googleSheets: rowData }
+        updateData['syncedData'] = { ...(existingDoc.syncedData as Record<string, any> || {}), googleSheets: rowDataForSync }
 
         if (hasChanges) {
           changesList.push({ id: existingDoc.id, action: 'update', changes, row: i + 1, data: existingDoc })
@@ -530,13 +584,13 @@ export class GoogleSheetsService {
             })
           }
           updateCount++
-        } else if (!hasChanges && JSON.stringify(lastSynced) !== JSON.stringify(rowData)) {
+        } else if (!hasChanges && JSON.stringify(lastSynced) !== JSON.stringify(rowDataForSync)) {
           // Even if no visible fields changed (e.g. local matched upstream),
           // we must update syncedData if it's stale, so we don't re-evaluate this next time.
           await payload.update({
             collection: collectionSlug,
             id: existingDoc.id,
-            data: { syncedData: { ...(existingDoc.syncedData as Record<string, any> || {}), googleSheets: rowData } },
+            data: { syncedData: { ...(existingDoc.syncedData as Record<string, any> || {}), googleSheets: rowDataForSync } },
           })
         }
       } else {
@@ -545,12 +599,12 @@ export class GoogleSheetsService {
         // If keyField is custom, we create if keyVal is present (new unique record)
         if ((keyField === 'id' && !keyVal) || (keyField !== 'id' && keyVal)) {
           // Add syncedData to new record
-          rowData['syncedData'] = { googleSheets: { ...rowData } }
-          changesList.push({ action: 'create', changes: { row: { old: null, new: rowData } }, row: i + 1, data: rowData })
+          updateDataForPayload['syncedData'] = { googleSheets: { ...rowDataForSync } }
+          changesList.push({ action: 'create', changes: { row: { old: null, new: rowDataForSync } }, row: i + 1, data: rowDataForSync })
           if (!dryRun) {
             await payload.create({
               collection: collectionSlug,
-              data: rowData,
+              data: updateDataForPayload,
             })
           }
           createCount++
