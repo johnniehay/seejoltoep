@@ -1,7 +1,8 @@
-import { CollectionConfig, Field } from "payload";
+import { CollectionConfig } from "payload";
 import { amountField, currencyField } from "@payloadcms/plugin-ecommerce";
 import { currencies as currenciesConfig } from "@/plugins/index"
 import { checkFieldPermission } from "@/access/checkPermission";
+import { processEItemHook } from "./hooks/processEItemHook";
 
 export const eItems: CollectionConfig = {
   slug: 'eitems',
@@ -23,6 +24,9 @@ export const eItems: CollectionConfig = {
   admin: {
     defaultColumns: ['product','variant', 'quantity', 'lidnommer', '_status'],
     group: 'Ecommerce',
+  },
+  hooks: {
+    afterChange: [processEItemHook],
   },
   enableQueryPresets: true,
   fields: [
@@ -64,5 +68,12 @@ export const eItems: CollectionConfig = {
       type: 'number',
       label: 'Custom Price',
     },
+    {
+      name: 'transactions',
+      type: 'join',
+      collection: 'transactions',
+      on: 'items',
+      admin: {allowCreate: false}
+    }
   ]
 }

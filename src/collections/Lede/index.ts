@@ -6,7 +6,7 @@ import {
   checkPermissionOrWhere
 } from "@/access/checkPermission";
 import { updateuser } from "@/collections/Lede/hooks/updateuser";
-import snakeCase from "lodash/snakeCase";
+// import snakeCase from "lodash/snakeCase";
 import { getRoleFromUser, type UserWithIdRole } from "@/lib/get-role";
 import { Inskrywings } from "../Inskrywings";
 import {
@@ -17,6 +17,7 @@ import type { SasImportCollectionConfig } from "@/plugins/sas-import/types";
 import { Lede as PayloadLede } from "@/payload-types";
 import { getID } from "@/utilities/getID";
 import { getlidgroepeinfo } from "@/collections/Groepe/access";
+import { handleSasPaymentHook } from "@/collections/Lede/hooks/handleSasPaymentHook";
 
 export const ledeRoleOptions = [
   { label: "Default", value: "default" },
@@ -271,7 +272,8 @@ export const Lede: CollectionConfig<"lede"> = {
       beforeList: [
         '@/collections/Lede/merge-button#LedeMergeButton',
         '@/collections/Lede/add-to-groep-button#AddToGroepButton',
-        '@/collections/Lede/LinkUsersButton#LinkUsersButton', // Added this line
+        '@/collections/Lede/LinkUsersButton#LinkUsersButton',
+        '@/collections/Lede/LedeActionsButton#LedeActionsButton',
       ],
     },
   },
@@ -291,6 +293,7 @@ export const Lede: CollectionConfig<"lede"> = {
                 { name: "divisie", type: "relationship", relationTo: "divisie", required: false, defaultValue: defaultdivisie, filterOptions: divisiewheredivisieleier , ...defaultFieldUpdateAccess},
                 { name: "rol", type: "select", options: ledeRoleOptions, interfaceName: "ledeRole", ...defaultFieldUpdateAccess},
                 { name: "huidige_inskrywing", type: "relationship", relationTo: "inskrywings", label: "Huidige Inskrywing", ...defaultFieldUpdateAccess },
+                { name: "beursie", type: "relationship", relationTo: "beursies", label: "Gekoppelde Beursie", ...defaultFieldUpdateAccess },
               ]
             },
             {
@@ -451,6 +454,6 @@ export const Lede: CollectionConfig<"lede"> = {
   ],
   hooks:{
     beforeChange: [syncInskrywingHookGenerator(inheritedFieldNames)],
-    afterChange: [updateuser,ledeAfterChangeGenerator(inheritedFieldNames)]
+    afterChange: [updateuser,ledeAfterChangeGenerator(inheritedFieldNames),handleSasPaymentHook]
   }
 }

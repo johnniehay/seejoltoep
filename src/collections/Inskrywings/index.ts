@@ -2,6 +2,21 @@ import type { CollectionConfig } from "payload";
 import { checkPermission, checkPermissionOrWhere } from "@/access/checkPermission";
 import { wherelidgroepeinfo } from "@/collections/Inskrywings/access";
 
+export const InskrywingStages = [
+  "Nuut",
+  "Verifieer Lid Data",
+  "Kies 'n kursus",
+  "Addisionele Opsies",
+  "Bevestig Inskrywing",
+  "Gekanselleer",
+  "Failed",
+  "Wag vir Betaling",
+  "Betaling ontvang",
+  "Bygewoon",
+  "Ken spesialisasie toe",
+  "Success"
+]
+
 export const Inskrywings: CollectionConfig = {
   slug: "inskrywings",
   labels: {
@@ -141,8 +156,8 @@ export const Inskrywings: CollectionConfig = {
             {
               type: "row",
               fields: [
-                { name: "stage", type: "text", label: "Stage" },
-                { name: "previous_stage", type: "text", label: "Previous Stage" },
+                { name: "stage", type: "select", label: "Stage", options: InskrywingStages, interfaceName: "InskrywingStage" },
+                { name: "previous_stage", type: "select", label: "Previous Stage", options: InskrywingStages, interfaceName: "InskrywingStage" },
               ]
             },
             {

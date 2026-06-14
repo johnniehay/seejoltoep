@@ -203,6 +203,13 @@ export const Divisies: CollectionConfig<"divisie"> = {
         allowCreate: false
       },
     },
+    {
+      name: 'beursie',
+      type: 'relationship',
+      relationTo: 'beursies',
+      label: 'Gekoppelde Beursie',
+      access: viewonlybutdivisieleierupdateable,
+    },
     { name:"lede", type:"join", collection:"lede", on:"divisie", defaultLimit:0, admin:{defaultColumns:["name","role"],allowCreate:false}},
     { name:"aktiwiteite", label:"Divisie Program Aktiwiteite", type:"join", collection:"aktiwiteit", on:"divisies", defaultLimit:0},
   ]

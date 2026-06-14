@@ -29,6 +29,7 @@ import { AddAuthenticatorButton as AddAuthenticatorButton_39ad1cdbf6aa2f97589820
 import { LinkUsersButton as LinkUsersButton_904e0ac8a1078d70b11f529a217c404c } from '@/collections/Lede/LinkUsersButton'
 import { LedeMergeButton as LedeMergeButton_16847b92690b64e7b0879687b2017f18 } from '@/collections/Lede/merge-button'
 import { AddToGroepButton as AddToGroepButton_dcec21b105f41a4fbff64ac3b2e71a74 } from '@/collections/Lede/add-to-groep-button'
+import { LedeActionsButton as LedeActionsButton_e97e8f7ff4fd0ef90d68ee37826e1593 } from '@/collections/Lede/LedeActionsButton'
 import { SyncButton as SyncButton_eea82e474bd97b0ca8fac825e5b60405 } from '@/plugins/google-sheets/components/SyncButton'
 import { ImportButton as ImportButton_381b37adae1de2ae982f108f6869eccd } from '@/plugins/sas-import/components/ImportButton'
 import { AddGroepLedeButton as AddGroepLedeButton_c50d10df6a6e21bcbf65a90572f38384 } from '@/collections/Presensie/add-groep-lede-button'
@@ -88,6 +89,7 @@ export const importMap = {
   "@/collections/Lede/LinkUsersButton#LinkUsersButton": LinkUsersButton_904e0ac8a1078d70b11f529a217c404c,
   "@/collections/Lede/merge-button#LedeMergeButton": LedeMergeButton_16847b92690b64e7b0879687b2017f18,
   "@/collections/Lede/add-to-groep-button#AddToGroepButton": AddToGroepButton_dcec21b105f41a4fbff64ac3b2e71a74,
+  "@/collections/Lede/LedeActionsButton#LedeActionsButton": LedeActionsButton_e97e8f7ff4fd0ef90d68ee37826e1593,
   "@/plugins/google-sheets/components/SyncButton#SyncButton": SyncButton_eea82e474bd97b0ca8fac825e5b60405,
   "@/plugins/sas-import/components/ImportButton#ImportButton": ImportButton_381b37adae1de2ae982f108f6869eccd,
   "@/collections/Presensie/add-groep-lede-button#AddGroepLedeButton": AddGroepLedeButton_c50d10df6a6e21bcbf65a90572f38384,

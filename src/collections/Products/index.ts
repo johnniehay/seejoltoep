@@ -53,6 +53,7 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
     inventory: true,
     meta: true,
     customInputs: true,
+    categories: true,
   },
   fields: [
     { name: 'title', type: 'text', required: true },

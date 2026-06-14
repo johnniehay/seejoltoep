@@ -8,6 +8,31 @@
 
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OrderStatus".
+ */
+export type OrderStatus = ('processing' | 'completed' | 'cancelled' | 'refunded' | 'pending') | null;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InskrywingStage".
+ */
+export type InskrywingStage =
+  | (
+      | 'Nuut'
+      | 'Verifieer Lid Data'
+      | "Kies 'n kursus"
+      | 'Addisionele Opsies'
+      | 'Bevestig Inskrywing'
+      | 'Gekanselleer'
+      | 'Failed'
+      | 'Wag vir Betaling'
+      | 'Betaling ontvang'
+      | 'Bygewoon'
+      | 'Ken spesialisasie toe'
+      | 'Success'
+    )
+  | null;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ledeRole".
  */
 export type LedeRole =
@@ -31,11 +56,6 @@ export type LedeRole =
       | 'admin'
     )
   | null;
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "OrderStatus".
- */
-export type OrderStatus = ('processing' | 'completed' | 'cancelled' | 'refunded' | 'pending') | null;
 /**
  * Supported timezones in IANA format.
  *
@@ -113,6 +133,8 @@ export interface Config {
     eitems: Eitem;
     kennisgewings: Kennisgewing;
     kennisgewingLogs: KennisgewingLog;
+    beursies: Beursies;
+    beursieTransaksies: BeursieTransaksies;
     'puck-templates': PuckTemplate;
     redirects: Redirect;
     forms: Form;
@@ -151,6 +173,15 @@ export interface Config {
       lede: 'lede';
       users: 'users';
     };
+    eitems: {
+      transactions: 'transactions';
+    };
+    beursies: {
+      in: 'beursieTransaksies';
+      out: 'beursieTransaksies';
+      lede: 'lede';
+      divisies: 'divisie';
+    };
     variantTypes: {
       options: 'variantOptions';
     };
@@ -178,6 +209,8 @@ export interface Config {
     eitems: EitemsSelect<false> | EitemsSelect<true>;
     kennisgewings: KennisgewingsSelect<false> | KennisgewingsSelect<true>;
     kennisgewingLogs: KennisgewingLogsSelect<false> | KennisgewingLogsSelect<true>;
+    beursies: BeursiesSelect<false> | BeursiesSelect<true>;
+    beursieTransaksies: BeursieTransaksiesSelect<false> | BeursieTransaksiesSelect<true>;
     'puck-templates': PuckTemplatesSelect<false> | PuckTemplatesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -206,12 +239,14 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    system_beursies: SystemBeursies;
     google_sheets_settings: GoogleSheetsSetting;
     sas_import_settings: SasImportSetting;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    system_beursies: SystemBeursiesSelect<false> | SystemBeursiesSelect<true>;
     google_sheets_settings: GoogleSheetsSettingsSelect<false> | GoogleSheetsSettingsSelect<true>;
     sas_import_settings: SasImportSettingsSelect<false> | SasImportSettingsSelect<true>;
   };
@@ -623,6 +658,7 @@ export interface Lede {
   divisie?: (string | null) | Divisie;
   rol?: LedeRole;
   huidige_inskrywing?: (string | null) | Inskrywing;
+  beursie?: (string | null) | Beursies;
   naam?: string | null;
   van?: string | null;
   noemnaam?: string | null;
@@ -783,14 +819,8 @@ export interface Lede {
    * From Inskrywing
    */
   last_timeline_activity_by?: number | null;
-  /**
-   * From Inskrywing
-   */
-  stage?: string | null;
-  /**
-   * From Inskrywing
-   */
-  previous_stage?: string | null;
+  stage?: InskrywingStage;
+  previous_stage?: InskrywingStage;
   /**
    * From Inskrywing
    */
@@ -958,6 +988,7 @@ export interface Divisie {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
+  beursie?: (string | null) | Beursies;
   lede?: {
     docs?: (string | Lede)[];
     hasNextPage?: boolean;
@@ -1002,125 +1033,55 @@ export interface Groepe {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "aktiwiteit".
+ * via the `definition` "beursies".
  */
-export interface Aktiwiteit {
+export interface Beursies {
   id: string;
-  title: string;
-  begin: string;
-  einde: string;
-  aktiwiteitType: 'kamp' | 'divisie' | 'verkenners' | 'offisiere' | 'bus';
-  beskrywing?: string | null;
-  presensie?: (string | null) | Presensie;
-  virAlle?: ('divisies' | 'verkenners' | 'offisiere')[] | null;
-  divisies?: (string | Divisie)[] | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "presensie".
- */
-export interface Presensie {
-  naam: string;
-  id: string;
-  presensie_tipe: 'bus' | 'wagstaan' | 'divisie';
-  inklokke?: {
-    docs?: (string | Inklokke)[];
+  name?: string | null;
+  /**
+   * Indien aan, word die balans en transaksie-rigting omgedraai vir bates (soos bankrekeninge).
+   */
+  invert_display?: boolean | null;
+  balance?: number | null;
+  in?: {
+    docs?: (string | BeursieTransaksies)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  verwagte_lede?: (string | Lede)[] | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "inklokke".
- */
-export interface Inklokke {
-  id: string;
-  presensie: string | Presensie;
-  divisie?: (string | null) | Divisie;
-  lid?: (string | null) | Lede;
-  ingestuur_deur: string | User;
-  tipe: 'in' | 'uit';
-  scan_time: string;
-  /**
-   * @minItems 2
-   * @maxItems 2
-   */
-  gps?: [number, number] | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "inskrywings".
- */
-export interface Inskrywing {
-  id: string;
-  lid: string | Lede;
-  kamp?: string | null;
-  kamp_kursus?: string | null;
-  kamp_naam?: string | null;
-  kamp_begindatum?: string | null;
-  kamp_einddatum?: string | null;
-  kamp_ligging?: string | null;
-  kurses_opsie_1?: string | null;
-  skakel_vir_kurses_opsie_1?: string | null;
-  kurses_opsie_2?: string | null;
-  skakel_vir_kurses_opsie_2?: string | null;
-  kurses_opsie_3?: string | null;
-  skakel_vir_kurses_opsie_3?: string | null;
-  opsies?: string | null;
-  opsie_1_waglys?: string | null;
-  opsie_2_waglys?: string | null;
-  opsie_3_waglys?: string | null;
-  products?: string | null;
-  soft_shell_baadjies?: string | null;
-  seejol_hemp_kort?: string | null;
-  verblyfreelings?: string | null;
-  vervoer_na_mosselbaai?: string | null;
-  vervoer_vanaf_mosselbaai?: string | null;
-  import_id?: number | null;
-  import_name?: string | null;
-  lid_import_ref?: string | null;
-  created_on_import?: string | null;
-  updated_on_import?: string | null;
-  last_updated_on_import?: string | null;
-  responsible_person?: number | null;
-  contact_import?: number | null;
-  last_timeline_activity_by?: number | null;
-  stage?: string | null;
-  previous_stage?: string | null;
-  currency?: string | null;
-  amount?: number | null;
-  betaling_ontvang?: string | null;
-  inskrywer_se_epos?: string | null;
-  bevestigingsepos_is_gestuur?: string | null;
-  kontak_tipe?: ('Volwassene' | 'Jeuglid') | null;
-  addisionele_notas?: string | null;
-  qr_skakel?: string | null;
-  qr_prent?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "notificationSubscription".
- */
-export interface NotificationSubscription {
-  id: string;
-  endpoint: string;
-  expirationTime?: string | null;
-  keys: {
-    p256dh: string;
-    auth: string;
-    [k: string]: unknown;
+  out?: {
+    docs?: (string | BeursieTransaksies)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
   };
-  topics?: string[] | null;
-  user?: (string | null) | User;
+  lede?: {
+    docs?: (string | Lede)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  divisies?: {
+    docs?: (string | Divisie)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "beursieTransaksies".
+ */
+export interface BeursieTransaksies {
+  id: string;
+  amount: number;
+  in?: (string | null) | Beursies;
+  out?: (string | null) | Beursies;
+  /**
+   * Transaksie beskrywing wys vir gebruiker
+   */
+  description?: string | null;
+  document?: (string | null) | Media;
+  eitem?: (string | null) | Eitem;
+  inskrywing?: (string | null) | Inskrywing;
   updatedAt: string;
   createdAt: string;
 }
@@ -1138,6 +1099,11 @@ export interface Eitem {
   lidnommer?: string | null;
   customText?: string | null;
   customPrice?: number | null;
+  transactions?: {
+    docs?: (string | Transaction)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1323,6 +1289,234 @@ export interface Variant {
   createdAt: string;
   deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "transactions".
+ */
+export interface Transaction {
+  id: string;
+  items: (string | Eitem)[];
+  paymentMethod?: 'softycomp' | null;
+  softycomp?: {
+    userReference?: string | null;
+    billReference?: string | null;
+    shippingAddress?: {
+      title?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      company?: string | null;
+      addressLine1?: string | null;
+      addressLine2?: string | null;
+      city?: string | null;
+      state?: string | null;
+      postalCode?: string | null;
+      country?: string | null;
+      phone?: string | null;
+    };
+  };
+  billingAddress?: {
+    title?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    company?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    phone?: string | null;
+  };
+  status: 'pending' | 'succeeded' | 'failed' | 'cancelled' | 'expired' | 'refunded';
+  customer?: (string | null) | User;
+  customerEmail?: string | null;
+  order?: (string | null) | Order;
+  cart?: (string | null) | Cart;
+  amount?: number | null;
+  currency?: 'ZAR' | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  items: (string | Eitem)[];
+  shippingAddress?: {
+    title?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    company?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    phone?: string | null;
+  };
+  customer?: (string | null) | User;
+  customerEmail?: string | null;
+  transactions?: (string | Transaction)[] | null;
+  status?: OrderStatus;
+  amount?: number | null;
+  currency?: 'ZAR' | null;
+  accessToken?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "carts".
+ */
+export interface Cart {
+  id: string;
+  items?:
+    | {
+        product?: (string | null) | Product;
+        variant?: (string | null) | Variant;
+        quantity: number;
+        lidnommer?: string | null;
+        customText?: string | null;
+        customPrice?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  secret?: string | null;
+  customer?: (string | null) | User;
+  purchasedAt?: string | null;
+  status?: ('active' | 'purchased' | 'abandoned') | null;
+  subtotal?: number | null;
+  currency?: 'ZAR' | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inskrywings".
+ */
+export interface Inskrywing {
+  id: string;
+  lid: string | Lede;
+  kamp?: string | null;
+  kamp_kursus?: string | null;
+  kamp_naam?: string | null;
+  kamp_begindatum?: string | null;
+  kamp_einddatum?: string | null;
+  kamp_ligging?: string | null;
+  kurses_opsie_1?: string | null;
+  skakel_vir_kurses_opsie_1?: string | null;
+  kurses_opsie_2?: string | null;
+  skakel_vir_kurses_opsie_2?: string | null;
+  kurses_opsie_3?: string | null;
+  skakel_vir_kurses_opsie_3?: string | null;
+  opsies?: string | null;
+  opsie_1_waglys?: string | null;
+  opsie_2_waglys?: string | null;
+  opsie_3_waglys?: string | null;
+  products?: string | null;
+  soft_shell_baadjies?: string | null;
+  seejol_hemp_kort?: string | null;
+  verblyfreelings?: string | null;
+  vervoer_na_mosselbaai?: string | null;
+  vervoer_vanaf_mosselbaai?: string | null;
+  import_id?: number | null;
+  import_name?: string | null;
+  lid_import_ref?: string | null;
+  created_on_import?: string | null;
+  updated_on_import?: string | null;
+  last_updated_on_import?: string | null;
+  responsible_person?: number | null;
+  contact_import?: number | null;
+  last_timeline_activity_by?: number | null;
+  stage?: InskrywingStage;
+  previous_stage?: InskrywingStage;
+  currency?: string | null;
+  amount?: number | null;
+  betaling_ontvang?: string | null;
+  inskrywer_se_epos?: string | null;
+  bevestigingsepos_is_gestuur?: string | null;
+  kontak_tipe?: ('Volwassene' | 'Jeuglid') | null;
+  addisionele_notas?: string | null;
+  qr_skakel?: string | null;
+  qr_prent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "aktiwiteit".
+ */
+export interface Aktiwiteit {
+  id: string;
+  title: string;
+  begin: string;
+  einde: string;
+  aktiwiteitType: 'kamp' | 'divisie' | 'verkenners' | 'offisiere' | 'bus';
+  beskrywing?: string | null;
+  presensie?: (string | null) | Presensie;
+  virAlle?: ('divisies' | 'verkenners' | 'offisiere')[] | null;
+  divisies?: (string | Divisie)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "presensie".
+ */
+export interface Presensie {
+  naam: string;
+  id: string;
+  presensie_tipe: 'bus' | 'wagstaan' | 'divisie';
+  inklokke?: {
+    docs?: (string | Inklokke)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  verwagte_lede?: (string | Lede)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inklokke".
+ */
+export interface Inklokke {
+  id: string;
+  presensie: string | Presensie;
+  divisie?: (string | null) | Divisie;
+  lid?: (string | null) | Lede;
+  ingestuur_deur: string | User;
+  tipe: 'in' | 'uit';
+  scan_time: string;
+  /**
+   * @minItems 2
+   * @maxItems 2
+   */
+  gps?: [number, number] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notificationSubscription".
+ */
+export interface NotificationSubscription {
+  id: string;
+  endpoint: string;
+  expirationTime?: string | null;
+  keys: {
+    p256dh: string;
+    auth: string;
+    [k: string]: unknown;
+  };
+  topics?: string[] | null;
+  user?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1692,110 +1886,6 @@ export interface Address {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "carts".
- */
-export interface Cart {
-  id: string;
-  items?:
-    | {
-        product?: (string | null) | Product;
-        variant?: (string | null) | Variant;
-        quantity: number;
-        lidnommer?: string | null;
-        customText?: string | null;
-        customPrice?: number | null;
-        id?: string | null;
-      }[]
-    | null;
-  secret?: string | null;
-  customer?: (string | null) | User;
-  purchasedAt?: string | null;
-  status?: ('active' | 'purchased' | 'abandoned') | null;
-  subtotal?: number | null;
-  currency?: 'ZAR' | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "orders".
- */
-export interface Order {
-  id: string;
-  items: (string | Eitem)[];
-  shippingAddress?: {
-    title?: string | null;
-    firstName?: string | null;
-    lastName?: string | null;
-    company?: string | null;
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
-    phone?: string | null;
-  };
-  customer?: (string | null) | User;
-  customerEmail?: string | null;
-  transactions?: (string | Transaction)[] | null;
-  status?: OrderStatus;
-  amount?: number | null;
-  currency?: 'ZAR' | null;
-  accessToken?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "transactions".
- */
-export interface Transaction {
-  id: string;
-  items: (string | Eitem)[];
-  paymentMethod?: 'softycomp' | null;
-  softycomp?: {
-    userReference?: string | null;
-    billReference?: string | null;
-    shippingAddress?: {
-      title?: string | null;
-      firstName?: string | null;
-      lastName?: string | null;
-      company?: string | null;
-      addressLine1?: string | null;
-      addressLine2?: string | null;
-      city?: string | null;
-      state?: string | null;
-      postalCode?: string | null;
-      country?: string | null;
-      phone?: string | null;
-    };
-  };
-  billingAddress?: {
-    title?: string | null;
-    firstName?: string | null;
-    lastName?: string | null;
-    company?: string | null;
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
-    phone?: string | null;
-  };
-  status: 'pending' | 'succeeded' | 'failed' | 'cancelled' | 'expired' | 'refunded';
-  customer?: (string | null) | User;
-  customerEmail?: string | null;
-  order?: (string | null) | Order;
-  cart?: (string | null) | Cart;
-  amount?: number | null;
-  currency?: 'ZAR' | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1973,6 +2063,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'kennisgewingLogs';
         value: string | KennisgewingLog;
+      } | null)
+    | ({
+        relationTo: 'beursies';
+        value: string | Beursies;
+      } | null)
+    | ({
+        relationTo: 'beursieTransaksies';
+        value: string | BeursieTransaksies;
       } | null)
     | ({
         relationTo: 'puck-templates';
@@ -2391,6 +2489,7 @@ export interface LedeSelect<T extends boolean = true> {
   divisie?: T;
   rol?: T;
   huidige_inskrywing?: T;
+  beursie?: T;
   naam?: T;
   van?: T;
   noemnaam?: T;
@@ -2560,6 +2659,7 @@ export interface DivisieSelect<T extends boolean = true> {
       };
   groep?: T;
   divisieleier?: T;
+  beursie?: T;
   lede?: T;
   aktiwiteite?: T;
   updatedAt?: T;
@@ -2637,6 +2737,7 @@ export interface EitemsSelect<T extends boolean = true> {
   lidnommer?: T;
   customText?: T;
   customPrice?: T;
+  transactions?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -2674,6 +2775,36 @@ export interface KennisgewingLogsSelect<T extends boolean = true> {
   viewed_details?: T;
   closed?: T;
   sent_to_subscription?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "beursies_select".
+ */
+export interface BeursiesSelect<T extends boolean = true> {
+  name?: T;
+  invert_display?: T;
+  balance?: T;
+  in?: T;
+  out?: T;
+  lede?: T;
+  divisies?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "beursieTransaksies_select".
+ */
+export interface BeursieTransaksiesSelect<T extends boolean = true> {
+  amount?: T;
+  in?: T;
+  out?: T;
+  description?: T;
+  document?: T;
+  eitem?: T;
+  inskrywing?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3319,6 +3450,31 @@ export interface Footer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system_beursies".
+ */
+export interface SystemBeursies {
+  id: string;
+  bankrekening: string | Beursies;
+  /**
+   * Hierdie beursie word gebruik as die "In" beursie vir kampgeld fakture.
+   */
+  kampgeld_inkomste: string | Beursies;
+  /**
+   * Produkte in hierdie kategorie word as direkte kampbetalings hanteer.
+   */
+  kampbetalings_category: string | Category;
+  softycomp_beursie: string | Beursies;
+  winkel_beursie: string | Beursies;
+  snoepie_inbetaling_product: string | Product;
+  /**
+   * Hierdie produk word gebruik vir oop betalings op uitstaande beursie balanse.
+   */
+  aanpasbare_kampbetaling_product: string | Product;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "google_sheets_settings".
  */
 export interface GoogleSheetsSetting {
@@ -3406,6 +3562,22 @@ export interface FooterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system_beursies_select".
+ */
+export interface SystemBeursiesSelect<T extends boolean = true> {
+  bankrekening?: T;
+  kampgeld_inkomste?: T;
+  kampbetalings_category?: T;
+  softycomp_beursie?: T;
+  winkel_beursie?: T;
+  snoepie_inbetaling_product?: T;
+  aanpasbare_kampbetaling_product?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
