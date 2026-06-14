@@ -59,13 +59,16 @@ export async function clearSasPaymentForLid(lid: Lede, payload: Payload, req?: P
     const totalDebt = debtTransactions.docs.reduce((sum, tx) => sum + (tx.amount || 0), 0)
 
     // 3. Calculate Portal Payments (Credits via eItems)
-    // Find transactions where money came 'in' to Lid via an eItem
+    // Find transactions where money came 'in' to Lid via an eItem or via SAS Betaling Ontvang
     const creditTransactions = await payload.find({
       collection: 'beursieTransaksies',
       where: {
         and: [
           { in: { equals: lidBeursieId } },
-          { eitem: { exists: true } }
+          { or: [
+            { eitem: { exists: true } },
+            { inskrywing: { equals: inskrywingId } }
+          ]}
         ]
       },
       limit: 0,
@@ -74,6 +77,10 @@ export async function clearSasPaymentForLid(lid: Lede, payload: Payload, req?: P
     })
 
     const validPortalPayments = creditTransactions.docs.reduce((sum, tx) => {
+      const inskrywing = getDocNotID(tx.inskrywing)
+
+      if (inskrywing && (inskrywing.id === inskrywingId)) return sum + (tx.amount || 0)
+
       const eItem = getDocNotID(tx.eitem)
       const product = getDocNotID(eItem?.product)
 

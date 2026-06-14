@@ -24,7 +24,7 @@ export function LedeActionsButton() {
   const { selected, count: selectedCount } = useSelection()
   const { query } = useListQuery() // This provides the `where` clause from the current list view
 
-  const actions = useMemo(() => [
+  const actions: Action[] = useMemo(() => [
     { label: 'Skep Ontbrekende Beursies', value: 'createBeursies', onAll: true, handler: createMissingBeursies },
     { label: 'Genereer Faktuur Transaksies', value: 'generateInvoices', onAll: true, handler: generateInvoiceTransactions },
     { label: 'Prosesseer eItem Betalings', value: 'processEItems', onAll: true, handler: processEItemWalletTransactions },

@@ -13,10 +13,10 @@ export async function runSasPaymentClearanceAction(params: {
   const payload = await getPayload({ config })
 
   try {
-    const targetStage = 'Betaling Ontvang'
+    const targetStage = 'Betaling ontvang'
     const targetIndex = InskrywingStages.indexOf(targetStage)
 
-    // 2. Soek lede wat kwalifiseer (Status is 'Betaling Ontvang' of hoër)
+    // 2. Soek lede wat kwalifiseer (Status is 'Betaling ontvang' of hoër)
     const qualifyingStages = InskrywingStages.slice(targetIndex)
 
     const queryConstraints: Where[] = [
@@ -47,7 +47,7 @@ export async function runSasPaymentClearanceAction(params: {
       }
     }
 
-    return { success: true, message: `${processedCount} lede betalings ontvang per SAS.` }
+    return { success: true, message: `${processedCount} lede betalings ontvang per SAS. ${ledeResponse.docs.length} lede verwerk` }
   } catch (error: any) {
     console.error('Error in SAS payment action:', error)
     return { success: false, message: `Fout: ${error.message}` }
