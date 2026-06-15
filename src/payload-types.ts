@@ -1469,8 +1469,13 @@ export interface Aktiwiteit {
  */
 export interface Presensie {
   naam: string;
+  /**
+   * Optioneel vir spesifieke URL
+   */
   id: string;
   presensie_tipe: 'bus' | 'wagstaan' | 'divisie';
+  sigbaar_vir?: (string | Groepe)[] | null;
+  self_inklok: boolean;
   inklokke?: {
     docs?: (string | Inklokke)[];
     hasNextPage?: boolean;
@@ -2673,6 +2678,8 @@ export interface PresensieSelect<T extends boolean = true> {
   naam?: T;
   id?: T;
   presensie_tipe?: T;
+  sigbaar_vir?: T;
+  self_inklok?: T;
   inklokke?: T;
   verwagte_lede?: T;
   updatedAt?: T;

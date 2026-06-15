@@ -3,7 +3,7 @@ import { getPayload } from "payload";
 import configPromise from '@payload-config'
 import { getPayloadSession } from "payload-authjs";
 import type { Inklokke, Lede } from "@/payload-types";
-import { hasPermission } from "@/lib/permissions";
+import { getID } from "@/utilities/getID";
 
 export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time, gps} : {
   presensieid: string,
@@ -58,7 +58,9 @@ export async function fetchPresensieData(presensieid: string) {
   const payload = await getPayload({ config: configPromise })
   const session = await getPayloadSession()
   if (!session) return {error:"Nie ingelog"}
-  if (!await hasPermission("view:presensie")) return {error:"Toegang verbode"}
+  const user_selflid = session.user.self_lid
+  const user_selflid_groepeids = (user_selflid && typeof user_selflid !== "string" && user_selflid.groepe) ? user_selflid.groepe.map(getID) : []
+  // if (!await hasPermission("view:presensie")) return {error:"Toegang verbode"}
 
   const presensie = await payload.findByID({
     collection: "presensie",
@@ -77,6 +79,8 @@ export async function fetchPresensieData(presensieid: string) {
   })
 
   if (!presensie) return null
+  // payload.logger.info(`fetchPresensieData ${JSON.stringify(presensie.sigbaar_vir)} ${JSON.stringify(user_selflid_groepeids)}`)
+  if (!presensie.sigbaar_vir?.some((sigbaargroep) => user_selflid_groepeids.includes(getID(sigbaargroep)))) return {error:"Toegang verbode"}
   type LidNetNaam = Pick<Lede, 'id' | 'naam' | 'noemnaam' | 'van'>
   const expectedLedeByLidnommer = (presensie.verwagte_lede ?? []).reduce((acc, verwagte_lid) => {
     if (typeof verwagte_lid !== "object") throw "Expected verwagte_lid to be object"

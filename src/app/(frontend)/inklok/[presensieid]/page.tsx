@@ -1,9 +1,9 @@
 import { getPayload } from "payload";
 import configPromise from '@payload-config'
 import { getPayloadSession } from "@/lib/payload-authjs-custom/exports/server";
-import { hasPermission } from "@/lib/permissions";
 import { inklok } from "@/lib/inklok";
 import { redirect } from "next/navigation";
+import { getID } from "@/utilities/getID";
 
 type Args = {
   params: Promise<{
@@ -11,9 +11,9 @@ type Args = {
   }>
 }
 
-function nullifID<T>(value: T|string): T|null {
-  return (typeof value === 'string') ? null : value
-}
+// function nullifID<T>(value: T|string): T|null {
+//   return (typeof value === 'string') ? null : value
+// }
 
 export default async function Inklok({ params: paramsPromise }: Args) {
   const { presensieid } = await paramsPromise
@@ -24,17 +24,16 @@ export default async function Inklok({ params: paramsPromise }: Args) {
   const payload = await getPayload({ config: configPromise })
   const presensie = await payload.findByID({collection:"presensie",id:presensieid,depth:1,disableErrors:true})
   if (!presensie) return <h1>Presensie not found</h1>
-  const user = session.user
-  const isOffisier = await hasPermission("view:offisier")
-  const { docs: lede, totalDocs} = await payload.find({collection:"lede",depth:1,where:{user:{equals:user.id}}})
 
-  if (lede.length === 0 && !isOffisier) return <h1>Linked lid not found</h1>
+  const sessionUser = session.user
 
-  const lid = lede.length === 1 ? lede[0] : null
-  const divisie = nullifID(lid?.divisie) ?? null
+  if (!sessionUser.self_lid) return <h1>Linked lid not found</h1>
+  // Map the self_lid to the lede array to maintain your existing logic flow
+  const lid = getID(sessionUser.self_lid)
+  const divisie = typeof sessionUser.self_lid === "object" && sessionUser.self_lid.divisie ? getID(sessionUser.self_lid.divisie) : undefined
 
   if (lid) {
-    const inklokres = await inklok({ presensieid: presensie.id, divisieid: divisie?.id, lidid: lid?.id, scan_time: new Date().toISOString() })
+    const inklokres = await inklok({ presensieid: presensie.id, divisieid: divisie, lidid: lid, scan_time: new Date().toISOString() })
     if ("error" in inklokres) return <h1>Inklok failed: {inklokres.error}</h1>
     redirect(`success/${inklokres.inklok.id}`)
   }

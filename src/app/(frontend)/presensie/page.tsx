@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { auth } from "@/auth";
-import { hasPermission } from "@/lib/permissions";
 import { redirect } from "next/navigation";
 
 export default async function PresensiePage() {
@@ -38,11 +37,13 @@ export default async function PresensiePage() {
                   Scan Page
                 </Link>
               </Button>
-              <Button asChild className="w-full">
-                <Link href={`/inklok/${presensie.id}`}>
-                  Self Inklok
-                </Link>
-              </Button>
+              { presensie.self_inklok && (
+                <Button asChild className="w-full">
+                  <Link href={`/inklok/${presensie.id}`}>
+                    Self Inklok
+                  </Link>
+                </Button>
+              )}
             </CardContent>
           </Card>
         ))}

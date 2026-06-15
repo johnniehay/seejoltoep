@@ -56,7 +56,7 @@ export const plugins: Plugin[] = [
   }),
   googleSheetsPlugin({
     enabled: true,
-    collections: ['lede', 'inskrywings', 'inklokke', 'presensie', 'aktiwiteit', "eitems"]
+    collections: ['lede', 'inskrywings', 'inklokke', 'presensie', 'aktiwiteit', "eitems", "beursies", "beursieTransaksies"]
   }),
   sasImportPlugin({
     enabled: true,
