@@ -28,5 +28,13 @@ export const SasImportSettingsGlobals: GlobalConfig = {
       label: 'Current Kamp Naam',
       type: 'text',
     },
+    {
+      name: 'inskrywings_link',
+      label: 'Inskrywings Link',
+      type: 'text',
+      admin: {
+        description: 'Die skakel vir die "Skryf in" knoppie op die tuisblad. Indien leeg, word die knoppies versteek.',
+      },
+    },
   ],
 }

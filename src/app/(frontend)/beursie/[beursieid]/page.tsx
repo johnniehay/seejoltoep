@@ -7,6 +7,9 @@ import { getDocNotID } from "@/utilities/getDocNotID";
 import { getID } from "@/utilities/getID";
 import { auth } from "@/auth"
 import { PayButton } from "@/components/PayButton"
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
+import { IconHelp } from '@tabler/icons-react'
 
 interface PageProps {
   params: Promise<{
@@ -57,7 +60,7 @@ export default async function BeursiePage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <header className="mb-8 text-center border-b pb-6">
+      <header className="text-center border-b pb-6">
         <h1 className="text-3xl font-bold mb-2">{beursie.name}</h1>
         <div className="mt-4">
           <p className="text-sm uppercase tracking-widest text-gray-500">Huidige Balans</p>
@@ -73,6 +76,15 @@ export default async function BeursiePage({ params }: PageProps) {
           )}
         </div>
       </header>
+
+      <div className="flex justify-center mb-4">
+        <Button asChild variant="outline" size="sm" className="rounded-full">
+          <Link href="/toep_hulp">
+            <IconHelp size={18} className="mr-2" />
+            Toep Hulp
+          </Link>
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <section>
@@ -128,12 +140,12 @@ export default async function BeursiePage({ params }: PageProps) {
       </div>
 
       <footer className="mt-12 pt-6 border-t text-center">
-        <a
+        <Link
           href="/"
           className="text-blue-600 hover:underline text-sm"
         >
           Terug na Interaksie Paneel
-        </a>
+        </Link>
       </footer>
     </div>
   )

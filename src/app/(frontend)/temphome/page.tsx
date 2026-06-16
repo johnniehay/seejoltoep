@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React from 'react'
 import {
   IconFirstAidKit,
+  IconHelp,
   IconInfoCircle,
   IconListCheck,
   IconLogin2,
@@ -11,15 +12,19 @@ import {
   IconShield,
   IconShoppingCart,
   IconUsers,
+  IconWallet,
 } from '@tabler/icons-react'
 import { hasPermission } from '@/lib/permissions'
 import GekoppeldeLedeSummary from '@/app/(frontend)/temphome/GekoppeldeLedeSummary'
 import { auth } from '@/auth'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 // import Image from 'next/image'
 import { ConstructionButton } from './ConstructionButton'
 import { Metadata } from "next";
 import { getDocNotID } from "@/utilities/getDocNotID";
 import { getID } from "@/utilities/getID";
+import { cn } from "@/utilities/ui";
 
 export default async function TempHome() {
   const canViewLede = await hasPermission('view:lede')
@@ -29,6 +34,13 @@ export default async function TempHome() {
 
   const user_divisie_string = self_lid?.divisie ? getID(self_lid.divisie) : null
   const user_divisie = getDocNotID(self_lid?.divisie)
+
+  const payload = await getPayload({ config })
+  const settings = await payload.findGlobal({
+    slug: 'sas_import_settings',
+  })
+  const inskrywings_link = settings.inskrywings_link
+  const self_beursie_balance = (self_lid && typeof self_lid !== 'string' && typeof self_lid.beursie === 'object') ? (self_lid.beursie as any)?.balance : 0
 
   // Changed w-full to flex-1 and added a min-width to allow growth while maintaining button size
   const btnClass = 'h-40 text-2xl rounded-3xl flex-col gap-4 shadow-lg hover:shadow-xl transition-all flex-1 min-w-[calc(50%-12px)] md:min-w-[calc(33.33%-16px)] lg:min-w-[calc(25%-18px)]'
@@ -74,12 +86,14 @@ export default async function TempHome() {
               <span>Inligting</span>
             </Link>
           </Button>
-          <Button asChild className={btnClass} variant="outline">
-            <Link href="/inskrywingsinligting">
-              <IconLogin2 color="#0b844d" size={48} />
-              <span>Skryf in</span>
-            </Link>
-          </Button>
+          {inskrywings_link && (
+            <Button asChild className={btnClass} variant="outline">
+              <Link href={inskrywings_link}>
+                <IconLogin2 color="#0b844d" size={48} />
+                <span>Skryf in</span>
+              </Link>
+            </Button>
+          )}
           {/* Functional Buttons */}
           {canViewLede && (
             <Button asChild className={btnClass} variant="outline">
@@ -115,6 +129,26 @@ export default async function TempHome() {
               Wagstaan
             </ConstructionButton>
           )}
+          {user && self_lid && typeof self_lid !== 'string' && self_lid.beursie && (
+            <Button 
+              asChild 
+              className={cn(
+                btnClass,
+                (self_beursie_balance || 0) < 0 && 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200'
+              )} 
+              variant="outline"
+            >
+              <Link href={`/beursie/${getID(self_lid.beursie)}`}>
+                <IconWallet color={(self_beursie_balance || 0) < 0 ? "#ef4444" : "#5284e2"} size={48} />
+                <div className="flex flex-col items-center">
+                  <span>My Beursie</span>
+                  <span className="text-sm font-normal opacity-70 leading-none">
+                    R {(self_beursie_balance || 0).toFixed(2)}
+                  </span>
+                </div>
+              </Link>
+            </Button>
+          )}
           <Button asChild className={btnClass} variant="outline">
             <Link href="/shop">
               <IconShoppingCart color="#5284e2" size={48} />
@@ -140,6 +174,12 @@ export default async function TempHome() {
               My Divisie
             </ConstructionButton>
           )}
+          <Button asChild className={btnClass} variant="outline">
+            <Link href="/toep_hulp">
+              <IconHelp color="#ffbc00" size={48} />
+              <span>Toep Hulp</span>
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import React from "react";
 import { auth } from "@/auth";
-import { IconLogin2, IconUsers } from "@tabler/icons-react";
+import { IconLogin2, IconUsers, IconWallet } from "@tabler/icons-react";
 import Link from "next/link";
 import { Button } from '@/components/ui/button'
 import { AlertParagraph } from "@/app/(frontend)/temphome/ConstructionButton";
@@ -8,6 +8,8 @@ import { Lede, Divisie } from "@/payload-types";
 import { getDocNotID } from "@/utilities/getDocNotID";
 import { getID } from "@/utilities/getID";
 import { cn } from "@/utilities/ui";
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 export default async function GekoppeldeLedeSummary() {
   const session = await auth()
@@ -16,12 +18,20 @@ export default async function GekoppeldeLedeSummary() {
     return <></>
   }
 
+  const payload = await getPayload({ config })
+  const settings = await payload.findGlobal({
+    slug: 'sas_import_settings',
+  })
+  const inskrywings_link = settings.inskrywings_link
+
   let members: Array<{
     name: string
     lidnommer: string
     status: string
     stage?: string | null
-    button: "skryfin" | "betaal" | ""
+    button: "skryfin" | "beursie" | ""
+    beursieId?: string | null
+    beursieBalans?: number | null
     divisieId: string | null
     divisieNaam: string | null
     colorClass: string
@@ -30,13 +40,13 @@ export default async function GekoppeldeLedeSummary() {
   const user = session.user
 
   // Helper to add member
-  const addMember = (lid: Lede|string, isCandidate: boolean, candidateStatus?: string) => {
-    if (isCandidate) {
+  const addMember = (lid?: Lede, candidate_lid?: { candidate_self_lid_nommer?: string, lid_nommer?: string|null }, isCandidate?: boolean, candidateStatus?: string) => {
+    if (isCandidate && candidate_lid) {
       const isInvalidDob = candidateStatus === 'invalid_dob'
       members.push({
         name: 'Kandidaat',
-        lidnommer: lid.lid_nommer || lid.candidate_self_lid_nommer || '',
-        button: (!isInvalidDob) ? 'skryfin' : '',
+        lidnommer: candidate_lid.lid_nommer || candidate_lid.candidate_self_lid_nommer || '',
+        button: (!isInvalidDob && inskrywings_link) ? 'skryfin' : '',
         status: isInvalidDob
           ? 'Verkeerde geboortedatum'
           : 'Onbekende lid nog nie hierdie jaar of voorheen ingeskry vir Seejol nie. Mag tot 4 dae vat om op te dateer.',
@@ -47,7 +57,9 @@ export default async function GekoppeldeLedeSummary() {
         divisieNaam: null,
       })
     } else if (lid && typeof lid !== 'string') {
-      const button = (!lid.huidige_inskrywing)? 'skryfin' : (lid.stage === 'Wag vir Betaling') ? 'betaal' : ''
+      const beursie = lid.beursie
+      const balance = typeof beursie === 'object' ? (beursie)?.balance : null
+      const button = (!lid.huidige_inskrywing) ? (inskrywings_link ? 'skryfin' : '') : 'beursie'
       const divisie = getDocNotID(lid.divisie)
       members.push({
         name: `${lid.noemnaam || lid.naam} ${lid.van}`,
@@ -57,22 +69,24 @@ export default async function GekoppeldeLedeSummary() {
         stage: lid.stage ?? "Nog nie ingeskryf vir Seejol 2026",
         divisieId: lid.divisie ? getID(lid.divisie) : null,
         divisieNaam: divisie?.naam || null,
+        beursieId: beursie ? getID(beursie) : null,
+        beursieBalans: balance,
         colorClass: 'bg-green-100 text-green-800 border-green-200',
       })
     }
   }
 
   // Process Self
-  if (user.self_lid) {
-    addMember(user.self_lid, false)
+  if (user.self_lid && typeof user.self_lid !== "string") {
+    addMember(user.self_lid, undefined,false)
   } else if (user.candidate_self_lid_nommer) {
-    addMember({ candidate_self_lid_nommer: user.candidate_self_lid_nommer }, true, user.candidate_self_lid_invalid_dob ? 'invalid_dob' : 'unknown')
+    addMember(undefined, { candidate_self_lid_nommer: user.candidate_self_lid_nommer }, true, user.candidate_self_lid_invalid_dob ? 'invalid_dob' : 'unknown')
   }
 
   // Process Linked
-  user.gekoppelde_lede?.forEach((lid) => addMember(lid, false))
+  user.gekoppelde_lede?.forEach((lid) => addMember(getDocNotID(lid), undefined, false))
   user.candidate_gekoppelde_lede?.forEach((cand) =>
-    addMember(cand, true, cand.invalid_dob ? 'invalid_dob' : 'unknown')
+    addMember(undefined, cand, true, cand.invalid_dob ? 'invalid_dob' : 'unknown')
   )
   return (<>
     {members.length > 0 && (
@@ -96,10 +110,27 @@ export default async function GekoppeldeLedeSummary() {
                     </Button>
                   )}
                   { m.button && (
-                    <Button className={cn("text-l rounded-xl border-2", m.colorClass)} variant="ghost" asChild>
-                      <Link href={m.button === "skryfin" ? "https://skryfin.voortrekkers.co.za/?kampID=2105" : "/shop?category=69f10615968a4281948d78c6"}>
-                        <IconLogin2 size={12} />
-                        <span>{m.button === "skryfin" ? "Skryf in" : "Betaal" }</span>
+                    <Button
+                      className={cn(
+                        "rounded-xl border-2 h-auto py-1",
+                        m.button === "beursie" && (m.beursieBalans || 0) < 0
+                          ? "bg-red-100 text-red-800 border-red-200 hover:bg-red-200"
+                          : m.colorClass
+                      )}
+                      variant="ghost"
+                      asChild
+                    >
+                      <Link href={m.button === "skryfin" ? (inskrywings_link || '#') : `/beursie/${m.beursieId}`}>
+                        {m.button === "skryfin" ? <IconLogin2 size={16} /> : <IconWallet size={16} />}
+                        <div className="flex flex-col items-center ml-1">
+                          <span className="text-xs font-bold leading-tight">{m.button === "skryfin" ? "Skryf in" : "Beursie" }</span>
+                          {m.button === "beursie" && m.beursieBalans && (
+                            <span className="text-[10px] leading-tight">R {m.beursieBalans.toFixed(2)}</span>
+                          )}
+                          {m.button === "beursie" && m.beursieBalans === null && (
+                            <span className="text-[10px] leading-tight">R ---</span>
+                          )}
+                        </div>
                       </Link>
                     </Button>
                   ) }

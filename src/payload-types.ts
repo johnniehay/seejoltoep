@@ -3524,6 +3524,10 @@ export interface SasImportSetting {
   webhookUrl: string;
   kampId?: string | null;
   kampNaam?: string | null;
+  /**
+   * Die skakel vir die "Skryf in" knoppie op die tuisblad. Indien leeg, word die knoppies versteek.
+   */
+  inskrywings_link?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3623,6 +3627,7 @@ export interface SasImportSettingsSelect<T extends boolean = true> {
   webhookUrl?: T;
   kampId?: T;
   kampNaam?: T;
+  inskrywings_link?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
