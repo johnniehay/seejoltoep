@@ -7,6 +7,7 @@ import {
   IconInfoCircle,
   IconListCheck,
   IconLogin2,
+  IconMessageReport,
   IconQrcode,
   IconSearch,
   IconShield,
@@ -80,12 +81,25 @@ export default async function TempHome() {
 
         {/* Flexbox container instead of grid */}
         <div className="flex flex-wrap justify-center gap-6 w-full max-w-6xl">
-          <Button asChild className={btnClass} variant="outline">
-            <Link href="/tuis">
-              <IconInfoCircle color="#38b6ff" size={48} />
-              <span>Inligting</span>
-            </Link>
-          </Button>
+          {user_divisie || user_divisie_string ? (
+            <Button asChild className={btnClass} variant="outline">
+              <Link href={`/divisie/${user_divisie_string}`}>
+                <IconUsers color="#cb6ce6" size={48} />
+                <div className="flex flex-col items-center">
+                  <span>My Divisie</span>
+                  {user_divisie && (
+                    <span className="text-sm font-normal opacity-70 leading-none">
+                      {user_divisie.naam}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </Button>
+          ) : (
+            <ConstructionButton icon={<IconUsers color="#cb6ce6" size={48} />} className={btnClass}>
+              My Divisie
+            </ConstructionButton>
+          )}
           {inskrywings_link && (
             <Button asChild className={btnClass} variant="outline">
               <Link href={inskrywings_link}>
@@ -120,10 +134,21 @@ export default async function TempHome() {
             </Button>
           )}
 
+          <Button asChild className={btnClass} variant="outline">
+            <Link href="/rapporteer">
+              <IconMessageReport color="#ff3131" size={48} />
+              <span>Rapporteer</span>
+            </Link>
+          </Button>
+
+          <Button asChild className={btnClass} variant="outline">
+            <Link href="/noodhulp">
+              <IconFirstAidKit color="#ff3131" size={48} />
+              <span>Noodhulp</span>
+            </Link>
+          </Button>
+
           {/* Construction Buttons */}
-          <ConstructionButton icon={<IconFirstAidKit color="#ff3131" size={48}/>} className={btnClass}>
-            Noodhulp
-          </ConstructionButton>
           {isOffisier && (
             <ConstructionButton icon={<IconShield color="#ff751f" size={48}/>} className={btnClass}>
               Wagstaan
@@ -155,25 +180,12 @@ export default async function TempHome() {
               <span>Winkel</span>
             </Link>
           </Button>
-          {user_divisie || user_divisie_string ? (
-            <Button asChild className={btnClass} variant="outline">
-              <Link href={`/divisie/${user_divisie_string}`}>
-                <IconUsers color="#cb6ce6" size={48} />
-                <div className="flex flex-col items-center">
-                  <span>My Divisie</span>
-                  {user_divisie && (
-                    <span className="text-sm font-normal opacity-70 leading-none">
-                      {user_divisie.naam}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            </Button>
-          ) : (
-            <ConstructionButton icon={<IconUsers color="#cb6ce6" size={48} />} className={btnClass}>
-              My Divisie
-            </ConstructionButton>
-          )}
+          <Button asChild className={btnClass} variant="outline">
+            <Link href="/tuis">
+              <IconInfoCircle color="#38b6ff" size={48} />
+              <span>Inligting</span>
+            </Link>
+          </Button>
           <Button asChild className={btnClass} variant="outline">
             <Link href="/toep_hulp">
               <IconHelp color="#ffbc00" size={48} />

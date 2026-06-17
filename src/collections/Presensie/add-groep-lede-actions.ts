@@ -4,6 +4,7 @@ import { getPayload, PayloadRequest } from 'payload'
 import config from '@/payload.config'
 import { getlidgroepeinfo } from "../Groepe/access"
 import { auth } from "@/auth";
+import { hasPermission } from "@/lib/permissions";
 
 export async function getGroepeOptions() {
   const payload = await getPayload({ config })
@@ -13,7 +14,7 @@ export async function getGroepeOptions() {
     pagination: false,
     sort: 'naam',
     limit: 0,
-    where: {id: {in: getlidgroepeinfo({user: (await auth())?.user ?? null } as PayloadRequest)}}
+    where: (await hasPermission("view:groepe")) ? {} : {id: {in: getlidgroepeinfo({user: (await auth())?.user ?? null } as PayloadRequest)}}
   })
 
   return groepe.docs.map((groep) => ({
