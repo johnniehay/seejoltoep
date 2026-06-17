@@ -3,6 +3,8 @@ import configPromise from '@payload-config'
 import { IconCheck } from "@tabler/icons-react";
 
 import { asNotID } from "@/lib/util";
+import Link from "next/link";
+import React from "react";
 
 type Args = {
   params: Promise<{
@@ -30,5 +32,8 @@ export default async function CheckedInDisplay({ params: paramsPromise }: Args) 
       {lid ? <h3 className="text-xl font-bold">{lid.naam}</h3> : <h3 className="text-xl font-bold">{ingestuurDeur.name}</h3>}
       {divisie && <h3 className="text-lg font-semibold text-muted-foreground">{divisie.naam}</h3>}
       <p className="text-lg font-medium">{new Date(inklok.updatedAt).toLocaleTimeString([],{hour: '2-digit', minute: '2-digit',timeZoneName: undefined})}</p>
+      <footer className="mt-12 pt-6 border-t text-center">
+        <Link href="/" className="text-blue-600 hover:underline text-sm">Terug na Interaksie Paneel</Link>
+      </footer>
     </div>)
 }

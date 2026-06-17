@@ -275,6 +275,7 @@ export const Lede: CollectionConfig<"lede"> = {
         '@/collections/Lede/LinkUsersButton#LinkUsersButton',
         '@/collections/Lede/LedeActionsButton#LedeActionsButton',
       ],
+      afterList: ['@/collections/Lede/generatePDFserver#GeneratePDFButtonServer'],
     },
   },
   enableQueryPresets: true,

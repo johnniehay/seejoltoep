@@ -53,6 +53,8 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.2.6",
+    "@react-pdf/renderer": "^4.5.1",
+    "@react-pdf/stylesheet": "^6.2.1",
     "@simplewebauthn/browser": "^9.0.1",
     "@simplewebauthn/server": "^9.0.3",
     "@tabler/icons-react": "^3.44.0",
