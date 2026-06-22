@@ -1,4 +1,5 @@
 import { JobsConfig, PayloadRequest } from "payload";
+import { syncGroepeWhereFilterTask } from "./syncGroepeWhereFiler";
 
 export const jobsConfig: JobsConfig = {
   access: {
@@ -13,6 +14,13 @@ export const jobsConfig: JobsConfig = {
       return authHeader === `Bearer ${process.env.CRON_SECRET}`
     },
   },
-  tasks: [],
-  autoRun: [{cron: '* * * * *'}],
+  tasks: [
+    {
+      slug: 'sync-groepe-where-filter',
+      label: 'Sync Groepe Where Filter',
+      description: 'Synchronizes lede membership in groepe based on their add_lede_where filters. Adds matching lede to groups and optionally removes non-matching lede.',
+      task: syncGroepeWhereFilterTask,
+    },
+  ],
+  autoRun: [{cron: '*/5 * * * *'}], // Every 5 minutes
 }
