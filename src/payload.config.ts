@@ -31,6 +31,7 @@ import { Beursies } from "@/collections/Beursies";
 import { BeursieTransaksies } from "@/collections/BeursieTransaksies";
 import { jobsConfig } from "@/jobs";
 import { SystemBeursies } from "@/globals/SystemBeursies"
+import { SystemSettings } from "@/globals/SystemSettings"
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -90,9 +91,9 @@ export default buildConfig({
     db: mongooseAdapter({
         url: process.env.DATABASE_URL || '',
     }),
-    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite, Groepe, eItems, Kennisgewings, KennisgewingLogs, Beursies, BeursieTransaksies],
+    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite, Groepe, eItems, Kennisgewings, Ke[...]
     cors: [getServerSideURL()].filter(Boolean),
-    globals: [Header, Footer, SystemBeursies],
+    globals: [Header, Footer, SystemBeursies, SystemSettings],
     plugins,
     secret: process.env.PAYLOAD_SECRET,
     sharp,
@@ -102,9 +103,9 @@ export default buildConfig({
       transport: nodemailer.createTransport(process.env['EMAIL_SERVER'])
     }),
     typescript: {
-        outputFile: path.resolve(dirname, 'payload-types.ts'),
+         outputFile: path.resolve(dirname, 'payload-types.ts'),
     },
     jobs: jobsConfig,
-  // logger: { options:{ level: "debug"}},
-  // debug: true,
+   // logger: { options:{ level: "debug"}},
+   // debug: true,
 })
