@@ -10,6 +10,7 @@ import { getID } from '@/utilities/getID'
  * 2. If remove_lede_not_in_where is true, removes the groep from non-matching lede
  * 
  * Runs as a Payload Job Task with transaction safety.
+ * Checks SystemSettings to determine if feature is enabled.
  */
 export const syncGroepeWhereFilterTask = async ({
   req,
@@ -19,6 +20,19 @@ export const syncGroepeWhereFilterTask = async ({
   const { payload } = req
 
   try {
+    // Check if feature is enabled in SystemSettings
+    const systemSettings = await payload.findGlobal({
+      slug: 'system_settings',
+      depth: 0,
+      overrideAccess: false,
+      req,
+    })
+
+    if (!systemSettings?.sync_groepe_where_filter_enabled) {
+      payload.logger.info('syncGroepeWhereFilter: Feature is disabled in SystemSettings')
+      return
+    }
+
     // Fetch all groepe with add_lede_where configured
     const groepeWithFilter = await payload.find({
       collection: 'groepe',
