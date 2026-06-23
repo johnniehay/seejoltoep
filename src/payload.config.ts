@@ -91,7 +91,7 @@ export default buildConfig({
     db: mongooseAdapter({
         url: process.env.DATABASE_URL || '',
     }),
-    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite, Groepe, eItems, Kennisgewings, KeKennisgewingLogs, Beursies, BeursieTransaksies]
+    collections: [/*Pages,*/ PuckPages, Posts, NotificationSubscriptions, Media, Categories, Users, Lede, Inskrywings, Divisies, Presensie, Inklokke, Aktiwiteite, Groepe, eItems, Kennisgewings, KennisgewingLogs, Beursies, BeursieTransaksies]
     cors: [getServerSideURL()].filter(Boolean),
     globals: [Header, Footer, SystemBeursies, SystemSettings],
     plugins,
