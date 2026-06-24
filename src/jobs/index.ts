@@ -18,9 +18,11 @@ export const jobsConfig: JobsConfig = {
     {
       slug: 'sync-groepe-where-filter',
       label: 'Sync Groepe Where Filter',
-      description: 'Synchronizes lede membership in groepe based on their add_lede_where filters. Adds matching lede to groups and optionally removes non-matching lede.',
-      task: syncGroepeWhereFilterTask,
+
+      //description: 'Synchronizes lede membership in groepe based on their add_lede_where filters. Adds matching lede to groups and optionally removes non-matching lede.',
+      handler: syncGroepeWhereFilterTask,
+      schedule: [{cron: '*/5 * * * *', queue: "5min"}]
     },
   ],
-  autoRun: [{cron: '*/5 * * * *'}], // Every 5 minutes
+  autoRun: [{cron: '*/5 * * * *', queue:"5min"}, {cron: '* * * * *'}], // Every 5 minutes
 }

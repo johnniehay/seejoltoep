@@ -174,6 +174,11 @@ export const ProductsCollection: CollectionOverride = ({ defaultCollection }) =>
               defaultValue: true,
             },
             {
+              name: 'barcode',
+              type: 'text',
+              label: 'barcode'
+            },
+            {
               name: 'customInputs',
               type: 'group',
               label: 'Custom Inputs',

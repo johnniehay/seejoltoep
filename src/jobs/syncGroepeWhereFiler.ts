@@ -1,36 +1,44 @@
-import type { BasePayload, PayloadRequest, Where } from 'payload'
+import type { PayloadRequest, TaskHandler, Where } from 'payload'
 import type { Groepe, Lede } from '@/payload-types'
 import { getID } from '@/utilities/getID'
 
 /**
  * Synchronizes lede membership in groepe based on their add_lede_where filters.
- * 
+ *
  * For each groep with add_lede_where defined:
  * 1. Finds all lede matching the filter and ensures they have this groep
  * 2. If remove_lede_not_in_where is true, removes the groep from non-matching lede
- * 
+ *
  * Runs as a Payload Job Task with transaction safety.
  * Checks SystemSettings to determine if feature is enabled.
  */
-export const syncGroepeWhereFilterTask = async ({
+export const syncGroepeWhereFilterTask: TaskHandler<'sync-groepe-where-filter'> = async ({
   req,
 }: {
   req: PayloadRequest
 }) => {
   const { payload } = req
 
+  let ledeAddedCount = 0
+  let ledeRemovedCount = 0
+
   try {
     // Check if feature is enabled in SystemSettings
     const systemSettings = await payload.findGlobal({
       slug: 'system_settings',
       depth: 0,
-      overrideAccess: false,
       req,
     })
 
     if (!systemSettings?.sync_groepe_where_filter_enabled) {
       payload.logger.info('syncGroepeWhereFilter: Feature is disabled in SystemSettings')
-      return
+      return {
+        output: {
+          lede_added_to_groepe: ledeAddedCount,
+          lede_removed_from_groepe: ledeRemovedCount,
+          status: 'disabled',
+        },
+      }
     }
 
     // Fetch all groepe with add_lede_where configured
@@ -43,13 +51,18 @@ export const syncGroepeWhereFilterTask = async ({
       },
       limit: 0,
       depth: 0,
-      overrideAccess: false,
       req, // Maintain transaction safety
     })
 
     if (groepeWithFilter.totalDocs === 0) {
       payload.logger.info('syncGroepeWhereFilter: No groepe with add_lede_where found')
-      return
+      return {
+        output: {
+          lede_added_to_groepe: ledeAddedCount,
+          lede_removed_from_groepe: ledeRemovedCount,
+          status: 'no_groepe_with_filter',
+        },
+      }
     }
 
     payload.logger.info(
@@ -70,7 +83,6 @@ export const syncGroepeWhereFilterTask = async ({
           limit: 0,
           depth: 0,
           select: { id: true, groepe: true },
-          overrideAccess: false,
           req, // Maintain transaction safety
         })
 
@@ -99,10 +111,10 @@ export const syncGroepeWhereFilterTask = async ({
               data: {
                 groepe: updatedGroepeIds,
               },
-              overrideAccess: false,
               req, // Maintain transaction safety - atomic with outer task
             })
 
+            ledeAddedCount++
             payload.logger.debug(
               `syncGroepeWhereFilter: Added groep ${groepId} to lede ${lidId}`
             )
@@ -122,7 +134,6 @@ export const syncGroepeWhereFilterTask = async ({
             limit: 0,
             depth: 0,
             select: { id: true, groepe: true },
-            overrideAccess: false,
             req, // Maintain transaction safety
           })
 
@@ -149,10 +160,10 @@ export const syncGroepeWhereFilterTask = async ({
                 data: {
                   groepe: updatedGroepeIds,
                 },
-                overrideAccess: false,
                 req, // Maintain transaction safety - atomic with outer task
               })
 
+              ledeRemovedCount++
               payload.logger.debug(
                 `syncGroepeWhereFilter: Removed groep ${groepId} from lede ${lidId}`
               )
@@ -169,8 +180,7 @@ export const syncGroepeWhereFilterTask = async ({
         )
       } catch (error) {
         payload.logger.error(
-          `syncGroepeWhereFilter: Error processing groep ${groepId}:`,
-          error
+          `syncGroepeWhereFilter: Error processing groep ${groepId}: ${error.message}`,
         )
         // Continue with next groep rather than failing entire task
       }
@@ -179,8 +189,16 @@ export const syncGroepeWhereFilterTask = async ({
     payload.logger.info(
       'syncGroepeWhereFilter: Task completed successfully'
     )
+
+    return {
+      output: {
+        lede_added_to_groepe: ledeAddedCount,
+        lede_removed_from_groepe: ledeRemovedCount,
+        status: 'success',
+      },
+    }
   } catch (error) {
-    payload.logger.error('syncGroepeWhereFilter: Fatal error:', error)
+    payload.logger.error('syncGroepeWhereFilter: Fatal error:')
     throw error
   }
 }

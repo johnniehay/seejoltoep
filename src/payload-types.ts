@@ -243,6 +243,7 @@ export interface Config {
     system_settings: SystemSettings;
     google_sheets_settings: GoogleSheetsSetting;
     sas_import_settings: SasImportSetting;
+    'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
@@ -251,6 +252,7 @@ export interface Config {
     system_settings: SystemSettingsSelect<false> | SystemSettingsSelect<true>;
     google_sheets_settings: GoogleSheetsSettingsSelect<false> | GoogleSheetsSettingsSelect<true>;
     sas_import_settings: SasImportSettingsSelect<false> | SasImportSettingsSelect<true>;
+    'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -1153,6 +1155,7 @@ export interface Product {
   priceInZAR?: number | null;
   relatedProducts?: (string | Product)[] | null;
   listed?: boolean | null;
+  barcode?: string | null;
   customInputs?: {
     lidnommer?: boolean | null;
     lidnommerRequired?: boolean | null;
@@ -2000,6 +2003,15 @@ export interface PayloadJob {
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
+  meta?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3116,6 +3128,7 @@ export interface ProductsSelect<T extends boolean = true> {
   priceInZAR?: T;
   relatedProducts?: T;
   listed?: T;
+  barcode?: T;
   customInputs?:
     | T
     | {
@@ -3320,6 +3333,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
+  meta?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3553,6 +3567,24 @@ export interface SasImportSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats".
+ */
+export interface PayloadJobsStat {
+  id: string;
+  stats?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -3658,6 +3690,16 @@ export interface SasImportSettingsSelect<T extends boolean = true> {
   kampId?: T;
   kampNaam?: T;
   inskrywings_link?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs-stats_select".
+ */
+export interface PayloadJobsStatsSelect<T extends boolean = true> {
+  stats?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
