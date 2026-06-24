@@ -26,8 +26,8 @@ export default async function CheckedInDisplay({ params: paramsPromise }: Args) 
   return (
     <div className="flex flex-col items-center gap-4 p-8">
       <IconCheck size={"20vh"}/>
-      <h1 className="text-3xl font-bold text-center">Dankie vir die inklok</h1>
-      <h2 className="text-xl font-semibold text-muted-foreground">at</h2>
+      <h1 className="text-3xl font-bold text-center">Dankie vir die {inklok.tipe === "uit"?"uit":"in"}klok</h1>
+      <h2 className="text-xl font-semibold text-muted-foreground">by</h2>
       <h2 className="text-2xl font-bold text-center">{asNotID(inklok.presensie).naam}</h2>
       {lid ? <h3 className="text-xl font-bold">{lid.naam}</h3> : <h3 className="text-xl font-bold">{ingestuurDeur.name}</h3>}
       {divisie && <h3 className="text-lg font-semibold text-muted-foreground">{divisie.naam}</h3>}

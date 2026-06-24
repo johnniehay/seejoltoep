@@ -9,12 +9,18 @@ export default function ScanListener({
   ledeMap,
   syncHook,
   scanTipe,
-  currentLocation
+  currentLocation,
+  notesRequired,
+  onScanTriggerNotes,
+  isNotesDialogOpen
 }: {
   ledeMap: Record<string, string>,
   syncHook: ReturnType<typeof useScanSync>,
   scanTipe: 'in' | 'uit',
-  currentLocation?: [number, number]
+  currentLocation?: [number, number],
+  notesRequired: boolean,
+  onScanTriggerNotes: (lidId: string, lidName: string, tipe: 'in' | 'uit', currentLocation?: [number, number]) => void,
+  isNotesDialogOpen: boolean
 }) {
   const { qrtext, setQrtext } = useContext(QRmodalContext)
   const [result, setResult] = useState<{success: boolean, msg: string} | null>(null)
@@ -22,30 +28,44 @@ export default function ScanListener({
   const { addScan, pendingCount, isOnline } = syncHook
 
   useEffect(() => {
-    if (qrtext && !processingRef.current) {
+    if (qrtext && !processingRef.current && !isNotesDialogOpen) { // Only process if notes dialog is not open
       const process = async () => {
         processingRef.current = true
         // Extract ID: Expecting .../lid/<id>
-        const match = qrtext.match(/\/lid\/([0-9]{5,6})/)
+        const match = qrtext.match(/(?:\/lid\/)?([0-9]{5,6})/)
         const lidid = match ? match[1] : null
-        setQrtext("")
+        setQrtext("") // Clear QR text immediately to prevent re-processing
+
         if (lidid) {
             const lidName = ledeMap[lidid] || "Onbekende Lid";
-            const res = await addScan(lidid, lidName, scanTipe, currentLocation);
-            setResult(res)
+            if (notesRequired) {
+              onScanTriggerNotes(lidid, lidName, scanTipe, currentLocation);
+              setResult(null); // Clear previous result
+              // Do not re-open scanner here; ScanContainer will handle it after notes dialog closes
+              setTimeout(() => {
+                processingRef.current = false
+              }, 1500) // Still reset processingRef after a short delay
+            } else {
+              const res = await addScan(lidid, lidName, scanTipe, currentLocation);
+              setResult(res);
+              // Re-open scanner after 1.5s
+              setTimeout(() => {
+                  setQrtext(null)
+                  processingRef.current = false
+              }, 1500)
+            }
         } else {
             setResult({ success: false, msg: "Invalid QR Code Format" })
+            // Re-open scanner after 1.5s for invalid format
+            setTimeout(() => {
+                setQrtext(null)
+                processingRef.current = false
+            }, 1500)
         }
-
-        // Rapid fire: Re-open scanner after 1.5s
-        setTimeout(() => {
-            setQrtext(null)
-            processingRef.current = false
-        }, 1500)
       }
       process()
     }
-  }, [qrtext, setQrtext, addScan, ledeMap, scanTipe, currentLocation])
+  }, [qrtext, setQrtext, addScan, ledeMap, scanTipe, currentLocation, notesRequired, onScanTriggerNotes, isNotesDialogOpen]) // Add isNotesDialogOpen to dependencies
 
   return (
     <div className="flex flex-col items-center gap-6 p-8 max-w-md mx-auto">

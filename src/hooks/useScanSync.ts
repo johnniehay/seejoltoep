@@ -11,7 +11,7 @@ type InitialInklok = {
 
 export function useScanSync(
   presensieId: string,
-  scanAction: (lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number]) => Promise<{ success: boolean; msg: string }>,
+  scanAction: (lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number], notes?: string) => Promise<{ success: boolean; msg: string }>,
   initialInklokke: InitialInklok[],
   onSyncComplete?: () => Promise<void> | void
 ) {
@@ -75,7 +75,7 @@ export function useScanSync(
     if (pending.length > 0) {
       for (const scan of pending) {
         try {
-          const res = await scanAction(scan.lidId, scan.tipe, scan.scan_time, scan.gps);
+          const res = await scanAction(scan.lidId, scan.tipe, scan.scan_time, scan.gps, scan.notes);
           if (res.success) {
                await db.scans.update(scan.id!, { synced: 1 });
           }
@@ -91,7 +91,7 @@ export function useScanSync(
   // Auto-sync when coming online
   useEffect(() => { if (isOnline) sync(); }, [isOnline, sync]);
 
-  const addScan = async (lidId: string, lidName: string, tipe: 'in' | 'uit', gps?: [number, number]): Promise<{ success: boolean; msg: string }> => {
+  const addScan = async (lidId: string, lidName: string, tipe: 'in' | 'uit', gps?: [number, number], notes?: string): Promise<{ success: boolean; msg: string }> => {
     // 1. Store Locally
     const newScanData: Omit<OfflineScan, 'id'> = {
       lidId,
@@ -100,7 +100,8 @@ export function useScanSync(
       synced: 0,
       lidName,
       tipe,
-      gps
+      gps,
+      notes
     };
 
     const id = await db.scans.add(newScanData);
@@ -110,7 +111,7 @@ export function useScanSync(
     // 2. If online, try immediate execution to give real feedback
     if (navigator.onLine) {
       try {
-        const res = await scanAction(lidId, tipe, newScanData.scan_time, gps);
+        const res = await scanAction(lidId, tipe, newScanData.scan_time, gps, notes);
         if (res.success) {
           await db.scans.update(id, { synced: 1 });
           setPresensieScans(prev => prev.map(s => s.id === id ? { ...s, synced: 1 } : s));

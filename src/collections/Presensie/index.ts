@@ -38,6 +38,7 @@ export const Presensie: CollectionConfig<"presensie"> = {
     {name:"presensie_tipe", type: "select",required:true,options:["bus","wagstaan","divisie"]},
     {name:"sigbaar_vir", type:"relationship", relationTo:"groepe", hasMany:true },
     {name:"self_inklok", type:"checkbox", required:true, defaultValue:false},
+    {name:"notes_required", type:"checkbox", required:true, defaultValue:false, label: "Notes Required"},
     {name:"inklokke", type:"join", collection: "inklokke", on: "presensie",maxDepth: 2},
     {
       type: 'ui',

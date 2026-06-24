@@ -9,18 +9,21 @@ import { IconCloudUpload, IconLogin, IconLogout, IconCheck } from '@tabler/icons
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea'; // Assuming you have a Textarea component
 
 interface ScanContainerProps {
   presensieId: string;
   presensieNaam: string;
   initialInklokke: { id: string; lid: { id: string; naam?: string | null; van?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
   expectedLede: Record<string, {id: string, naam: string; van: string}>;
-  scanAction: (lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number]) => Promise<{ success: boolean; msg: string }>;
+  scanAction: (lidid: string, tipe: 'in' | 'uit', time: number, gps?: [number, number], notes?: string) => Promise<{ success: boolean; msg: string }>;
   fetchDataAction: (id: string) => Promise<{
       presensieNaam: string | null | undefined;
       expectedLede: Record<string, {id: string, naam: string; van: string}>;
       initialInklokke: { id: string; lid: { id: string; naam?: string | null; van?: string | null }; tipe: 'in' | 'uit'; scan_time: number }[];
+      notesRequired: boolean;
   } | {error: string} | null>;
+  notesRequired: boolean;
 }
 
 export default function ScanContainer({
@@ -30,6 +33,7 @@ export default function ScanContainer({
   expectedLede,
   scanAction,
   fetchDataAction,
+  notesRequired,
 }: ScanContainerProps) {
   const [serverInklokke, setServerInklokke] = useState(initialInklokke);
   const [expectedLedeState, setExpectedLedeState] = useState(expectedLede);
@@ -41,6 +45,11 @@ export default function ScanContainer({
   const [permissionState, setPermissionState] = useState<'pending' | 'granted' | 'denied'>('pending');
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<[number, number] | undefined>(undefined);
+
+  // Notes specific state
+  const [showNotesDialog, setShowNotesDialog] = useState(false);
+  const [pendingNotesScan, setPendingNotesScan] = useState<{lidId: string, naam: string, tipe: 'in' | 'uit'} | null>(null);
+  const [notesInput, setNotesInput] = useState('');
 
 
   const refreshData = useCallback(async () => {
@@ -169,7 +178,10 @@ export default function ScanContainer({
 
 
   const handleManualClick = (lidId: string, naam: string, tipe: 'in' | 'uit') => {
-    if (dontAskAgain) {
+    if (notesRequired) {
+      setPendingNotesScan({ lidId, naam, tipe });
+      setShowNotesDialog(true);
+    } else if (dontAskAgain) {
       syncHook.addScan(lidId, naam, tipe, currentLocation);
     } else {
       setPendingManualScan({ lidId, naam, tipe });
@@ -186,6 +198,20 @@ export default function ScanContainer({
       setPendingManualScan(null);
     }
   };
+
+  const handleNotesSubmit = () => {
+    if (pendingNotesScan) {
+      syncHook.addScan(pendingNotesScan.lidId, pendingNotesScan.naam, pendingNotesScan.tipe, currentLocation, notesInput);
+      setShowNotesDialog(false);
+      setPendingNotesScan(null);
+      setNotesInput('');
+    }
+  };
+
+  const handleScanTriggerNotes = useCallback((lidId: string, lidName: string, tipe: 'in' | 'uit', location?: [number, number]) => {
+    setPendingNotesScan({ lidId, naam: lidName, tipe });
+    setShowNotesDialog(true);
+  }, []);
 
   const handlePermissionRequest = () => {
     setShowPermissionDialog(false);
@@ -231,7 +257,15 @@ export default function ScanContainer({
         showZoomSliderIfSupported
         defaultZoomValueIfSupported={1}
       >
-        <ScanListener ledeMap={ledeMap} syncHook={syncHook} scanTipe={scanTipe} currentLocation={currentLocation} />
+        <ScanListener
+          ledeMap={ledeMap}
+          syncHook={syncHook}
+          scanTipe={scanTipe}
+          currentLocation={currentLocation}
+          notesRequired={notesRequired}
+          onScanTriggerNotes={handleScanTriggerNotes}
+          isNotesDialogOpen={showNotesDialog} // Pass the state here
+        />
       </QRScannerModalProvider>
 
       <div className="w-full max-w-md p-4 bg-muted rounded-lg mb-8">
@@ -330,6 +364,32 @@ export default function ScanContainer({
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>Kanselleer</Button>
             <Button onClick={confirmManual}>Bevestig</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Notes Dialog */}
+      <Dialog open={showNotesDialog} onOpenChange={setShowNotesDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Voeg Notas by vir {pendingNotesScan?.naam}</DialogTitle>
+            <DialogDescription>
+              Verskaf asseblief notas vir hierdie {pendingNotesScan?.tipe === 'in' ? 'inklok' : 'uitklok'}.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="Tik jou notas hier..."
+            value={notesInput}
+            onChange={(e) => setNotesInput(e.target.value)}
+            rows={5}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowNotesDialog(false);
+              setNotesInput('');
+              setPendingNotesScan(null);
+            }}>Kanselleer</Button>
+            <Button onClick={handleNotesSubmit}>Stoor Notas & Bevestig</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

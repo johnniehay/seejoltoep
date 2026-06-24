@@ -10,6 +10,7 @@ export interface OfflineScan {
   lidName?: string;
   tipe: 'in' | 'uit';
   gps?: [number, number];
+  notes?: string; // Added notes field
 }
 
 export class InklokDatabase extends Dexie {

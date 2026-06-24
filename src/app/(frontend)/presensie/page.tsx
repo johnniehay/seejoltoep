@@ -31,18 +31,24 @@ export default async function PresensiePage() {
               <CardTitle>{presensie.naam}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <p className="text-sm text-muted-foreground">Type: {presensie.presensie_tipe}</p>
               <Button asChild variant="outline" className="w-full">
                 <Link href={`/inklok/${presensie.id}/scan`}>
                   Scan Page
                 </Link>
               </Button>
               { presensie.self_inklok && (
-                <Button asChild className="w-full">
-                  <Link href={`/inklok/${presensie.id}`}>
-                    Self Inklok
-                  </Link>
-                </Button>
+                <>
+                  <Button asChild className="w-full">
+                    <Link href={`/inklok/${presensie.id}`}>
+                      Self Inklok
+                    </Link>
+                  </Button>
+                  <Button asChild variant="secondary" className="w-full">
+                    <Link href={`/inklok/${presensie.id}/out`}>
+                      Self Uitklok
+                    </Link>
+                  </Button>
+                </>
               )}
             </CardContent>
           </Card>

@@ -240,6 +240,7 @@ export interface Config {
     header: Header;
     footer: Footer;
     system_beursies: SystemBeursies;
+    system_settings: SystemSettings;
     google_sheets_settings: GoogleSheetsSetting;
     sas_import_settings: SasImportSetting;
   };
@@ -247,6 +248,7 @@ export interface Config {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     system_beursies: SystemBeursiesSelect<false> | SystemBeursiesSelect<true>;
+    system_settings: SystemSettingsSelect<false> | SystemSettingsSelect<true>;
     google_sheets_settings: GoogleSheetsSettingsSelect<false> | GoogleSheetsSettingsSelect<true>;
     sas_import_settings: SasImportSettingsSelect<false> | SasImportSettingsSelect<true>;
   };
@@ -257,6 +259,7 @@ export interface Config {
   user: User;
   jobs: {
     tasks: {
+      'sync-groepe-where-filter': TaskSyncGroepeWhereFilter;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -1476,6 +1479,7 @@ export interface Presensie {
   presensie_tipe: 'bus' | 'wagstaan' | 'divisie';
   sigbaar_vir?: (string | Groepe)[] | null;
   self_inklok: boolean;
+  notes_required: boolean;
   inklokke?: {
     docs?: (string | Inklokke)[];
     hasNextPage?: boolean;
@@ -1502,6 +1506,7 @@ export interface Inklokke {
    * @maxItems 2
    */
   gps?: [number, number] | null;
+  notes?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1958,7 +1963,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'sync-groepe-where-filter' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1991,7 +1996,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'sync-groepe-where-filter' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -2680,6 +2685,7 @@ export interface PresensieSelect<T extends boolean = true> {
   presensie_tipe?: T;
   sigbaar_vir?: T;
   self_inklok?: T;
+  notes_required?: T;
   inklokke?: T;
   verwagte_lede?: T;
   updatedAt?: T;
@@ -2697,6 +2703,7 @@ export interface InklokkeSelect<T extends boolean = true> {
   tipe?: T;
   scan_time?: T;
   gps?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3482,6 +3489,19 @@ export interface SystemBeursies {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system_settings".
+ */
+export interface SystemSettings {
+  id: string;
+  /**
+   * Wanneer geaktiveer, sal die stelsel elke 5 minute lede outomaties by groepe voeg of verwyder gebaseerd op hulle "add_lede_where" filters.
+   */
+  sync_groepe_where_filter_enabled?: boolean | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "google_sheets_settings".
  */
 export interface GoogleSheetsSetting {
@@ -3595,6 +3615,16 @@ export interface SystemBeursiesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "system_settings_select".
+ */
+export interface SystemSettingsSelect<T extends boolean = true> {
+  sync_groepe_where_filter_enabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "google_sheets_settings_select".
  */
 export interface GoogleSheetsSettingsSelect<T extends boolean = true> {
@@ -3641,6 +3671,14 @@ export interface CollectionsWidget {
     [k: string]: unknown;
   };
   width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSync-groepe-where-filter".
+ */
+export interface TaskSyncGroepeWhereFilter {
+  input?: unknown;
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -5,13 +5,14 @@ import { getPayloadSession } from "payload-authjs";
 import type { Inklokke, Lede } from "@/payload-types";
 import { getID } from "@/utilities/getID";
 
-export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time, gps} : {
+export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time, gps, notes} : {
   presensieid: string,
   divisieid?: string,
   lidid: string,
   tipe?: 'in' | 'uit',
   scan_time: string,
-  gps?: [number, number]
+  gps?: [number, number],
+  notes?: string
 }) {
   const payload = await getPayload({ config: configPromise })
   const session = await getPayloadSession()
@@ -47,7 +48,8 @@ export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_t
       ingestuur_deur:userid,
       tipe,
       scan_time: scan_time,
-      gps
+      gps,
+      notes
     },
     depth:1
   })
@@ -126,6 +128,7 @@ export async function fetchPresensieData(presensieid: string) {
   return {
     presensieNaam: presensie.naam,
     expectedLede: expectedLedeByLidnommer,
-    initialInklokke
+    initialInklokke,
+    notesRequired: presensie.notes_required || false,
   }
 }

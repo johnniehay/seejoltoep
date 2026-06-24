@@ -42,6 +42,11 @@ export const Inklokke: CollectionConfig<"inklokke"> = {
       name: 'gps',
       type: 'point',
       label: 'GPS Location',
+    },
+    {
+      name: 'notes',
+      type: 'textarea',
+      label: 'Notes',
     }
   ],
 }
