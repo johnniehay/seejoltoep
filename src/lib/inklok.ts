@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import { getPayloadSession } from "payload-authjs";
 import type { Inklokke, Lede } from "@/payload-types";
 import { getID } from "@/utilities/getID";
+import { getDocNotID } from "@/utilities/getDocNotID";
 
 export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time, gps, notes} : {
   presensieid: string,
@@ -60,7 +61,8 @@ export async function fetchPresensieData(presensieid: string) {
   const payload = await getPayload({ config: configPromise })
   const session = await getPayloadSession()
   if (!session) return {error:"Nie ingelog"}
-  const user_selflid = session.user.self_lid
+  let user_selflid = session.user.self_lid
+  if (user_selflid && typeof user_selflid === "string") user_selflid = getDocNotID(await payload.findByID({collection:"lede", id:user_selflid}))
   const user_selflid_groepeids = (user_selflid && typeof user_selflid !== "string" && user_selflid.groepe) ? user_selflid.groepe.map(getID) : []
   // if (!await hasPermission("view:presensie")) return {error:"Toegang verbode"}
 
