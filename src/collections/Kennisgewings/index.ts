@@ -2,6 +2,7 @@ import { CollectionConfig } from "payload";
 import { checkPermission, checkPermissionOrWhere } from "@/access/checkPermission";
 import { sendPushNotification } from "./hooks/sendPushNotification";
 import { wherelidgroepeinfo } from "@/collections/Lede";
+import { hasPermission } from "@/lib/permissions";
 
 export const Kennisgewings: CollectionConfig<"kennisgewings"> = {
   slug: "kennisgewings",
@@ -18,6 +19,7 @@ export const Kennisgewings: CollectionConfig<"kennisgewings"> = {
   admin:{
     defaultColumns: ['title', 'body', 'groepe'],
     baseFilter: async ({req: payloadreq}) => {
+      if (await hasPermission("update:kennisgewing")) return {}
       const lgi = await wherelidgroepeinfo(payloadreq)
       return lgi ? lgi : null
     },
