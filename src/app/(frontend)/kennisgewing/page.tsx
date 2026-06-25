@@ -5,6 +5,7 @@ import { KennisgewingCard } from "@/components/kennisgewings/KennisgewingCard";
 import { KennisgewingsList } from "@/components/kennisgewings/KennisgewingList";
 import PushNotificationSettings from "@/components/push-notification-settings";
 import React from "react";
+import Link from "next/link";
 
 
 export default async function KennisgewingPage({
@@ -30,6 +31,16 @@ export default async function KennisgewingPage({
     }
   } else {
     // return (<KennisgewingsList notificationSettingsSlot={<></>}/>)
-    return (<KennisgewingsList notificationSettingsSlot={<PushNotificationSettings compact={true}/>}/>)
+    return (<>
+      <KennisgewingsList notificationSettingsSlot={<PushNotificationSettings compact={true}/>}/>
+      <footer className="mt-12 pt-6 border-t text-center">
+        <Link
+          href="/"
+          className="text-blue-600 hover:underline text-sm"
+        >
+          Terug na Interaksie Paneel
+        </Link>
+      </footer>
+    </>)
   }
 }
