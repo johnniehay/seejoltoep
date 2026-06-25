@@ -318,22 +318,20 @@ export default function ScanContainer({
                     <div className="flex items-center gap-2">
                       <span>{lid.id} – {lid.naam ?? lid.id}</span>
                       {scanData?.synced === 0 && <IconCloudUpload size={18} className="text-orange-500" title="Hangend" />}
-                    </div>
-                    <div className="flex items-center gap-1">
                       <Link href={`/lid/${lid.id}`} passHref>
                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-100 hover:text-blue-700">
                           <IconInfoCircle size={18} />
                         </Button>
                       </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
-                        onClick={() => handleManualClick(lid.id, lid.naam || 'Onbekend', 'in')}
-                      >
-                        <IconLogin size={18} />
-                      </Button>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
+                      onClick={() => handleManualClick(lid.id, lid.naam || 'Onbekend', 'in')}
+                    >
+                      <IconLogin size={18} />
+                    </Button>
                   </div>
                 </li>
               );
@@ -346,22 +344,20 @@ export default function ScanContainer({
                   <div className="flex items-center gap-2">
                     <span>{lidId} – {data.naam} (Uit)</span>
                     {data.synced === 0 && (<IconCloudUpload size={18} className="text-orange-500" title="Hangend" />)}
-                  </div>
-                  <div className="flex items-center gap-1">
                     <Link href={`/lid/${lidId}`} passHref>
                       <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-100 hover:text-blue-700">
                         <IconInfoCircle size={18} />
                       </Button>
                     </Link>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
-                      onClick={() => handleManualClick(lidId, data.naam, 'in')}
-                    >
-                      <IconLogin size={18} />
-                    </Button>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
+                    onClick={() => handleManualClick(lidId, data.naam, 'in')}
+                  >
+                    <IconLogin size={18} />
+                  </Button>
                 </div>
               </li>
             ))}
@@ -438,6 +434,7 @@ export default function ScanContainer({
             value={notesInput}
             onChange={(e) => setNotesInput(e.target.value)}
             rows={5}
+            className="bg-secondary"
           />
           <DialogFooter>
             <Button variant="outline" onClick={() => {

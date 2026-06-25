@@ -71,7 +71,7 @@ export default async function Uitklok({ params: paramsPromise }: Args) {
             <input type="hidden" name="lidId" value={lid} />
             {divisie && <input type="hidden" name="divisieId" value={divisie} />}
             <label htmlFor="notes" className="block text-lg font-medium text-gray-700 mb-2">Notes:</label>
-            <textarea id="notes" name="notes" rows={5} className="border border-gray-300 p-2 w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+            <textarea id="notes" name="notes" rows={5} className="border border-gray-300 p-2 w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500  bg-secondary"></textarea>
             <button type="submit" className="mt-4 p-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Check Out</button>
           </form>
         </div>
@@ -79,7 +79,7 @@ export default async function Uitklok({ params: paramsPromise }: Args) {
     } else {
       const inklokres = await inklok({ presensieid: presensie.id, divisieid: divisie, lidid: lid, tipe: 'uit', scan_time: new Date().toISOString() }) // Changed to 'uit'
       if ("error" in inklokres) return <h1>Uitklok failed: {inklokres.error}</h1>
-      redirect(`success/${inklokres.inklok.id}`)
+      redirect(`/inklok/success/${inklokres.inklok.id}`)
     }
   }
 

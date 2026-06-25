@@ -33,7 +33,7 @@ export default async function PresensiePage() {
             <CardContent className="flex flex-col gap-4">
               <Button asChild variant="outline" className="w-full">
                 <Link href={`/inklok/${presensie.id}/scan`}>
-                  Scan Page
+                  Skandeer Blad
                 </Link>
               </Button>
               { presensie.self_inklok && (
