@@ -25,7 +25,16 @@ export default async function KennisgewingPage({
         overrideAccess: false,
         user: user,
       })
-      return (<KennisgewingCard notice={result} defaultOpen={true}/>)
+      return (<>
+        <KennisgewingCard notice={result} defaultOpen={true}/><footer className="mt-12 pt-6 border-t text-center">
+        <Link
+          href="/"
+          className="text-blue-600 hover:underline text-sm"
+        >
+          Terug na Interaksie Paneel
+        </Link>
+      </footer>
+    </>)
     } catch (e) {
       return (<h1>Kennisgewingid nie gevind nie</h1>)
     }
