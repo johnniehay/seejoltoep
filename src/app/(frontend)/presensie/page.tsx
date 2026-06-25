@@ -54,6 +54,17 @@ export default async function PresensiePage() {
           </Card>
         ))}
       </div>
+
+      {/* Embedded /presensies as an iframe */}
+      <div className="mt-10">
+        <iframe
+          src="/presensies" // Updated src to the new list page
+          width="100%"
+          height="2500px" // Adjust height as needed
+          style={{ border: '1px solid #ccc', borderRadius: '8px' }}
+          title="Embedded Presensies"
+        ></iframe>
+      </div>
     </div>
   )
 }

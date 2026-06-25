@@ -20,6 +20,9 @@ export const BeursieManagementPermissions = ["create:beursie", "update:beursie",
 export const BeursieTransaksieAdminPermissions = ["update:beursietransaksie", "remove:beursietransaksie", "remove:beursie",] as const
 export const FinansiesPermissions = ["view:finansies"] as const
 export const WinkelManagementPermissions = ["admin:winkel"] as const
+export const LedeViewPermission = ["view:lede:contacts", "view:lede:medies", "view:lede:page"] as const
+
+export const KamperPermissions = [...LedeViewPermission] as const
 
 // export const MCPermissions = ["view:queuing:status", ...VolunteerPermissions] as const
 // export const TechnicalPermissions = ["view:queuing:status", "view:checkin", "view:judging", "view:scoring",...VolunteerPermissions]
@@ -39,11 +42,11 @@ export const WinkelManagementPermissions = ["admin:winkel"] as const
 // export const AllPermissions = [...VolunteerAdminPermissions, ...JudgeAdvisorPermissions, ...FieldManagerPermissions, ...DivisieAdminPermissions, ...AdminPermissions, ...AllDivisiePermissions, ...NonPublicPermissions] as const
 
 
-export const AlgemeneOffisierPermission = ["view:offisier",...NonPublicPermissions] as const
+export const AlgemeneOffisierPermission = ["view:offisier",...KamperPermissions,...NonPublicPermissions] as const
 
 export const OuerPermissions = [...NonPublicPermissions] as const
-export const VerkennerPermissions = [...NonPublicPermissions] as const
-export const PdPermissions = [...NonPublicPermissions] as const
+export const VerkennerPermissions = [...KamperPermissions,...NonPublicPermissions] as const
+export const PdPermissions = [...KamperPermissions,...NonPublicPermissions] as const
 export const KanidaatJeuglidPermissions = [...NonPublicPermissions] as const
 export const KanidaatVolwassenePermissions = [...NonPublicPermissions] as const
 

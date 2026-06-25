@@ -1,15 +1,16 @@
 'use client';
 
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import type { Lede } from '@/payload-types';
 import { QRScannerModalProvider } from '@/components/QRScanner';
 import ScanListener from './ScanListener';
 import { useScanSync } from '@/hooks/useScanSync';
-import { IconCloudUpload, IconLogin, IconLogout, IconCheck } from '@tabler/icons-react';
+import { IconCloudUpload, IconLogin, IconLogout, IconCheck, IconInfoCircle } from '@tabler/icons-react'; // Import IconInfoCircle
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea'; // Assuming you have a Textarea component
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 interface ScanContainerProps {
   presensieId: string;
@@ -45,7 +46,7 @@ export default function ScanContainer({
   const [permissionState, setPermissionState] = useState<'pending' | 'granted' | 'denied'>('pending');
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
   const [currentLocation, setCurrentLocation] = useState<[number, number] | undefined>(undefined);
-
+  const [manualLidIdInput, setManualLidIdInput] = useState('');
   // Notes specific state
   const [showNotesDialog, setShowNotesDialog] = useState(false);
   const [pendingNotesScan, setPendingNotesScan] = useState<{lidId: string, naam: string, tipe: 'in' | 'uit'} | null>(null);
@@ -228,6 +229,25 @@ export default function ScanContainer({
     }
   };
 
+  const handleManualLidIdSubmit = () => {
+    if (manualLidIdInput.trim() === '') return;
+
+    const lidId = manualLidIdInput.trim();
+    const lidName = ledeMap[lidId] || 'Onbekend'; // Try to get name from expectedLedeState, otherwise 'Onbekend'
+
+    if (notesRequired) {
+      setPendingNotesScan({ lidId, naam: lidName, tipe: scanTipe });
+      setShowNotesDialog(true);
+    } else if (dontAskAgain) {
+      syncHook.addScan(lidId, lidName, scanTipe, currentLocation);
+    } else {
+      setPendingManualScan({ lidId, naam: lidName, tipe: scanTipe });
+      setTempDontAsk(false);
+      setShowConfirmDialog(true);
+    }
+    setManualLidIdInput(''); // Clear input after submission
+  };
+
   return (
     <div className="min-h-screen bg-background py-6 px-4 flex flex-col items-center">
       <h1 className="text-2xl font-bold text-center mb-2">Inklok Skandeerder</h1>
@@ -268,6 +288,23 @@ export default function ScanContainer({
         />
       </QRScannerModalProvider>
 
+      {/* Manual Lid ID Entry */}
+      <div className="w-full max-w-md p-4 bg-muted rounded-lg mb-8 flex items-center space-x-2">
+        <Input
+          type="text"
+          placeholder="Handmatige Lid ID"
+          value={manualLidIdInput}
+          onChange={(e) => setManualLidIdInput(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              handleManualLidIdSubmit();
+            }
+          }}
+          className="flex-grow"
+        />
+        <Button onClick={handleManualLidIdSubmit}>Voeg by</Button>
+      </div>
+
       <div className="w-full max-w-md p-4 bg-muted rounded-lg mb-8">
         <h3 className="text-lg font-semibold mb-2">Lede Status</h3>
         {(sortedMissingExpected.length > 0 || sortedUitScans.length > 0 || sortedPresentScans.length > 0) ? (
@@ -282,14 +319,21 @@ export default function ScanContainer({
                       <span>{lid.id} – {lid.naam ?? lid.id}</span>
                       {scanData?.synced === 0 && <IconCloudUpload size={18} className="text-orange-500" title="Hangend" />}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
-                      onClick={() => handleManualClick(lid.id, lid.naam || 'Onbekend', 'in')}
-                    >
-                      <IconLogin size={18} />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Link href={`/lid/${lid.id}`} passHref>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-100 hover:text-blue-700">
+                          <IconInfoCircle size={18} />
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
+                        onClick={() => handleManualClick(lid.id, lid.naam || 'Onbekend', 'in')}
+                      >
+                        <IconLogin size={18} />
+                      </Button>
+                    </div>
                   </div>
                 </li>
               );
@@ -303,14 +347,21 @@ export default function ScanContainer({
                     <span>{lidId} – {data.naam} (Uit)</span>
                     {data.synced === 0 && (<IconCloudUpload size={18} className="text-orange-500" title="Hangend" />)}
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
-                    onClick={() => handleManualClick(lidId, data.naam, 'in')}
-                  >
-                    <IconLogin size={18} />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Link href={`/lid/${lidId}`} passHref>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-100 hover:text-blue-700">
+                        <IconInfoCircle size={18} />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-green-100 hover:text-green-700"
+                      onClick={() => handleManualClick(lidId, data.naam, 'in')}
+                    >
+                      <IconLogin size={18} />
+                    </Button>
+                  </div>
                 </div>
               </li>
             ))}
@@ -322,6 +373,11 @@ export default function ScanContainer({
                   <div className="flex items-center gap-2">
                     <span>{lidId} – {data.naam}</span>
                     {data.synced === 0 && (<IconCloudUpload size={18} className="text-orange-500" title="Hangend" />)}
+                    <Link href={`/lid/${lidId}`} passHref>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-blue-100 hover:text-blue-700">
+                        <IconInfoCircle size={18} />
+                      </Button>
+                    </Link>
                   </div>
                   <Button
                     variant="ghost"
