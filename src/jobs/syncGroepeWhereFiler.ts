@@ -180,7 +180,7 @@ export const syncGroepeWhereFilterTask: TaskHandler<'sync-groepe-where-filter'> 
         )
       } catch (error) {
         payload.logger.error(
-          `syncGroepeWhereFilter: Error processing groep ${groepId}: ${error.message}`,
+          `syncGroepeWhereFilter: Error processing groep ${groepId}: ${error?.message}`,
         )
         // Continue with next groep rather than failing entire task
       }

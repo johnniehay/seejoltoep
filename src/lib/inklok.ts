@@ -2,9 +2,10 @@
 import { getPayload } from "payload";
 import configPromise from '@payload-config'
 import { getPayloadSession } from "payload-authjs";
-import type { Inklokke, Lede } from "@/payload-types";
+import type { Inklokke, Lede, Presensie } from "@/payload-types";
 import { getID } from "@/utilities/getID";
 import { getDocNotID } from "@/utilities/getDocNotID";
+import { hasPermission } from "./permissions";
 
 export async function inklok({presensieid, divisieid, lidid, tipe = 'in', scan_time, gps, notes} : {
   presensieid: string,
@@ -133,4 +134,65 @@ export async function fetchPresensieData(presensieid: string) {
     initialInklokke,
     notesRequired: presensie.notes_required || false,
   }
+}
+
+export async function fetchDashboardData(presensieid: string): Promise<{
+  presensie: Presensie | null;
+  inklokke: Inklokke[];
+  error?: string;
+}> {
+  const payload = await getPayload({ config: configPromise });
+  const session = await getPayloadSession();
+  const user = session?.user;
+
+  if (!user) {
+    return { presensie: null, inklokke: [], error: "Not signed in" };
+  }
+
+  const canViewInklokke = await hasPermission("view:inklok");
+  if (!canViewInklokke) {
+    return { presensie: null, inklokke: [], error: "Toegang verbode: Jy het nie toestemming om inklokke te sien nie." };
+  }
+
+  let presensie: Presensie | null = null;
+  try {
+    presensie = await payload.findByID({
+      collection: 'presensie',
+      id: presensieid,
+      overrideAccess: false,
+      user: user,
+    });
+  } catch (error) {
+    console.error("Error fetching presensie:", error);
+    return { presensie: null, inklokke: [], error: "Presensie nie gevind nie." };
+  }
+
+  if (!presensie) {
+    return { presensie: null, inklokke: [], error: "Presensie nie gevind nie." };
+  }
+
+  let inklokke;
+  try {
+    inklokke = await payload.find({
+      collection: 'inklokke',
+      where: {
+        presensie: {
+          equals: presensieid,
+        },
+      },
+      depth: 2, // Populate lid and ingestuur_deur
+      limit: 0, // No limit
+      sort: '-scan_time',
+      overrideAccess: false,
+      user: user,
+    });
+  } catch (error) {
+    console.error("Error fetching inklokke:", error);
+    return { presensie, inklokke: [], error: "Fout tydens die haal van inklokke." };
+  }
+
+  return {
+    presensie,
+    inklokke: inklokke.docs,
+  };
 }
