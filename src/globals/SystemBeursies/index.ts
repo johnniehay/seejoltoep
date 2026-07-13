@@ -65,5 +65,13 @@ export const SystemBeursies: GlobalConfig = {
       required: true,
       admin: { description: 'Hierdie produk word gebruik vir oop betalings op uitstaande beursie balanse.' }
     },
+    {
+      name: 'kantien_beursie',
+      type: 'relationship',
+      relationTo: 'beursies',
+      label: 'Kantien Beursie',
+      required: true,
+      admin: { description: 'Hierdie beursie verteenwoordig die kantien se kontant en word gebruik vir snoepie transaksies.' }
+    },
   ],
 }

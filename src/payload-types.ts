@@ -3498,6 +3498,10 @@ export interface SystemBeursies {
    * Hierdie produk word gebruik vir oop betalings op uitstaande beursie balanse.
    */
   aanpasbare_kampbetaling_product: string | Product;
+  /**
+   * Hierdie beursie verteenwoordig die kantien se kontant en word gebruik vir snoepie transaksies.
+   */
+  kantien_beursie: string | Beursies;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3641,6 +3645,7 @@ export interface SystemBeursiesSelect<T extends boolean = true> {
   winkel_beursie?: T;
   snoepie_inbetaling_product?: T;
   aanpasbare_kampbetaling_product?: T;
+  kantien_beursie?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
