@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import React from 'react'
 import {
+  IconCertificate,
   IconFirstAidKit,
   IconHelp,
   IconInfoCircle,
@@ -117,11 +118,19 @@ export default async function TempHome() {
               </Link>
             </Button>
           )}
-          {self_lid && (
+          {false && self_lid && (
             <Button asChild className={btnClass} variant="outline">
               <Link href="/qr/my">
                 <IconQrcode size={48} />
                 <span>My QR</span>
+              </Link>
+            </Button>
+          )}
+          {user_divisie && self_lid && (
+            <Button asChild className={btnClass} variant="outline">
+              <Link href={`/lid/${self_lid.id}/sertifikaat`}>
+                <IconCertificate size={48} />
+                <span>My Sertifikaat</span>
               </Link>
             </Button>
           )}
@@ -155,12 +164,12 @@ export default async function TempHome() {
             </ConstructionButton>
           )}
           {user && self_lid && typeof self_lid !== 'string' && self_lid.beursie && (
-            <Button 
-              asChild 
+            <Button
+              asChild
               className={cn(
                 btnClass,
                 (self_beursie_balance || 0) < 0 && 'bg-red-100 text-red-800 border-red-200 hover:bg-red-200'
-              )} 
+              )}
               variant="outline"
             >
               <Link href={`/beursie/${getID(self_lid.beursie)}`}>
