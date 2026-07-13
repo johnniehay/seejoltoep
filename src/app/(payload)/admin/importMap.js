@@ -28,6 +28,7 @@ import { AccountRowLabel as AccountRowLabel_06d0cb594d8f6ba2ac35015f930c882e } f
 import { AddAuthenticatorButton as AddAuthenticatorButton_39ad1cdbf6aa2f97589820b2ab72a1b1 } from 'payload-authjs/components/webauthn'
 import { LinkUsersButton as LinkUsersButton_904e0ac8a1078d70b11f529a217c404c } from '@/collections/Lede/LinkUsersButton'
 import { GeneratePDFButtonServer as GeneratePDFButtonServer_aff145e101aa60804d4a007156ff3092 } from '@/collections/Lede/generatePDFserver'
+import { GenerateCertificatePDFButtonServer as GenerateCertificatePDFButtonServer_e9fc0294c92455e2e5ac67fecb7234b2 } from '@/collections/Lede/generateCertificatePDFserver'
 import { LedeMergeButton as LedeMergeButton_16847b92690b64e7b0879687b2017f18 } from '@/collections/Lede/merge-button'
 import { AddToGroepButton as AddToGroepButton_dcec21b105f41a4fbff64ac3b2e71a74 } from '@/collections/Lede/add-to-groep-button'
 import { LedeActionsButton as LedeActionsButton_e97e8f7ff4fd0ef90d68ee37826e1593 } from '@/collections/Lede/LedeActionsButton'
@@ -89,6 +90,7 @@ export const importMap = {
   "payload-authjs/components/webauthn#AddAuthenticatorButton": AddAuthenticatorButton_39ad1cdbf6aa2f97589820b2ab72a1b1,
   "@/collections/Lede/LinkUsersButton#LinkUsersButton": LinkUsersButton_904e0ac8a1078d70b11f529a217c404c,
   "@/collections/Lede/generatePDFserver#GeneratePDFButtonServer": GeneratePDFButtonServer_aff145e101aa60804d4a007156ff3092,
+  "@/collections/Lede/generateCertificatePDFserver#GenerateCertificatePDFButtonServer": GenerateCertificatePDFButtonServer_e9fc0294c92455e2e5ac67fecb7234b2,
   "@/collections/Lede/merge-button#LedeMergeButton": LedeMergeButton_16847b92690b64e7b0879687b2017f18,
   "@/collections/Lede/add-to-groep-button#AddToGroepButton": AddToGroepButton_dcec21b105f41a4fbff64ac3b2e71a74,
   "@/collections/Lede/LedeActionsButton#LedeActionsButton": LedeActionsButton_e97e8f7ff4fd0ef90d68ee37826e1593,
