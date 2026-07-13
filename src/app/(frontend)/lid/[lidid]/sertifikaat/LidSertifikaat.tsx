@@ -1,4 +1,4 @@
-import { Document, Font, Image, Page, pdf, Text, View } from "@react-pdf/renderer";
+import { Font, Image, Text, View } from "@react-pdf/renderer";
 import type { Lede } from "@/payload-types";
 import { Style } from "@react-pdf/stylesheet";
 
@@ -37,8 +37,8 @@ export const LidSertifikaatPDFView = ({lid:inlid}: {lid:Lede} ) => {
   const lid = {...inlid}
   if (!lid.divisie) return <></>
   if (typeof lid.divisie === 'string') throw "LidSertifikaatPDFView input lid divisie not expanded"
-  // const spesialisasies = cleanAndExtractSpesialisasies(lid.divisie.spesialisasies).join(',\n').toUpperCase()
-  const spesialisasies = ["Selfbehoud", "Voetslaner", "Dienaar-leier"].join(',\n').toUpperCase()
+  const spesialisasies = cleanAndExtractSpesialisasies(lid.divisie.spesialisasies).join(',\n').toUpperCase()
+  // const spesialisasies = ["Selfbehoud", "Voetslaner", "Dienaar-leier"].join(',\n').toUpperCase()
   return (
     // (!!person.team && typeof person.team !== "string" && person.team.name.length > 0 ) &&
     <View style={{position:"absolute", ...positionOffsets[0]}} wrap={false} >
