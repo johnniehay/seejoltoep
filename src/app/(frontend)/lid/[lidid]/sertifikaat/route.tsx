@@ -1,4 +1,4 @@
-import { Document, Font, Page, pdf } from "@react-pdf/renderer";
+import { Document, Page, pdf } from "@react-pdf/renderer";
 import { LidSertifikaatPDFView } from "@/app/(frontend)/lid/[lidid]/sertifikaat/LidSertifikaat";
 import type { Lede } from "@/payload-types";
 import { notFound, redirect } from "next/navigation";
@@ -27,12 +27,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     lid = await payload.findByID({
       collection: 'lede',
       id: lidid,
-      depth: 1 //Include divisie
+      depth: 1 //Include divisie and beursie
       // overrideAccess: false,
       // user: user,
     })
   } catch (error) {
     notFound()
+  }
+
+  // Check wallet balance
+  if (lid && typeof lid.beursie === 'object' && lid.beursie !== null) {
+    const balance = (lid.beursie as any).balance || 0
+    if (balance < 0) {
+      return redirect(`/lid/${lidid}/betaling-benodig`)
+    }
   }
 
   if (!lid) return notFound()

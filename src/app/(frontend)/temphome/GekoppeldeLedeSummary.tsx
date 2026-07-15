@@ -1,6 +1,6 @@
 import React from "react";
 import { auth } from "@/auth";
-import { IconLogin2, IconUsers, IconWallet } from "@tabler/icons-react";
+import { IconCertificate, IconLogin2, IconUsers, IconWallet } from "@tabler/icons-react";
 import Link from "next/link";
 import { Button } from '@/components/ui/button'
 import { AlertParagraph } from "@/app/(frontend)/temphome/ConstructionButton";
@@ -101,6 +101,14 @@ export default async function GekoppeldeLedeSummary() {
                     <p className="text-sm opacity-80">{m.lidnommer}</p>
                   </div>
                   <div className="flex gap-2">
+                  {m.status === 'Gekoppel' && (
+                    <Button size="sm" variant="outline" className="rounded-xl border-current opacity-70 hover:opacity-100" asChild title="Sertifikaat">
+                      <Link href={`/lid/${m.lidnommer}/sertifikaat`}>
+                        <IconCertificate size={16} />
+                        <span className="ml-1 hidden sm:inline">Sertifikaat</span>
+                      </Link>
+                    </Button>
+                  )}
                   {m.divisieId && (
                     <Button size="sm" variant="outline" className="rounded-xl border-current opacity-70 hover:opacity-100" asChild title={m.divisieNaam || 'Divisie'}>
                       <Link href={`/divisie/${m.divisieId}`}>
