@@ -65,7 +65,7 @@ export default async function BetalingBenodigPage({ params }: PageProps) {
           </Button>
         </div>
 
-        <span>of Kontak </span>
+        <span className="text-lg mt-2 mb-8 text-gray-700 leading-relaxed">of Kontak </span>
         <div className="text-lg mt-2 mb-8 text-gray-700 leading-relaxed">
           {systemSettings.betalings_kontak ? (
             <div className="inline-block align-top text-center bg-background not-prose rounded-xl p-1">
