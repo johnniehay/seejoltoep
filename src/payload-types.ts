@@ -3515,6 +3515,24 @@ export interface SystemSettings {
    * Wanneer geaktiveer, sal die stelsel elke 5 minute lede outomaties by groepe voeg of verwyder gebaseerd op hulle "add_lede_where" filters.
    */
   sync_groepe_where_filter_enabled?: boolean | null;
+  /**
+   * Hierdie inligting word gewys wanneer iemand moet betaal (vervang "Seejol Finansies").
+   */
+  betalings_kontak?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3656,6 +3674,7 @@ export interface SystemBeursiesSelect<T extends boolean = true> {
  */
 export interface SystemSettingsSelect<T extends boolean = true> {
   sync_groepe_where_filter_enabled?: T;
+  betalings_kontak?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

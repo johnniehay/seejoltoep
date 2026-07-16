@@ -28,5 +28,13 @@ export const SystemSettings: GlobalConfig = {
         },
       ],
     },
+    {
+      name: 'betalings_kontak',
+      type: 'richText',
+      label: 'Betalings Kontak Inligting',
+      admin: {
+        description: 'Hierdie inligting word gewys wanneer iemand moet betaal (vervang "Seejol Finansies").',
+      },
+    },
   ],
 }

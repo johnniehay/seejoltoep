@@ -68,11 +68,18 @@ export default async function BeursiePage({ params }: PageProps) {
             {formatCurrency(displayBalance)}
           </p>
           {displayBalance < 0 && paymentProductId && lidId && (
-            <PayButton
-              productId={paymentProductId}
-              amount={Math.abs(displayBalance)}
-              lidId={lidId}
-            />
+            <div className="flex flex-col items-center gap-4">
+              <PayButton
+                productId={paymentProductId}
+                amount={Math.abs(displayBalance)}
+                lidId={lidId}
+              />
+              <div className="flex justify-center">
+                <Button asChild variant="outline" className="rounded-xl border-blue-600 text-blue-600 hover:bg-blue-50">
+                  <Link href="/checkout">Bekyk en Betaal Mandjie</Link>
+                </Button>
+              </div>
+            </div>
           )}
         </div>
       </header>

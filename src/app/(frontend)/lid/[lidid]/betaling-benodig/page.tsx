@@ -5,7 +5,9 @@ import { notFound, unauthorized } from 'next/navigation'
 import { auth } from "@/auth"
 import { getID } from "@/utilities/getID"
 import { PayButton } from "@/components/PayButton"
+import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import RichText from "@/components/RichText"
 
 interface PageProps {
   params: Promise<{
@@ -41,6 +43,8 @@ export default async function BetalingBenodigPage({ params }: PageProps) {
   }
 
   const system = await payload.findGlobal({ slug: 'system_beursies' })
+  const systemSettings = await payload.findGlobal({ slug: 'system_settings' })
+
   const paymentProductId = system.aanpasbare_kampbetaling_product ? getID(system.aanpasbare_kampbetaling_product) : null
   const absBalance = Math.abs(balance)
   const formattedBalance = new Intl.NumberFormat('af-ZA', { style: 'currency', currency: 'ZAR' }).format(absBalance)
@@ -54,9 +58,24 @@ export default async function BetalingBenodigPage({ params }: PageProps) {
           Betaal jou uitstaande kampgeld van <span className="font-bold text-red-600">{formattedBalance}</span> deur die toep:
         </p>
         {paymentProductId && <PayButton productId={paymentProductId} amount={absBalance} lidId={lid.id} />}
-        <p className="text-lg mt-8 mb-8 text-gray-700 leading-relaxed">
-          of Kontak Seejol Finansies.
-        </p>
+
+        <div className="mt-4 flex justify-center">
+          <Button asChild variant="outline" className="rounded-xl border-blue-600 text-blue-600 hover:bg-blue-50">
+            <Link href="/checkout">Bekyk en Betaal Mandjie</Link>
+          </Button>
+        </div>
+
+        <span>of Kontak </span>
+        <div className="text-lg mt-2 mb-8 text-gray-700 leading-relaxed">
+          {systemSettings.betalings_kontak ? (
+            <div className="inline-block align-top text-center bg-background not-prose rounded-xl p-1">
+              <RichText data={systemSettings.betalings_kontak} enableGutter={false} />
+            </div>
+          ) : (
+            <span className="font-bold">Seejol Finansies.</span>
+          )}
+        </div>
+
         <div className="mt-8"><Link href="/" className="text-sm text-gray-500 hover:underline">Terug na Interaksiepaneel</Link></div>
       </div>
     </div>
