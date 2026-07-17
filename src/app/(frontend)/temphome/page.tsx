@@ -60,7 +60,7 @@ export default async function TempHome() {
         {/*  */}
         {/*/>*/}
         {/* Gradient fade to transparent at the bottom */}
-        <iframe className="w-full h-[200%] scale-50 origin-top-left ml-[23%]" src={"https://logwork.com/widget/countdown/?text=Dae%20tot%20Seejol%2026%20Junie%20%E2%80%93%205%20Julie%202026&timezone=Africa%2FJohannesburg&width=&style=columns&uid=760869&loc=https://logwork.com/countdown-timer&language=af&textcolor=%23dddddd&date=2026-06-26%2018%3A00&digitscolor=%23dddddd&unitscolor=%23305e96&url=nullsrcdoc"}/>
+        <iframe className="w-full h-[200%] scale-50 origin-top-left ml-[23%]" src={"https://logwork.com/widget/countdown/?text=Dae%20tot%20Seejol%2025%20Junie%20%E2%80%93%204%20Julie%202027&timezone=Africa%2FJohannesburg&width=&style=columns&uid=760869&loc=https://logwork.com/countdown-timer&language=af&textcolor=%23dddddd&date=2027-06-25%2017%3A00&digitscolor=%23dddddd&unitscolor=%23305e96&url=nullsrcdoc"}/>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-50 invisible" />
       </div>
 
@@ -79,6 +79,18 @@ export default async function TempHome() {
         )}
 
         {user && <GekoppeldeLedeSummary />}
+
+        <Button
+          asChild
+          className="h-24 text-xl md:text-2xl font-bold rounded-3xl w-full max-w-6xl shadow-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all"
+          variant="default"
+        >
+          <Link href="https://forms.gle/HTpPd5Bq4p82fuae9" target="_blank" rel="noopener noreferrer">
+            <span className="text-center">
+              Voltooi die Kamp Evalueringsvorm ↗
+            </span>
+          </Link>
+        </Button>
 
         {/* Flexbox container instead of grid */}
         <div className="flex flex-wrap justify-center gap-6 w-full max-w-6xl">
